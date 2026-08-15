@@ -7,6 +7,9 @@ import { pool } from "./db.js";
 import authRoutes from "./routes/auth.routes.js";
 import appointmentTypesRoutes from "./routes/appointmentTypes.routes.js";
 import availabilityRoutes from "./routes/availability.routes.js";
+import blockedDatesRoutes from "./routes/blockedDates.routes.js";
+import availableSlotsRoutes from "./routes/availableSlots.routes.js";
+import appointmentsRoutes from "./routes/appointments.routes.js";
 
 const app = express();
 
@@ -24,6 +27,9 @@ app.use(cookieParser());
 app.use("/api", authRoutes);
 app.use("/api", appointmentTypesRoutes);
 app.use("/api", availabilityRoutes);
+app.use("/api", blockedDatesRoutes);
+app.use("/api", availableSlotsRoutes);
+app.use("/api", appointmentsRoutes);
 
 app.get("/", async (req, res) => {
   try {
