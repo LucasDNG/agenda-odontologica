@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import { pool } from "./db.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
@@ -15,11 +17,24 @@ app.use(
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
+app.use("/api", authRoutes);
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "API Agenda Odontológica funcionando",
-  });
+app.get("/", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+
+    res.json({
+      message: "API Agenda Odontológica funcionando",
+      database: "Neon PostgreSQL conectado",
+      time: result.rows[0].now,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Error conectando con la base de datos",
+    });
+  }
 });
 
 const PORT = 3000;
