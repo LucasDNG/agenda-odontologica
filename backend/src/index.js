@@ -10,6 +10,7 @@ import availabilityRoutes from "./routes/availability.routes.js";
 import blockedDatesRoutes from "./routes/blockedDates.routes.js";
 import availableSlotsRoutes from "./routes/availableSlots.routes.js";
 import appointmentsRoutes from "./routes/appointments.routes.js";
+import adminAppointmentsRoutes from "./routes/adminAppointments.routes.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/api", availabilityRoutes);
 app.use("/api", blockedDatesRoutes);
 app.use("/api", availableSlotsRoutes);
 app.use("/api", appointmentsRoutes);
+app.use("/api", adminAppointmentsRoutes);
 
 app.get("/", async (req, res) => {
   try {

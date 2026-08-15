@@ -39,7 +39,6 @@ export const createAppointment = async (req, res) => {
       });
     }
 
-    // Comprobamos que el usuario sea un paciente
     const userResult = await pool.query(
       `SELECT id, role
        FROM users
@@ -59,7 +58,6 @@ export const createAppointment = async (req, res) => {
       });
     }
 
-    // Buscamos el servicio y su duración
     const appointmentTypeResult = await pool.query(
       `SELECT id, name, duration_minutes
        FROM appointment_types
@@ -79,7 +77,6 @@ export const createAppointment = async (req, res) => {
     const endMinutes = startMinutes + appointmentType.duration_minutes;
     const endTime = minutesToTime(endMinutes);
 
-    // Comprobamos si la fecha está bloqueada
     const blockedDateResult = await pool.query(
       `SELECT reason
        FROM blocked_dates
@@ -94,11 +91,9 @@ export const createAppointment = async (req, res) => {
       });
     }
 
-    // Obtenemos el día de la semana
     const selectedDate = new Date(`${date}T12:00:00`);
     const dayOfWeek = selectedDate.getDay();
 
-    // Buscamos las franjas horarias de Laura
     const availabilityResult = await pool.query(
       `SELECT start_time, end_time
        FROM availability
@@ -113,8 +108,6 @@ export const createAppointment = async (req, res) => {
       });
     }
 
-    // Comprobamos que el turno entre completamente
-    // dentro de alguna franja de atención
     const fitsAvailability = availabilityResult.rows.some((availability) => {
       const availabilityStart = timeToMinutes(availability.start_time);
       const availabilityEnd = timeToMinutes(availability.end_time);
@@ -131,7 +124,6 @@ export const createAppointment = async (req, res) => {
       });
     }
 
-    // Comprobamos que no exista otro turno superpuesto
     const overlappingResult = await pool.query(
       `SELECT id
        FROM appointments
@@ -148,7 +140,6 @@ export const createAppointment = async (req, res) => {
       });
     }
 
-    // Creamos el turno
     const result = await pool.query(
       `INSERT INTO appointments
         (
@@ -164,7 +155,7 @@ export const createAppointment = async (req, res) => {
          id,
          patient_id,
          appointment_type_id,
-         appointment_date,
+         TO_CHAR(appointment_date, 'DD/MM/YYYY') AS appointment_date,
          start_time,
          end_time,
          status,
@@ -190,6 +181,65 @@ export const createAppointment = async (req, res) => {
 
     res.status(500).json({
       message: "Error al reservar el turno",
+    });
+  }
+};
+
+export const getMyAppointments = async (req, res) => {
+  try {
+    const patientId = req.userId;
+
+    const upcomingResult = await pool.query(
+      `SELECT
+         a.id,
+         TO_CHAR(a.appointment_date, 'DD/MM/YYYY') AS appointment_date,
+         a.start_time,
+         a.end_time,
+         a.status,
+         a.notes,
+         at.name AS service,
+         at.duration_minutes
+       FROM appointments a
+       JOIN appointment_types at
+         ON a.appointment_type_id = at.id
+       WHERE a.patient_id = $1
+         AND a.appointment_date >= CURRENT_DATE
+         AND a.status IN ('scheduled', 'confirmed')
+       ORDER BY a.appointment_date, a.start_time`,
+      [patientId],
+    );
+
+    const historyResult = await pool.query(
+      `SELECT
+         a.id,
+         TO_CHAR(a.appointment_date, 'DD/MM/YYYY') AS appointment_date,
+         a.start_time,
+         a.end_time,
+         a.status,
+         a.notes,
+         at.name AS service,
+         at.duration_minutes
+       FROM appointments a
+       JOIN appointment_types at
+         ON a.appointment_type_id = at.id
+       WHERE a.patient_id = $1
+         AND (
+           a.appointment_date < CURRENT_DATE
+           OR a.status IN ('cancelled', 'completed', 'absent')
+         )
+       ORDER BY a.appointment_date DESC, a.start_time DESC`,
+      [patientId],
+    );
+
+    res.json({
+      upcomingAppointments: upcomingResult.rows,
+      history: historyResult.rows,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Error al obtener los turnos",
     });
   }
 };
