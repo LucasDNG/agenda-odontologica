@@ -3,7 +3,10 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { pool } from "./db.js";
+
 import authRoutes from "./routes/auth.routes.js";
+import appointmentTypesRoutes from "./routes/appointmentTypes.routes.js";
+import availabilityRoutes from "./routes/availability.routes.js";
 
 const app = express();
 
@@ -17,7 +20,10 @@ app.use(
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
+
 app.use("/api", authRoutes);
+app.use("/api", appointmentTypesRoutes);
+app.use("/api", availabilityRoutes);
 
 app.get("/", async (req, res) => {
   try {
