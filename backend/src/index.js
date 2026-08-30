@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import "dotenv/config";
+
 import { pool } from "./db.js";
 
 import authRoutes from "./routes/auth.routes.js";
@@ -11,6 +13,10 @@ import blockedDatesRoutes from "./routes/blockedDates.routes.js";
 import availableSlotsRoutes from "./routes/availableSlots.routes.js";
 import appointmentsRoutes from "./routes/appointments.routes.js";
 import adminAppointmentsRoutes from "./routes/adminAppointments.routes.js";
+import whatsappWebhookRoutes from "./routes/whatsappWebhook.routes.js";
+import whatsappConsultationsRoutes from "./routes/whatsappConsultations.routes.js";
+import clinicsRoutes from "./routes/clinics.routes.js";
+import professionalsRoutes from "./routes/professionals.routes.js";
 
 const app = express();
 
@@ -32,6 +38,10 @@ app.use("/api", blockedDatesRoutes);
 app.use("/api", availableSlotsRoutes);
 app.use("/api", appointmentsRoutes);
 app.use("/api", adminAppointmentsRoutes);
+app.use("/api", whatsappWebhookRoutes);
+app.use("/api", whatsappConsultationsRoutes);
+app.use("/api", clinicsRoutes);
+app.use("/api", professionalsRoutes);
 
 app.get("/", async (req, res) => {
   try {
@@ -51,7 +61,7 @@ app.get("/", async (req, res) => {
   }
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
