@@ -1,0 +1,249 @@
+.configuration {
+  display: grid;
+  gap: 22px;
+}
+
+.configuration-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 4px;
+}
+
+.configuration-heading h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.configuration-description {
+  max-width: 520px;
+  margin: 0;
+  color: #899fa9;
+  line-height: 1.5;
+}
+
+.configuration-message {
+  padding: 13px 16px;
+  border-radius: 12px;
+}
+
+.configuration-message.success {
+  color: #a7dfd3;
+  border: 1px solid #285449;
+  background: #132c27;
+}
+
+.configuration-message.error {
+  color: #efb1b1;
+  border: 1px solid #62373a;
+  background: #321d20;
+}
+
+.configuration-card {
+  padding: 24px;
+  border: 1px solid #263c45;
+  border-radius: 18px;
+  background: #111e24;
+}
+
+.configuration-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.configuration-card-heading h3 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.configuration-card-heading p {
+  margin: 0;
+  color: #8299a3;
+  font-size: 14px;
+}
+
+.configuration-number {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  color: #07211e;
+  background: #69d0bd;
+  font-weight: 800;
+}
+
+.configuration-form {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.configuration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.configuration-field {
+  display: grid;
+  gap: 7px;
+  color: #b9ccd3;
+  font-size: 14px;
+}
+
+.configuration-field input,
+.configuration-field select {
+  width: 100%;
+  padding: 12px 14px;
+  color: #edf5f7;
+  border: 1px solid #314851;
+  border-radius: 11px;
+  outline: none;
+  background: #0c171c;
+}
+
+.configuration-field input:focus,
+.configuration-field select:focus {
+  border-color: #69d0bd;
+}
+
+.configuration-details {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #263b44;
+}
+
+.configuration-details summary {
+  width: fit-content;
+  color: #69d0bd;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.configuration-primary-button {
+  width: fit-content;
+  padding: 11px 17px;
+  color: #07211e;
+  border: 0;
+  border-radius: 11px;
+  background: #69d0bd;
+  font-weight: 800;
+}
+
+.configuration-primary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.professionals-list {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(210px, 1fr)
+  );
+  gap: 12px;
+}
+
+.professional-item {
+  display: grid;
+  gap: 5px;
+  padding: 15px;
+  text-align: left;
+  color: #d7e4e9;
+  border: 1px solid #314750;
+  border-radius: 12px;
+  background: #0d191e;
+}
+
+.professional-item:hover {
+  border-color: #50717c;
+}
+
+.professional-item.active {
+  border-color: #69d0bd;
+  background: #16312f;
+}
+
+.professional-item span {
+  color: #8098a2;
+  font-size: 13px;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(200px, 1fr)
+  );
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.service-option {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid #30464f;
+  border-radius: 12px;
+  background: #0c171c;
+  cursor: pointer;
+}
+
+.service-option:has(input:checked) {
+  border-color: #69d0bd;
+  background: #142d2b;
+}
+
+.service-option input {
+  width: 17px;
+  height: 17px;
+  accent-color: #69d0bd;
+}
+
+.service-option div {
+  display: grid;
+  gap: 3px;
+}
+
+.service-option strong {
+  color: #dce9ed;
+}
+
+.service-option span {
+  color: #78919b;
+  font-size: 13px;
+}
+
+.configuration-empty {
+  padding: 50px 25px;
+  text-align: center;
+  color: #7f99a4;
+  border: 1px dashed #344750;
+  border-radius: 18px;
+  background: #101b21;
+}
+
+.configuration-empty.small {
+  padding: 25px;
+}
+
+@media (max-width: 700px) {
+  .configuration-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .configuration-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .configuration-primary-button {
+    width: 100%;
+  }
+}

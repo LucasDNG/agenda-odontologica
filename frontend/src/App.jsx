@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Configuration from "./Configuration";
 import "./App.css";
 
 const API_URL = "http://localhost:3000/api";
@@ -14,17 +15,23 @@ function App() {
   const [section, setSection] = useState("agenda");
 
   const [appointments, setAppointments] = useState([]);
-  const [loadingAppointments, setLoadingAppointments] = useState(false);
-  const [appointmentMessage, setAppointmentMessage] = useState("");
-  const [updatingAppointmentId, setUpdatingAppointmentId] = useState(null);
+  const [loadingAppointments, setLoadingAppointments] =
+    useState(false);
+  const [appointmentMessage, setAppointmentMessage] =
+    useState("");
+  const [updatingAppointmentId, setUpdatingAppointmentId] =
+    useState(null);
 
   const [consultations, setConsultations] = useState([]);
-  const [consultationStatus, setConsultationStatus] = useState("pending");
-  const [loadingConsultations, setLoadingConsultations] = useState(false);
+  const [consultationStatus, setConsultationStatus] =
+    useState("pending");
+  const [loadingConsultations, setLoadingConsultations] =
+    useState(false);
 
   const [replyTexts, setReplyTexts] = useState({});
   const [sendingId, setSendingId] = useState(null);
-  const [consultationMessage, setConsultationMessage] = useState("");
+  const [consultationMessage, setConsultationMessage] =
+    useState("");
 
   useEffect(() => {
     checkSession();
@@ -48,9 +55,7 @@ function App() {
         credentials: "include",
       });
 
-      if (!response.ok) {
-        return;
-      }
+      if (!response.ok) return;
 
       const data = await response.json();
 
@@ -84,12 +89,16 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        setLoginError(data.message || "No se pudo iniciar sesión");
+        setLoginError(
+          data.message || "No se pudo iniciar sesión",
+        );
         return;
       }
 
       if (data.user.role !== "dentist") {
-        setLoginError("Este panel es exclusivo para odontólogos");
+        setLoginError(
+          "Este panel es exclusivo para odontólogos",
+        );
         return;
       }
 
@@ -124,20 +133,27 @@ function App() {
     setAppointmentMessage("");
 
     try {
-      const response = await fetch(`${API_URL}/admin/appointments`, {
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${API_URL}/admin/appointments`,
+        {
+          credentials: "include",
+        },
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Error obteniendo turnos");
+        throw new Error(
+          data.message || "Error obteniendo turnos",
+        );
       }
 
       setAppointments(data.appointments || []);
     } catch (error) {
       console.error(error);
-      setAppointmentMessage("No se pudieron cargar los turnos.");
+      setAppointmentMessage(
+        "No se pudieron cargar los turnos.",
+      );
     } finally {
       setLoadingAppointments(false);
     }
@@ -165,10 +181,12 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "No se pudo actualizar el turno");
+        throw new Error(
+          data.message ||
+            "No se pudo actualizar el turno",
+        );
       }
 
-      setAppointmentMessage("Turno actualizado correctamente.");
       await loadAppointments();
     } catch (error) {
       console.error(error);
@@ -193,13 +211,17 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Error obteniendo consultas");
+        throw new Error(
+          data.message || "Error obteniendo consultas",
+        );
       }
 
       setConsultations(data.consultations || []);
     } catch (error) {
       console.error(error);
-      setConsultationMessage("No se pudieron cargar las consultas.");
+      setConsultationMessage(
+        "No se pudieron cargar las consultas.",
+      );
     } finally {
       setLoadingConsultations(false);
     }
@@ -216,7 +238,9 @@ function App() {
     const reply = replyTexts[consultationId]?.trim();
 
     if (!reply) {
-      setConsultationMessage("Escribí una respuesta antes de enviar.");
+      setConsultationMessage(
+        "Escribí una respuesta antes de enviar.",
+      );
       return;
     }
 
@@ -241,7 +265,10 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "No se pudo enviar la respuesta");
+        throw new Error(
+          data.message ||
+            "No se pudo enviar la respuesta",
+        );
       }
 
       setReplyTexts((previous) => ({
@@ -249,7 +276,9 @@ function App() {
         [consultationId]: "",
       }));
 
-      setConsultationMessage("Respuesta enviada correctamente.");
+      setConsultationMessage(
+        "Respuesta enviada correctamente.",
+      );
 
       await loadConsultations(consultationStatus);
     } catch (error) {
@@ -264,8 +293,11 @@ function App() {
     if (!date) return "";
 
     return new Intl.DateTimeFormat("es-AR", {
-      dateStyle: "short",
-      timeStyle: "short",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(new Date(date));
   };
 
@@ -288,9 +320,10 @@ function App() {
   };
 
   const visibleAppointments = useMemo(() => {
-    return appointments.filter((appointment) => {
-      return appointment.status !== "cancelled";
-    });
+    return appointments.filter(
+      (appointment) =>
+        appointment.status !== "cancelled",
+    );
   }, [appointments]);
 
   if (!user) {
@@ -306,13 +339,18 @@ function App() {
             </div>
           </div>
 
-          <form onSubmit={handleLogin} className="login-form">
+          <form
+            onSubmit={handleLogin}
+            className="login-form"
+          >
             <label>
               Email
               <input
                 type="email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
                 placeholder="Email"
                 required
               />
@@ -323,16 +361,27 @@ function App() {
               <input
                 type="password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
                 placeholder="Contraseña"
                 required
               />
             </label>
 
-            {loginError && <p className="error-message">{loginError}</p>}
+            {loginError && (
+              <p className="error-message">
+                {loginError}
+              </p>
+            )}
 
-            <button type="submit" disabled={loadingLogin}>
-              {loadingLogin ? "Ingresando..." : "Ingresar"}
+            <button
+              type="submit"
+              disabled={loadingLogin}
+            >
+              {loadingLogin
+                ? "Ingresando..."
+                : "Ingresar"}
             </button>
           </form>
         </section>
@@ -344,7 +393,10 @@ function App() {
     <main className="admin-page">
       <header className="admin-header">
         <div>
-          <p className="eyebrow">Consultorio odontológico</p>
+          <p className="eyebrow">
+            Consultorio odontológico
+          </p>
+
           <h1>Panel de administración</h1>
         </div>
 
@@ -353,7 +405,10 @@ function App() {
             {user.name} {user.lastname}
           </span>
 
-          <button className="logout-button" onClick={handleLogout}>
+          <button
+            className="logout-button"
+            onClick={handleLogout}
+          >
             Salir
           </button>
         </div>
@@ -361,7 +416,11 @@ function App() {
 
       <nav className="main-nav">
         <button
-          className={section === "agenda" ? "nav-button active" : "nav-button"}
+          className={
+            section === "agenda"
+              ? "nav-button active"
+              : "nav-button"
+          }
           onClick={() => setSection("agenda")}
         >
           📅 Agenda
@@ -373,9 +432,24 @@ function App() {
               ? "nav-button active"
               : "nav-button"
           }
-          onClick={() => setSection("consultations")}
+          onClick={() =>
+            setSection("consultations")
+          }
         >
           💬 Consultas
+        </button>
+
+        <button
+          className={
+            section === "configuration"
+              ? "nav-button active"
+              : "nav-button"
+          }
+          onClick={() =>
+            setSection("configuration")
+          }
+        >
+          ⚙️ Configuración
         </button>
       </nav>
 
@@ -388,110 +462,151 @@ function App() {
                 <h2>Agenda</h2>
               </div>
 
-              <button className="secondary-button" onClick={loadAppointments}>
+              <button
+                className="secondary-button"
+                onClick={loadAppointments}
+              >
                 Actualizar
               </button>
             </div>
 
             {appointmentMessage && (
-              <div className="status-message">{appointmentMessage}</div>
+              <div className="status-message">
+                {appointmentMessage}
+              </div>
             )}
 
             {loadingAppointments ? (
-              <div className="empty-state">Cargando turnos...</div>
+              <div className="empty-state">
+                Cargando turnos...
+              </div>
             ) : visibleAppointments.length === 0 ? (
-              <div className="empty-state">No hay turnos para mostrar.</div>
+              <div className="empty-state">
+                No hay turnos para mostrar.
+              </div>
             ) : (
               <div className="appointments-list">
-                {visibleAppointments.map((appointment) => (
-                  <article
-                    className="appointment-card"
-                    key={appointment.id}
-                  >
-                    <div className="appointment-time">
-                      <strong>{formatTime(appointment.start_time)}</strong>
-                      <span>{appointment.appointment_date}</span>
-                    </div>
+                {visibleAppointments.map(
+                  (appointment) => (
+                    <article
+                      className="appointment-card"
+                      key={appointment.id}
+                    >
+                      <div className="appointment-time">
+                        <strong>
+                          {formatTime(
+                            appointment.start_time,
+                          )}
+                        </strong>
 
-                    <div className="appointment-info">
-                      <h3>
-                        {appointment.patient_name}{" "}
-                        {appointment.patient_lastname}
-                      </h3>
-
-                      <p>{appointment.service}</p>
-
-                      <div className="appointment-contact">
-                        <span>📱 {appointment.patient_phone}</span>
-                        <span>✉️ {appointment.patient_email}</span>
+                        <span>
+                          {
+                            appointment.appointment_date
+                          }
+                        </span>
                       </div>
 
-                      {appointment.notes && (
-                        <p className="appointment-notes">
-                          Nota: {appointment.notes}
-                        </p>
-                      )}
-                    </div>
+                      <div className="appointment-info">
+                        <h3>
+                          {appointment.patient_name}{" "}
+                          {
+                            appointment.patient_lastname
+                          }
+                        </h3>
 
-                    <div className="appointment-actions">
-                      <span
-                        className={`appointment-status ${appointment.status}`}
-                      >
-                        {getAppointmentStatusLabel(appointment.status)}
-                      </span>
+                        <p>{appointment.service}</p>
 
-                      {appointment.status !== "completed" &&
-                        appointment.status !== "absent" && (
-                          <div className="action-buttons">
-                            <button
-                              className="action-button completed"
-                              disabled={
-                                updatingAppointmentId === appointment.id
-                              }
-                              onClick={() =>
-                                updateAppointmentStatus(
-                                  appointment.id,
-                                  "completed",
-                                )
-                              }
-                            >
-                              Atendido
-                            </button>
+                        <div className="appointment-contact">
+                          <span>
+                            📱{" "}
+                            {
+                              appointment.patient_phone
+                            }
+                          </span>
 
-                            <button
-                              className="action-button absent"
-                              disabled={
-                                updatingAppointmentId === appointment.id
-                              }
-                              onClick={() =>
-                                updateAppointmentStatus(
-                                  appointment.id,
-                                  "absent",
-                                )
-                              }
-                            >
-                              Ausente
-                            </button>
+                          <span>
+                            ✉️{" "}
+                            {
+                              appointment.patient_email
+                            }
+                          </span>
+                        </div>
 
-                            <button
-                              className="action-button cancelled"
-                              disabled={
-                                updatingAppointmentId === appointment.id
-                              }
-                              onClick={() =>
-                                updateAppointmentStatus(
-                                  appointment.id,
-                                  "cancelled",
-                                )
-                              }
-                            >
-                              Cancelar
-                            </button>
-                          </div>
+                        {appointment.notes && (
+                          <p className="appointment-notes">
+                            Nota:{" "}
+                            {appointment.notes}
+                          </p>
                         )}
-                    </div>
-                  </article>
-                ))}
+                      </div>
+
+                      <div className="appointment-actions">
+                        <span
+                          className={`appointment-status ${appointment.status}`}
+                        >
+                          {getAppointmentStatusLabel(
+                            appointment.status,
+                          )}
+                        </span>
+
+                        {appointment.status !==
+                          "completed" &&
+                          appointment.status !==
+                            "absent" && (
+                            <div className="action-buttons">
+                              <button
+                                className="action-button completed"
+                                disabled={
+                                  updatingAppointmentId ===
+                                  appointment.id
+                                }
+                                onClick={() =>
+                                  updateAppointmentStatus(
+                                    appointment.id,
+                                    "completed",
+                                  )
+                                }
+                              >
+                                Atendido
+                              </button>
+
+                              <button
+                                className="action-button absent"
+                                disabled={
+                                  updatingAppointmentId ===
+                                  appointment.id
+                                }
+                                onClick={() =>
+                                  updateAppointmentStatus(
+                                    appointment.id,
+                                    "absent",
+                                  )
+                                }
+                              >
+                                Ausente
+                              </button>
+
+                              <button
+                                className="action-button cancelled"
+                                disabled={
+                                  updatingAppointmentId ===
+                                  appointment.id
+                                }
+                                onClick={() =>
+                                  updateAppointmentStatus(
+                                    appointment.id,
+                                    "cancelled",
+                                  )
+                                }
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          )}
+                      </div>
+                    </article>
+                  ),
+                )}
               </div>
             )}
           </>
@@ -501,7 +616,9 @@ function App() {
           <>
             <div className="section-heading">
               <div>
-                <p className="eyebrow">WhatsApp</p>
+                <p className="eyebrow">
+                  WhatsApp
+                </p>
                 <h2>Consultas</h2>
               </div>
             </div>
@@ -509,22 +626,32 @@ function App() {
             <div className="tabs">
               <button
                 className={
-                  consultationStatus === "pending"
+                  consultationStatus ===
+                  "pending"
                     ? "tab active"
                     : "tab"
                 }
-                onClick={() => setConsultationStatus("pending")}
+                onClick={() =>
+                  setConsultationStatus(
+                    "pending",
+                  )
+                }
               >
                 Pendientes
               </button>
 
               <button
                 className={
-                  consultationStatus === "answered"
+                  consultationStatus ===
+                  "answered"
                     ? "tab active"
                     : "tab"
                 }
-                onClick={() => setConsultationStatus("answered")}
+                onClick={() =>
+                  setConsultationStatus(
+                    "answered",
+                  )
+                }
               >
                 Respondidas
               </button>
@@ -537,88 +664,115 @@ function App() {
             )}
 
             {loadingConsultations ? (
-              <div className="empty-state">Cargando consultas...</div>
+              <div className="empty-state">
+                Cargando consultas...
+              </div>
             ) : consultations.length === 0 ? (
               <div className="empty-state">
-                {consultationStatus === "pending"
+                {consultationStatus ===
+                "pending"
                   ? "No hay consultas pendientes."
                   : "No hay consultas respondidas."}
               </div>
             ) : (
               <div className="consultations-list">
-                {consultations.map((consultation) => (
-                  <article
-                    className="consultation-card"
-                    key={consultation.id}
-                  >
-                    <div className="consultation-top">
-                      <div>
-                        <span className="phone">
-                          📱 {consultation.phone}
-                        </span>
+                {consultations.map(
+                  (consultation) => (
+                    <article
+                      className="consultation-card"
+                      key={consultation.id}
+                    >
+                      <div className="consultation-top">
+                        <div>
+                          <span className="phone">
+                            📱{" "}
+                            {consultation.phone}
+                          </span>
 
-                        <p className="date">
-                          {formatWhatsappDate(consultation.created_at)}
+                          <p className="date">
+                            {formatWhatsappDate(
+                              consultation.created_at,
+                            )}
+                          </p>
+                        </div>
+
+                        <span
+                          className={
+                            consultation.status ===
+                            "pending"
+                              ? "badge pending"
+                              : "badge answered"
+                          }
+                        >
+                          {consultation.status ===
+                          "pending"
+                            ? "Pendiente"
+                            : "Respondida"}
+                        </span>
+                      </div>
+
+                      <div className="patient-message">
+                        <p>
+                          {consultation.message}
                         </p>
                       </div>
 
-                      <span
-                        className={
-                          consultation.status === "pending"
-                            ? "badge pending"
-                            : "badge answered"
-                        }
-                      >
-                        {consultation.status === "pending"
-                          ? "Pendiente"
-                          : "Respondida"}
-                      </span>
-                    </div>
+                      {consultation.status ===
+                        "pending" && (
+                        <div className="reply-area">
+                          <textarea
+                            rows="4"
+                            placeholder="Escribir respuesta para el paciente..."
+                            value={
+                              replyTexts[
+                                consultation.id
+                              ] || ""
+                            }
+                            onChange={(event) =>
+                              handleReplyChange(
+                                consultation.id,
+                                event.target.value,
+                              )
+                            }
+                          />
 
-                    <div className="patient-message">
-                      <p>{consultation.message}</p>
-                    </div>
+                          <button
+                            onClick={() =>
+                              handleReply(
+                                consultation.id,
+                              )
+                            }
+                            disabled={
+                              sendingId ===
+                              consultation.id
+                            }
+                          >
+                            {sendingId ===
+                            consultation.id
+                              ? "Enviando..."
+                              : "Responder por WhatsApp"}
+                          </button>
+                        </div>
+                      )}
 
-                    {consultation.status === "pending" && (
-                      <div className="reply-area">
-                        <textarea
-                          rows="4"
-                          placeholder="Escribir respuesta para el paciente..."
-                          value={replyTexts[consultation.id] || ""}
-                          onChange={(event) =>
-                            handleReplyChange(
-                              consultation.id,
-                              event.target.value,
-                            )
-                          }
-                        />
-
-                        <button
-                          onClick={() =>
-                            handleReply(consultation.id)
-                          }
-                          disabled={sendingId === consultation.id}
-                        >
-                          {sendingId === consultation.id
-                            ? "Enviando..."
-                            : "Responder por WhatsApp"}
-                        </button>
-                      </div>
-                    )}
-
-                    {consultation.answered_at && (
-                      <p className="answered-date">
-                        Respondida:{" "}
-                        {formatWhatsappDate(
-                          consultation.answered_at,
-                        )}
-                      </p>
-                    )}
-                  </article>
-                ))}
+                      {consultation.answered_at && (
+                        <p className="answered-date">
+                          Respondida:{" "}
+                          {formatWhatsappDate(
+                            consultation.answered_at,
+                          )}
+                        </p>
+                      )}
+                    </article>
+                  ),
+                )}
               </div>
             )}
           </>
+        )}
+
+        {section === "configuration" && (
+          <Configuration />
         )}
       </section>
     </main>
