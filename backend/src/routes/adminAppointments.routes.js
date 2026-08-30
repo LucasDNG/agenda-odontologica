@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { getAllAppointments } from "../controllers/adminAppointments.controllers.js";
+import {
+  getAllAppointments,
+  updateAppointmentStatus,
+} from "../controllers/adminAppointments.controllers.js";
 import { isAuth } from "../middlewares/auth.middleware.js";
 import { isDentist } from "../middlewares/role.middleware.js";
 
@@ -10,6 +13,13 @@ router.get(
   isAuth,
   isDentist,
   getAllAppointments,
+);
+
+router.patch(
+  "/admin/appointments/:id/status",
+  isAuth,
+  isDentist,
+  updateAppointmentStatus,
 );
 
 export default router;
