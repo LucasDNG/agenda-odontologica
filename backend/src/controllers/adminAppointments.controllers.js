@@ -1,69 +1,89 @@
 import { pool } from "../db.js";
 
+const OVERBOOKED_SLOT_MINUTES = 15;
+
 const timeToMinutes = (time) => {
-  const [hours, minutes] = time.split(":").map(Number);
+  const [hours, minutes] = time
+    .split(":")
+    .map(Number);
 
   return hours * 60 + minutes;
 };
 
 const minutesToTime = (minutes) => {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
+  const hours = Math.floor(
+    minutes / 60,
+  );
 
-  return `${String(hours).padStart(2, "0")}:${String(
-    mins,
-  ).padStart(2, "0")}`;
+  const mins =
+    minutes % 60;
+
+  return `${String(hours).padStart(
+    2,
+    "0",
+  )}:${String(mins).padStart(
+    2,
+    "0",
+  )}`;
 };
 
-export const getAllAppointments = async (req, res) => {
+export const getAllAppointments = async (
+  req,
+  res,
+) => {
   try {
-    const result = await pool.query(`
-      SELECT
-        a.id,
-        TO_CHAR(
+    const result =
+      await pool.query(`
+        SELECT
+          a.id,
+
+          TO_CHAR(
+            a.appointment_date,
+            'DD/MM/YYYY'
+          ) AS appointment_date,
+
+          a.start_time,
+          a.end_time,
+          a.status,
+          a.notes,
+          a.is_overbooked,
+          a.delay_minutes,
+
+          p.id AS patient_record_id,
+          p.name AS patient_name,
+          p.lastname AS patient_lastname,
+          p.email AS patient_email,
+          p.phone AS patient_phone,
+
+          at.id AS appointment_type_id,
+          at.name AS service,
+          at.duration_minutes,
+
+          pr.id AS professional_id,
+          pr.name AS professional_name,
+          pr.lastname AS professional_lastname,
+          pr.specialty AS professional_specialty
+
+        FROM appointments a
+
+        JOIN patients p
+          ON a.patient_record_id = p.id
+
+        JOIN appointment_types at
+          ON a.appointment_type_id = at.id
+
+        LEFT JOIN professionals pr
+          ON a.professional_id = pr.id
+
+        ORDER BY
           a.appointment_date,
-          'DD/MM/YYYY'
-        ) AS appointment_date,
-        a.start_time,
-        a.end_time,
-        a.status,
-        a.notes,
-        a.is_overbooked,
-
-        p.id AS patient_record_id,
-        p.name AS patient_name,
-        p.lastname AS patient_lastname,
-        p.email AS patient_email,
-        p.phone AS patient_phone,
-
-        at.id AS appointment_type_id,
-        at.name AS service,
-        at.duration_minutes,
-
-        pr.id AS professional_id,
-        pr.name AS professional_name,
-        pr.lastname AS professional_lastname,
-        pr.specialty AS professional_specialty
-
-      FROM appointments a
-
-      JOIN patients p
-        ON a.patient_record_id = p.id
-
-      JOIN appointment_types at
-        ON a.appointment_type_id = at.id
-
-      LEFT JOIN professionals pr
-        ON a.professional_id = pr.id
-
-      ORDER BY
-        a.appointment_date,
-        a.start_time,
-        a.is_overbooked
-    `);
+          a.start_time,
+          a.is_overbooked
+      `);
 
     res.json({
-      appointments: result.rows,
+      appointments:
+        result.rows,
     });
   } catch (error) {
     console.error(
@@ -72,283 +92,390 @@ export const getAllAppointments = async (req, res) => {
     );
 
     res.status(500).json({
-      message: "Error al obtener los turnos",
+      message:
+        "Error al obtener los turnos",
     });
   }
 };
 
-export const createOverbookedAppointment = async (
-  req,
-  res,
-) => {
-  try {
-    const {
-      patientId,
-      professionalId,
-      appointmentTypeId,
-      date,
-      startTime,
-      notes,
-    } = req.body;
-
-    if (
-      !patientId ||
-      !professionalId ||
-      !appointmentTypeId ||
-      !date ||
-      !startTime
-    ) {
-      return res.status(400).json({
-        message:
-          "Debes indicar paciente, profesional, servicio, fecha y horario",
-      });
-    }
-
-    const dateFormat = /^\d{4}-\d{2}-\d{2}$/;
-    const timeFormat = /^\d{2}:\d{2}$/;
-
-    if (!dateFormat.test(date)) {
-      return res.status(400).json({
-        message: "La fecha debe tener formato YYYY-MM-DD",
-      });
-    }
-
-    if (!timeFormat.test(startTime)) {
-      return res.status(400).json({
-        message: "El horario debe tener formato HH:MM",
-      });
-    }
-
-    const patientResult = await pool.query(
-      `
-        SELECT
-          id,
-          user_id,
-          name,
-          lastname,
-          phone,
-          email
-        FROM patients
-        WHERE id = $1
-          AND active = TRUE
-      `,
-      [patientId],
-    );
-
-    if (patientResult.rows.length === 0) {
-      return res.status(404).json({
-        message: "Paciente no encontrado",
-      });
-    }
-
-    const patient = patientResult.rows[0];
-
-    const professionalResult = await pool.query(
-      `
-        SELECT
-          id,
-          name,
-          lastname
-        FROM professionals
-        WHERE id = $1
-          AND active = TRUE
-      `,
-      [professionalId],
-    );
-
-    if (professionalResult.rows.length === 0) {
-      return res.status(404).json({
-        message: "Profesional no encontrado",
-      });
-    }
-
-    const serviceResult = await pool.query(
-      `
-        SELECT
-          at.id,
-          at.name,
-          at.duration_minutes
-        FROM appointment_types at
-
-        JOIN professional_services ps
-          ON ps.appointment_type_id = at.id
-
-        WHERE at.id = $1
-          AND ps.professional_id = $2
-          AND at.active = TRUE
-      `,
-      [appointmentTypeId, professionalId],
-    );
-
-    if (serviceResult.rows.length === 0) {
-      return res.status(400).json({
-        message:
-          "El profesional seleccionado no realiza ese servicio",
-      });
-    }
-
-    const service = serviceResult.rows[0];
-
-    const startMinutes = timeToMinutes(startTime);
-
-    const endMinutes =
-      startMinutes + service.duration_minutes;
-
-    if (endMinutes > 24 * 60) {
-      return res.status(400).json({
-        message:
-          "El turno no puede finalizar después de las 24:00",
-      });
-    }
-
-    const endTime = minutesToTime(endMinutes);
-
-    const result = await pool.query(
-      `
-        INSERT INTO appointments
-        (
-          patient_id,
-          patient_record_id,
-          professional_id,
-          appointment_type_id,
-          appointment_date,
-          start_time,
-          end_time,
-          status,
-          notes,
-          is_overbooked
-        )
-        VALUES
-        (
-          $1,
-          $2,
-          $3,
-          $4,
-          $5,
-          $6,
-          $7,
-          'confirmed',
-          $8,
-          TRUE
-        )
-        RETURNING
-          id,
-          patient_id,
-          patient_record_id,
-          professional_id,
-          appointment_type_id,
-          TO_CHAR(
-            appointment_date,
-            'DD/MM/YYYY'
-          ) AS appointment_date,
-          start_time,
-          end_time,
-          status,
-          notes,
-          is_overbooked,
-          created_at
-      `,
-      [
-        patient.user_id || null,
-        patient.id,
+export const createOverbookedAppointment =
+  async (req, res) => {
+    try {
+      const {
+        patientId,
         professionalId,
         appointmentTypeId,
         date,
         startTime,
-        endTime,
-        notes || null,
-      ],
-    );
+        notes,
+      } = req.body;
 
-    res.status(201).json({
-      message: "Sobreturno creado correctamente",
-      appointment: result.rows[0],
-      patient,
-      professional: professionalResult.rows[0],
-      service: service.name,
-    });
-  } catch (error) {
-    console.error(
-      "Error creando sobreturno:",
-      error,
-    );
+      if (
+        !patientId ||
+        !professionalId ||
+        !appointmentTypeId ||
+        !date ||
+        !startTime
+      ) {
+        return res.status(400).json({
+          message:
+            "Debes indicar paciente, profesional, servicio, fecha y horario",
+        });
+      }
 
-    res.status(500).json({
-      message: "Error al crear el sobreturno",
-    });
-  }
-};
+      const dateFormat =
+        /^\d{4}-\d{2}-\d{2}$/;
 
-export const updateAppointmentStatus = async (
-  req,
-  res,
-) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
+      const timeFormat =
+        /^\d{2}:\d{2}$/;
 
-    const allowedStatuses = [
-      "scheduled",
-      "confirmed",
-      "cancelled",
-      "completed",
-      "absent",
-    ];
+      if (
+        !dateFormat.test(date)
+      ) {
+        return res.status(400).json({
+          message:
+            "La fecha debe tener formato YYYY-MM-DD",
+        });
+      }
 
-    if (!status) {
-      return res.status(400).json({
-        message: "Debes indicar el estado del turno",
+      if (
+        !timeFormat.test(
+          startTime,
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "El horario debe tener formato HH:MM",
+        });
+      }
+
+      const patientResult =
+        await pool.query(
+          `
+            SELECT
+              id,
+              user_id,
+              name,
+              lastname,
+              phone,
+              email
+
+            FROM patients
+
+            WHERE id = $1
+              AND active = TRUE
+          `,
+          [patientId],
+        );
+
+      if (
+        patientResult.rows
+          .length === 0
+      ) {
+        return res.status(404).json({
+          message:
+            "Paciente no encontrado",
+        });
+      }
+
+      const patient =
+        patientResult.rows[0];
+
+      const professionalResult =
+        await pool.query(
+          `
+            SELECT
+              id,
+              name,
+              lastname
+
+            FROM professionals
+
+            WHERE id = $1
+              AND active = TRUE
+          `,
+          [professionalId],
+        );
+
+      if (
+        professionalResult.rows
+          .length === 0
+      ) {
+        return res.status(404).json({
+          message:
+            "Profesional no encontrado",
+        });
+      }
+
+      const serviceResult =
+        await pool.query(
+          `
+            SELECT
+              at.id,
+              at.name,
+              at.duration_minutes
+
+            FROM appointment_types at
+
+            JOIN professional_services ps
+              ON ps.appointment_type_id = at.id
+
+            WHERE at.id = $1
+              AND ps.professional_id = $2
+              AND at.active = TRUE
+          `,
+          [
+            appointmentTypeId,
+            professionalId,
+          ],
+        );
+
+      if (
+        serviceResult.rows
+          .length === 0
+      ) {
+        return res.status(400).json({
+          message:
+            "El profesional seleccionado no realiza ese servicio",
+        });
+      }
+
+      const service =
+        serviceResult.rows[0];
+
+      const serviceDuration =
+        Number(
+          service.duration_minutes,
+        );
+
+      const delayMinutes =
+        Math.max(
+          serviceDuration -
+            OVERBOOKED_SLOT_MINUTES,
+          0,
+        );
+
+      const startMinutes =
+        timeToMinutes(
+          startTime,
+        );
+
+      const endMinutes =
+        startMinutes +
+        serviceDuration;
+
+      if (
+        endMinutes >
+        24 * 60
+      ) {
+        return res.status(400).json({
+          message:
+            "El turno no puede finalizar después de las 24:00",
+        });
+      }
+
+      const endTime =
+        minutesToTime(
+          endMinutes,
+        );
+
+      const result =
+        await pool.query(
+          `
+            INSERT INTO appointments
+            (
+              patient_id,
+              patient_record_id,
+              professional_id,
+              appointment_type_id,
+              appointment_date,
+              start_time,
+              end_time,
+              status,
+              notes,
+              is_overbooked,
+              delay_minutes
+            )
+
+            VALUES
+            (
+              $1,
+              $2,
+              $3,
+              $4,
+              $5,
+              $6,
+              $7,
+              'confirmed',
+              $8,
+              TRUE,
+              $9
+            )
+
+            RETURNING
+              id,
+              patient_id,
+              patient_record_id,
+              professional_id,
+              appointment_type_id,
+
+              TO_CHAR(
+                appointment_date,
+                'DD/MM/YYYY'
+              ) AS appointment_date,
+
+              start_time,
+              end_time,
+              status,
+              notes,
+              is_overbooked,
+              delay_minutes,
+              created_at
+          `,
+          [
+            patient.user_id ||
+              null,
+
+            patient.id,
+
+            professionalId,
+
+            appointmentTypeId,
+
+            date,
+
+            startTime,
+
+            endTime,
+
+            notes || null,
+
+            delayMinutes,
+          ],
+        );
+
+      res.status(201).json({
+        message:
+          "Sobreturno creado correctamente",
+
+        appointment:
+          result.rows[0],
+
+        patient,
+
+        professional:
+          professionalResult
+            .rows[0],
+
+        service:
+          service.name,
+
+        delayMinutes,
+      });
+    } catch (error) {
+      console.error(
+        "Error creando sobreturno:",
+        error,
+      );
+
+      res.status(500).json({
+        message:
+          "Error al crear el sobreturno",
       });
     }
+  };
 
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        message: "Estado de turno inválido",
-      });
-    }
+export const updateAppointmentStatus =
+  async (req, res) => {
+    try {
+      const { id } =
+        req.params;
 
-    const result = await pool.query(
-      `
-        UPDATE appointments
-        SET
-          status = $1,
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2
-        RETURNING
-          id,
-          TO_CHAR(
-            appointment_date,
-            'DD/MM/YYYY'
-          ) AS appointment_date,
-          start_time,
-          end_time,
+      const { status } =
+        req.body;
+
+      const allowedStatuses = [
+        "scheduled",
+        "confirmed",
+        "cancelled",
+        "completed",
+        "absent",
+      ];
+
+      if (!status) {
+        return res.status(400).json({
+          message:
+            "Debes indicar el estado del turno",
+        });
+      }
+
+      if (
+        !allowedStatuses.includes(
           status,
-          notes,
-          is_overbooked,
-          professional_id,
-          patient_record_id,
-          updated_at
-      `,
-      [status, id],
-    );
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "Estado de turno inválido",
+        });
+      }
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: "Turno no encontrado",
+      const result =
+        await pool.query(
+          `
+            UPDATE appointments
+
+            SET
+              status = $1,
+              updated_at =
+                CURRENT_TIMESTAMP
+
+            WHERE id = $2
+
+            RETURNING
+              id,
+
+              TO_CHAR(
+                appointment_date,
+                'DD/MM/YYYY'
+              ) AS appointment_date,
+
+              start_time,
+              end_time,
+              status,
+              notes,
+              is_overbooked,
+              delay_minutes,
+              professional_id,
+              patient_record_id,
+              updated_at
+          `,
+          [status, id],
+        );
+
+      if (
+        result.rows.length ===
+        0
+      ) {
+        return res.status(404).json({
+          message:
+            "Turno no encontrado",
+        });
+      }
+
+      res.json({
+        message:
+          "Estado del turno actualizado correctamente",
+
+        appointment:
+          result.rows[0],
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        message:
+          "Error al actualizar el estado del turno",
       });
     }
-
-    res.json({
-      message:
-        "Estado del turno actualizado correctamente",
-      appointment: result.rows[0],
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message:
-        "Error al actualizar el estado del turno",
-    });
-  }
-};
+  };

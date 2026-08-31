@@ -110,6 +110,35 @@ const generateTimes = () => {
   return times;
 };
 
+const formatDelay = (minutes) => {
+  const totalMinutes =
+    Number(minutes) || 0;
+
+  if (totalMinutes <= 0) {
+    return "0 min";
+  }
+
+  const hours = Math.floor(
+    totalMinutes / 60,
+  );
+
+  const remainingMinutes =
+    totalMinutes % 60;
+
+  if (
+    hours > 0 &&
+    remainingMinutes > 0
+  ) {
+    return `${hours} h ${remainingMinutes} min`;
+  }
+
+  if (hours > 0) {
+    return `${hours} h`;
+  }
+
+  return `${remainingMinutes} min`;
+};
+
 function AppointmentDatePicker({
   selectedDate,
   selectedTime,
@@ -155,6 +184,33 @@ function AppointmentDatePicker({
           displayDate &&
         appointment.status !==
           "cancelled",
+    );
+  };
+
+  const getDelayForDate = (
+    date,
+  ) => {
+    const dayAppointments =
+      getAppointmentsForDate(date);
+
+    return dayAppointments.reduce(
+      (total, appointment) => {
+        if (
+          appointment.is_overbooked !==
+          true
+        ) {
+          return total;
+        }
+
+        return (
+          total +
+          Number(
+            appointment.delay_minutes ||
+              0,
+          )
+        );
+      },
+      0,
     );
   };
 
@@ -280,6 +336,9 @@ function AppointmentDatePicker({
               date,
             );
 
+          const dayDelay =
+            getDelayForDate(date);
+
           const works =
             professionalWorksOnDate(
               date,
@@ -361,6 +420,25 @@ function AppointmentDatePicker({
                     : "turnos"}
                 </span>
               )}
+
+              <span
+                className={[
+                  "day-delay",
+                  dayDelay > 0
+                    ? "has-delay"
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                Retraso{" "}
+                {dayDelay > 0
+                  ? "+"
+                  : ""}
+                {formatDelay(
+                  dayDelay,
+                )}
+              </span>
             </button>
           );
         })}
