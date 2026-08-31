@@ -1,8 +1,11 @@
 import { Router } from "express";
+
 import {
+  createOverbookedAppointment,
   getAllAppointments,
   updateAppointmentStatus,
 } from "../controllers/adminAppointments.controllers.js";
+
 import { isAuth } from "../middlewares/auth.middleware.js";
 import { isDentist } from "../middlewares/role.middleware.js";
 
@@ -13,6 +16,13 @@ router.get(
   isAuth,
   isDentist,
   getAllAppointments,
+);
+
+router.post(
+  "/admin/appointments/overbooked",
+  isAuth,
+  isDentist,
+  createOverbookedAppointment,
 );
 
 router.patch(
