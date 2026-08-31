@@ -92,8 +92,8 @@ const generateTimes = () => {
   const times = [];
 
   for (
-    let minutes = 8 * 60;
-    minutes <= 20 * 60;
+    let minutes = 8 * 60 + 15;
+    minutes <= 20 * 60 + 45;
     minutes += 30
   ) {
     const hours = Math.floor(
@@ -458,9 +458,10 @@ function AppointmentDatePicker({
             </label>
 
             <p>
-              Los horarios ocupados siguen
-              disponibles porque este es un
-              sobreturno.
+              Las sugerencias de sobreturno
+              están ubicadas a los 15 y 45
+              minutos. También podés elegir
+              manualmente cualquier otra hora.
             </p>
           </div>
         </div>
