@@ -17,6 +17,7 @@ import whatsappWebhookRoutes from "./routes/whatsappWebhook.routes.js";
 import whatsappConsultationsRoutes from "./routes/whatsappConsultations.routes.js";
 import clinicsRoutes from "./routes/clinics.routes.js";
 import professionalsRoutes from "./routes/professionals.routes.js";
+import patientsRoutes from "./routes/patients.routes.js";
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use("/api", whatsappWebhookRoutes);
 app.use("/api", whatsappConsultationsRoutes);
 app.use("/api", clinicsRoutes);
 app.use("/api", professionalsRoutes);
+app.use("/api", patientsRoutes);
 
 app.get("/", async (req, res) => {
   try {

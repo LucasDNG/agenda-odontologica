@@ -1,0 +1,212 @@
+.appointment-date-picker {
+  display: grid;
+  gap: 16px;
+}
+
+.date-picker-header,
+.time-picker-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.date-picker-header > div,
+.time-picker-heading > div {
+  display: grid;
+  gap: 3px;
+}
+
+.date-picker-header span,
+.time-picker-heading span {
+  font-size: 13px;
+  opacity: 0.68;
+}
+
+.date-picker-today {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  padding: 8px 13px;
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  cursor: pointer;
+}
+
+.week-navigation {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  gap: 10px;
+}
+
+.week-navigation strong {
+  text-align: center;
+}
+
+.week-navigation button {
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.week-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(92px, 1fr));
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.week-day-card {
+  min-width: 92px;
+  min-height: 128px;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 3px;
+  padding: 12px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  color: inherit;
+  cursor: pointer;
+}
+
+.week-day-card:hover {
+  background: rgba(255, 255, 255, 0.075);
+}
+
+.week-day-card.selected {
+  border-color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.week-day-card.today {
+  box-shadow: inset 0 0 0 1px rgba(83, 190, 160, 0.5);
+}
+
+.week-day-name {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.week-day-card > strong {
+  margin-top: 3px;
+  font-size: 24px;
+}
+
+.week-day-month {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.day-work-status {
+  margin-top: 7px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  opacity: 0.7;
+}
+
+.day-work-status.works {
+  background: rgba(72, 187, 120, 0.13);
+  opacity: 1;
+}
+
+.day-appointments-count {
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.76;
+}
+
+.time-picker-section {
+  display: grid;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.selected-time-label {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1 !important;
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.time-option {
+  min-height: 58px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  color: inherit;
+  cursor: pointer;
+}
+
+.time-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.time-option.selected {
+  border-color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.time-option.occupied {
+  border-color: rgba(255, 179, 71, 0.35);
+}
+
+.time-option span {
+  font-size: 10px;
+  opacity: 0.68;
+}
+
+.custom-time {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: end;
+  gap: 14px;
+}
+
+.custom-time label {
+  display: grid;
+  gap: 6px;
+}
+
+.custom-time p {
+  margin: 0 0 4px;
+  font-size: 12px;
+  opacity: 0.62;
+}
+
+@media (max-width: 720px) {
+  .week-days {
+    grid-template-columns: repeat(7, 96px);
+  }
+
+  .time-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .custom-time {
+    grid-template-columns: 1fr;
+  }
+}

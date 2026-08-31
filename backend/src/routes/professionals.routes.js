@@ -4,6 +4,7 @@ import {
   getProfessionals,
   createProfessional,
   updateProfessional,
+  createProfessionalAccess,
   getProfessionalServices,
   setProfessionalServices,
 } from "../controllers/professionals.controllers.js";
@@ -32,6 +33,13 @@ router.put(
   isAuth,
   isDentist,
   updateProfessional,
+);
+
+router.post(
+  "/admin/professionals/:id/access",
+  isAuth,
+  isDentist,
+  createProfessionalAccess,
 );
 
 router.get(

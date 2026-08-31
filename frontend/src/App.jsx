@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Configuration from "./Configuration";
+import OverbookedAppointment from "./OverbookedAppointment";
 import "./App.css";
 
 const API_URL = "http://localhost:3000/api";
@@ -17,19 +18,27 @@ function App() {
   const [appointments, setAppointments] = useState([]);
   const [loadingAppointments, setLoadingAppointments] =
     useState(false);
+
   const [appointmentMessage, setAppointmentMessage] =
     useState("");
+
   const [updatingAppointmentId, setUpdatingAppointmentId] =
     useState(null);
 
+  const [showOverbookedModal, setShowOverbookedModal] =
+    useState(false);
+
   const [consultations, setConsultations] = useState([]);
+
   const [consultationStatus, setConsultationStatus] =
     useState("pending");
+
   const [loadingConsultations, setLoadingConsultations] =
     useState(false);
 
   const [replyTexts, setReplyTexts] = useState({});
   const [sendingId, setSendingId] = useState(null);
+
   const [consultationMessage, setConsultationMessage] =
     useState("");
 
@@ -63,7 +72,10 @@ function App() {
         setUser(data.user);
       }
     } catch (error) {
-      console.error("Error comprobando sesión:", error);
+      console.error(
+        "Error comprobando sesión:",
+        error,
+      );
     }
   };
 
@@ -76,10 +88,13 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/signin`, {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
         },
+
         credentials: "include",
+
         body: JSON.stringify({
           email,
           password,
@@ -90,8 +105,10 @@ function App() {
 
       if (!response.ok) {
         setLoginError(
-          data.message || "No se pudo iniciar sesión",
+          data.message ||
+            "No se pudo iniciar sesión",
         );
+
         return;
       }
 
@@ -99,6 +116,7 @@ function App() {
         setLoginError(
           "Este panel es exclusivo para odontólogos",
         );
+
         return;
       }
 
@@ -107,7 +125,10 @@ function App() {
       setPassword("");
     } catch (error) {
       console.error(error);
-      setLoginError("No se pudo conectar con el servidor");
+
+      setLoginError(
+        "No se pudo conectar con el servidor",
+      );
     } finally {
       setLoadingLogin(false);
     }
@@ -126,6 +147,7 @@ function App() {
     setUser(null);
     setAppointments([]);
     setConsultations([]);
+    setShowOverbookedModal(false);
   };
 
   const loadAppointments = async () => {
@@ -144,13 +166,15 @@ function App() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Error obteniendo turnos",
+          data.message ||
+            "Error obteniendo turnos",
         );
       }
 
       setAppointments(data.appointments || []);
     } catch (error) {
       console.error(error);
+
       setAppointmentMessage(
         "No se pudieron cargar los turnos.",
       );
@@ -159,7 +183,18 @@ function App() {
     }
   };
 
-  const updateAppointmentStatus = async (id, status) => {
+  const handleOverbookedCreated = async () => {
+    setAppointmentMessage(
+      "Sobreturno creado correctamente.",
+    );
+
+    await loadAppointments();
+  };
+
+  const updateAppointmentStatus = async (
+    id,
+    status,
+  ) => {
     setUpdatingAppointmentId(id);
     setAppointmentMessage("");
 
@@ -168,10 +203,13 @@ function App() {
         `${API_URL}/admin/appointments/${id}/status`,
         {
           method: "PATCH",
+
           headers: {
             "Content-Type": "application/json",
           },
+
           credentials: "include",
+
           body: JSON.stringify({
             status,
           }),
@@ -190,13 +228,16 @@ function App() {
       await loadAppointments();
     } catch (error) {
       console.error(error);
+
       setAppointmentMessage(error.message);
     } finally {
       setUpdatingAppointmentId(null);
     }
   };
 
-  const loadConsultations = async (selectedStatus) => {
+  const loadConsultations = async (
+    selectedStatus,
+  ) => {
     setLoadingConsultations(true);
     setConsultationMessage("");
 
@@ -212,13 +253,17 @@ function App() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Error obteniendo consultas",
+          data.message ||
+            "Error obteniendo consultas",
         );
       }
 
-      setConsultations(data.consultations || []);
+      setConsultations(
+        data.consultations || [],
+      );
     } catch (error) {
       console.error(error);
+
       setConsultationMessage(
         "No se pudieron cargar las consultas.",
       );
@@ -234,13 +279,17 @@ function App() {
     }));
   };
 
-  const handleReply = async (consultationId) => {
-    const reply = replyTexts[consultationId]?.trim();
+  const handleReply = async (
+    consultationId,
+  ) => {
+    const reply =
+      replyTexts[consultationId]?.trim();
 
     if (!reply) {
       setConsultationMessage(
         "Escribí una respuesta antes de enviar.",
       );
+
       return;
     }
 
@@ -252,10 +301,13 @@ function App() {
         `${API_URL}/admin/whatsapp-consultations/${consultationId}/reply`,
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
           },
+
           credentials: "include",
+
           body: JSON.stringify({
             message: reply,
           }),
@@ -280,10 +332,15 @@ function App() {
         "Respuesta enviada correctamente.",
       );
 
-      await loadConsultations(consultationStatus);
+      await loadConsultations(
+        consultationStatus,
+      );
     } catch (error) {
       console.error(error);
-      setConsultationMessage(error.message);
+
+      setConsultationMessage(
+        error.message,
+      );
     } finally {
       setSendingId(null);
     }
@@ -307,7 +364,9 @@ function App() {
     return String(time).slice(0, 5);
   };
 
-  const getAppointmentStatusLabel = (status) => {
+  const getAppointmentStatusLabel = (
+    status,
+  ) => {
     const labels = {
       scheduled: "Programado",
       confirmed: "Confirmado",
@@ -331,7 +390,9 @@ function App() {
       <main className="login-page">
         <section className="login-card">
           <div className="brand">
-            <span className="brand-icon">🦷</span>
+            <span className="brand-icon">
+              🦷
+            </span>
 
             <div>
               <h1>Agenda Odontológica</h1>
@@ -345,6 +406,7 @@ function App() {
           >
             <label>
               Email
+
               <input
                 type="email"
                 value={email}
@@ -358,11 +420,14 @@ function App() {
 
             <label>
               Contraseña
+
               <input
                 type="password"
                 value={password}
                 onChange={(event) =>
-                  setPassword(event.target.value)
+                  setPassword(
+                    event.target.value,
+                  )
                 }
                 placeholder="Contraseña"
                 required
@@ -397,7 +462,9 @@ function App() {
             Consultorio odontológico
           </p>
 
-          <h1>Panel de administración</h1>
+          <h1>
+            Panel de administración
+          </h1>
         </div>
 
         <div className="user-area">
@@ -421,7 +488,9 @@ function App() {
               ? "nav-button active"
               : "nav-button"
           }
-          onClick={() => setSection("agenda")}
+          onClick={() =>
+            setSection("agenda")
+          }
         >
           📅 Agenda
         </button>
@@ -458,16 +527,31 @@ function App() {
           <>
             <div className="section-heading">
               <div>
-                <p className="eyebrow">Turnos</p>
+                <p className="eyebrow">
+                  Turnos
+                </p>
+
                 <h2>Agenda</h2>
               </div>
 
-              <button
-                className="secondary-button"
-                onClick={loadAppointments}
-              >
-                Actualizar
-              </button>
+              <div className="agenda-heading-actions">
+                <button
+                  className="overbooked-create-button"
+                  type="button"
+                  onClick={() =>
+                    setShowOverbookedModal(true)
+                  }
+                >
+                  + Sobreturno
+                </button>
+
+                <button
+                  className="secondary-button"
+                  onClick={loadAppointments}
+                >
+                  Actualizar
+                </button>
+              </div>
             </div>
 
             {appointmentMessage && (
@@ -480,7 +564,8 @@ function App() {
               <div className="empty-state">
                 Cargando turnos...
               </div>
-            ) : visibleAppointments.length === 0 ? (
+            ) : visibleAppointments.length ===
+              0 ? (
               <div className="empty-state">
                 No hay turnos para mostrar.
               </div>
@@ -489,7 +574,11 @@ function App() {
                 {visibleAppointments.map(
                   (appointment) => (
                     <article
-                      className="appointment-card"
+                      className={
+                        appointment.is_overbooked
+                          ? "appointment-card overbooked-appointment-card"
+                          : "appointment-card"
+                      }
                       key={appointment.id}
                     >
                       <div className="appointment-time">
@@ -504,17 +593,39 @@ function App() {
                             appointment.appointment_date
                           }
                         </span>
+
+                        {appointment.is_overbooked && (
+                          <span className="overbooked-badge">
+                            SOBRETURNO
+                          </span>
+                        )}
                       </div>
 
                       <div className="appointment-info">
                         <h3>
-                          {appointment.patient_name}{" "}
+                          {
+                            appointment.patient_name
+                          }{" "}
                           {
                             appointment.patient_lastname
                           }
                         </h3>
 
-                        <p>{appointment.service}</p>
+                        <p>
+                          {appointment.service}
+                        </p>
+
+                        {appointment.professional_name && (
+                          <p className="appointment-professional">
+                            🦷{" "}
+                            {
+                              appointment.professional_name
+                            }{" "}
+                            {
+                              appointment.professional_lastname
+                            }
+                          </p>
+                        )}
 
                         <div className="appointment-contact">
                           <span>
@@ -535,7 +646,9 @@ function App() {
                         {appointment.notes && (
                           <p className="appointment-notes">
                             Nota:{" "}
-                            {appointment.notes}
+                            {
+                              appointment.notes
+                            }
                           </p>
                         )}
                       </div>
@@ -609,6 +722,16 @@ function App() {
                 )}
               </div>
             )}
+
+            <OverbookedAppointment
+              open={showOverbookedModal}
+              onClose={() =>
+                setShowOverbookedModal(false)
+              }
+              onCreated={
+                handleOverbookedCreated
+              }
+            />
           </>
         )}
 
@@ -619,6 +742,7 @@ function App() {
                 <p className="eyebrow">
                   WhatsApp
                 </p>
+
                 <h2>Consultas</h2>
               </div>
             </div>
@@ -686,7 +810,9 @@ function App() {
                         <div>
                           <span className="phone">
                             📱{" "}
-                            {consultation.phone}
+                            {
+                              consultation.phone
+                            }
                           </span>
 
                           <p className="date">
@@ -713,7 +839,9 @@ function App() {
 
                       <div className="patient-message">
                         <p>
-                          {consultation.message}
+                          {
+                            consultation.message
+                          }
                         </p>
                       </div>
 

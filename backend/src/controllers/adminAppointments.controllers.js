@@ -15,35 +15,6 @@ const minutesToTime = (minutes) => {
   ).padStart(2, "0")}`;
 };
 
-export const getPatientsForAppointments = async (
-  req,
-  res,
-) => {
-  try {
-    const result = await pool.query(`
-      SELECT
-        id,
-        name,
-        lastname,
-        email,
-        phone
-      FROM users
-      WHERE role = 'patient'
-      ORDER BY lastname, name
-    `);
-
-    res.json({
-      patients: result.rows,
-    });
-  } catch (error) {
-    console.error("Error obteniendo pacientes:", error);
-
-    res.status(500).json({
-      message: "Error al obtener los pacientes",
-    });
-  }
-};
-
 export const getAllAppointments = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -59,31 +30,31 @@ export const getAllAppointments = async (req, res) => {
         a.notes,
         a.is_overbooked,
 
-        u.id AS patient_id,
-        u.name AS patient_name,
-        u.lastname AS patient_lastname,
-        u.email AS patient_email,
-        u.phone AS patient_phone,
+        p.id AS patient_record_id,
+        p.name AS patient_name,
+        p.lastname AS patient_lastname,
+        p.email AS patient_email,
+        p.phone AS patient_phone,
 
         at.id AS appointment_type_id,
         at.name AS service,
         at.duration_minutes,
 
-        p.id AS professional_id,
-        p.name AS professional_name,
-        p.lastname AS professional_lastname,
-        p.specialty AS professional_specialty
+        pr.id AS professional_id,
+        pr.name AS professional_name,
+        pr.lastname AS professional_lastname,
+        pr.specialty AS professional_specialty
 
       FROM appointments a
 
-      JOIN users u
-        ON a.patient_id = u.id
+      JOIN patients p
+        ON a.patient_record_id = p.id
 
       JOIN appointment_types at
         ON a.appointment_type_id = at.id
 
-      LEFT JOIN professionals p
-        ON a.professional_id = p.id
+      LEFT JOIN professionals pr
+        ON a.professional_id = pr.id
 
       ORDER BY
         a.appointment_date,
@@ -95,7 +66,10 @@ export const getAllAppointments = async (req, res) => {
       appointments: result.rows,
     });
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Error obteniendo turnos:",
+      error,
+    );
 
     res.status(500).json({
       message: "Error al obtener los turnos",
@@ -149,11 +123,14 @@ export const createOverbookedAppointment = async (
       `
         SELECT
           id,
+          user_id,
           name,
           lastname,
-          role
-        FROM users
+          phone,
+          email
+        FROM patients
         WHERE id = $1
+          AND active = TRUE
       `,
       [patientId],
     );
@@ -164,12 +141,7 @@ export const createOverbookedAppointment = async (
       });
     }
 
-    if (patientResult.rows[0].role !== "patient") {
-      return res.status(400).json({
-        message:
-          "El usuario seleccionado no es un paciente",
-      });
-    }
+    const patient = patientResult.rows[0];
 
     const professionalResult = await pool.query(
       `
@@ -179,7 +151,7 @@ export const createOverbookedAppointment = async (
           lastname
         FROM professionals
         WHERE id = $1
-          AND active = true
+          AND active = TRUE
       `,
       [professionalId],
     );
@@ -203,7 +175,7 @@ export const createOverbookedAppointment = async (
 
         WHERE at.id = $1
           AND ps.professional_id = $2
-          AND at.active = true
+          AND at.active = TRUE
       `,
       [appointmentTypeId, professionalId],
     );
@@ -218,6 +190,7 @@ export const createOverbookedAppointment = async (
     const service = serviceResult.rows[0];
 
     const startMinutes = timeToMinutes(startTime);
+
     const endMinutes =
       startMinutes + service.duration_minutes;
 
@@ -235,6 +208,7 @@ export const createOverbookedAppointment = async (
         INSERT INTO appointments
         (
           patient_id,
+          patient_record_id,
           professional_id,
           appointment_type_id,
           appointment_date,
@@ -252,13 +226,15 @@ export const createOverbookedAppointment = async (
           $4,
           $5,
           $6,
-          'confirmed',
           $7,
+          'confirmed',
+          $8,
           TRUE
         )
         RETURNING
           id,
           patient_id,
+          patient_record_id,
           professional_id,
           appointment_type_id,
           TO_CHAR(
@@ -273,7 +249,8 @@ export const createOverbookedAppointment = async (
           created_at
       `,
       [
-        patientId,
+        patient.user_id || null,
+        patient.id,
         professionalId,
         appointmentTypeId,
         date,
@@ -286,9 +263,15 @@ export const createOverbookedAppointment = async (
     res.status(201).json({
       message: "Sobreturno creado correctamente",
       appointment: result.rows[0],
+      patient,
+      professional: professionalResult.rows[0],
+      service: service.name,
     });
   } catch (error) {
-    console.error("Error creando sobreturno:", error);
+    console.error(
+      "Error creando sobreturno:",
+      error,
+    );
 
     res.status(500).json({
       message: "Error al crear el sobreturno",
@@ -343,6 +326,7 @@ export const updateAppointmentStatus = async (
           notes,
           is_overbooked,
           professional_id,
+          patient_record_id,
           updated_at
       `,
       [status, id],

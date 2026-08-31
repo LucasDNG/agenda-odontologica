@@ -498,3 +498,47 @@ button {
     align-items: flex-start;
   }
 }
+
+.agenda-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.overbooked-create-button {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.overbooked-appointment-card {
+  border: 1px solid rgba(255, 179, 71, 0.55);
+}
+
+.overbooked-badge {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  background: rgba(255, 179, 71, 0.18);
+}
+
+.appointment-professional {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+@media (max-width: 650px) {
+  .agenda-heading-actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

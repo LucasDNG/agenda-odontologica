@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { pool } from "../db.js";
 
 export const getProfessionals = async (req, res) => {
@@ -38,15 +39,22 @@ export const getProfessionals = async (req, res) => {
       professionals: result.rows,
     });
   } catch (error) {
-    console.error("Error obteniendo profesionales:", error);
+    console.error(
+      "Error obteniendo profesionales:",
+      error,
+    );
 
     res.status(500).json({
-      message: "Error al obtener los profesionales",
+      message:
+        "Error al obtener los profesionales",
     });
   }
 };
 
-export const createProfessional = async (req, res) => {
+export const createProfessional = async (
+  req,
+  res,
+) => {
   try {
     const {
       clinicId,
@@ -60,13 +68,15 @@ export const createProfessional = async (req, res) => {
 
     if (!clinicId) {
       return res.status(400).json({
-        message: "Debes indicar el consultorio",
+        message:
+          "Debes indicar el consultorio",
       });
     }
 
     if (!name?.trim() || !lastname?.trim()) {
       return res.status(400).json({
-        message: "Nombre y apellido son obligatorios",
+        message:
+          "Nombre y apellido son obligatorios",
       });
     }
 
@@ -81,24 +91,25 @@ export const createProfessional = async (req, res) => {
 
     if (clinicResult.rows.length === 0) {
       return res.status(404).json({
-        message: "Consultorio no encontrado",
+        message:
+          "Consultorio no encontrado",
       });
     }
 
     const result = await pool.query(
       `
         INSERT INTO professionals
-          (
-            clinic_id,
-            user_id,
-            name,
-            lastname,
-            phone,
-            email,
-            specialty
-          )
+        (
+          clinic_id,
+          user_id,
+          name,
+          lastname,
+          phone,
+          email,
+          specialty
+        )
         VALUES
-          ($1, $2, $3, $4, $5, $6, $7)
+        ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *
       `,
       [
@@ -113,19 +124,27 @@ export const createProfessional = async (req, res) => {
     );
 
     res.status(201).json({
-      message: "Profesional creado correctamente",
+      message:
+        "Profesional creado correctamente",
       professional: result.rows[0],
     });
   } catch (error) {
-    console.error("Error creando profesional:", error);
+    console.error(
+      "Error creando profesional:",
+      error,
+    );
 
     res.status(500).json({
-      message: "Error al crear el profesional",
+      message:
+        "Error al crear el profesional",
     });
   }
 };
 
-export const updateProfessional = async (req, res) => {
+export const updateProfessional = async (
+  req,
+  res,
+) => {
   try {
     const { id } = req.params;
 
@@ -142,13 +161,15 @@ export const updateProfessional = async (req, res) => {
 
     if (!clinicId) {
       return res.status(400).json({
-        message: "Debes indicar el consultorio",
+        message:
+          "Debes indicar el consultorio",
       });
     }
 
     if (!name?.trim() || !lastname?.trim()) {
       return res.status(400).json({
-        message: "Nombre y apellido son obligatorios",
+        message:
+          "Nombre y apellido son obligatorios",
       });
     }
 
@@ -183,24 +204,203 @@ export const updateProfessional = async (req, res) => {
 
     if (result.rows.length === 0) {
       return res.status(404).json({
-        message: "Profesional no encontrado",
+        message:
+          "Profesional no encontrado",
       });
     }
 
     res.json({
-      message: "Profesional actualizado correctamente",
+      message:
+        "Profesional actualizado correctamente",
       professional: result.rows[0],
     });
   } catch (error) {
-    console.error("Error actualizando profesional:", error);
+    console.error(
+      "Error actualizando profesional:",
+      error,
+    );
 
     res.status(500).json({
-      message: "Error al actualizar el profesional",
+      message:
+        "Error al actualizar el profesional",
     });
   }
 };
 
-export const getProfessionalServices = async (req, res) => {
+export const createProfessionalAccess = async (
+  req,
+  res,
+) => {
+  const client = await pool.connect();
+
+  try {
+    const { id } = req.params;
+    const { email, password } = req.body;
+
+    const cleanEmail =
+      typeof email === "string"
+        ? email.trim().toLowerCase()
+        : "";
+
+    if (!cleanEmail) {
+      return res.status(400).json({
+        message: "El email es obligatorio",
+      });
+    }
+
+    if (
+      typeof password !== "string" ||
+      password.length < 6
+    ) {
+      return res.status(400).json({
+        message:
+          "La contraseña debe tener al menos 6 caracteres",
+      });
+    }
+
+    await client.query("BEGIN");
+
+    const professionalResult =
+      await client.query(
+        `
+          SELECT
+            id,
+            user_id,
+            name,
+            lastname,
+            phone,
+            email
+          FROM professionals
+          WHERE id = $1
+            AND active = TRUE
+          FOR UPDATE
+        `,
+        [id],
+      );
+
+    if (
+      professionalResult.rows.length === 0
+    ) {
+      await client.query("ROLLBACK");
+
+      return res.status(404).json({
+        message:
+          "Profesional no encontrado",
+      });
+    }
+
+    const professional =
+      professionalResult.rows[0];
+
+    if (professional.user_id) {
+      await client.query("ROLLBACK");
+
+      return res.status(409).json({
+        message:
+          "Este profesional ya tiene una cuenta vinculada",
+      });
+    }
+
+    const existingUser =
+      await client.query(
+        `
+          SELECT id
+          FROM users
+          WHERE LOWER(email) = LOWER($1)
+          LIMIT 1
+        `,
+        [cleanEmail],
+      );
+
+    if (existingUser.rows.length > 0) {
+      await client.query("ROLLBACK");
+
+      return res.status(409).json({
+        message:
+          "Ya existe una cuenta con ese email",
+      });
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
+
+    const userResult = await client.query(
+      `
+        INSERT INTO users
+        (
+          name,
+          lastname,
+          email,
+          password,
+          phone,
+          role
+        )
+        VALUES
+        ($1, $2, $3, $4, $5, 'dentist')
+        RETURNING
+          id,
+          name,
+          lastname,
+          email,
+          phone,
+          role,
+          created_at
+      `,
+      [
+        professional.name,
+        professional.lastname,
+        cleanEmail,
+        hashedPassword,
+        professional.phone || null,
+      ],
+    );
+
+    const user = userResult.rows[0];
+
+    const updatedProfessional =
+      await client.query(
+        `
+          UPDATE professionals
+          SET
+            user_id = $1,
+            email = COALESCE(email, $2),
+            updated_at = NOW()
+          WHERE id = $3
+          RETURNING *
+        `,
+        [user.id, cleanEmail, id],
+      );
+
+    await client.query("COMMIT");
+
+    res.status(201).json({
+      message:
+        "Acceso del profesional creado correctamente",
+      user,
+      professional:
+        updatedProfessional.rows[0],
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+
+    console.error(
+      "Error creando acceso del profesional:",
+      error,
+    );
+
+    res.status(500).json({
+      message:
+        "Error al crear el acceso del profesional",
+    });
+  } finally {
+    client.release();
+  }
+};
+
+export const getProfessionalServices = async (
+  req,
+  res,
+) => {
   try {
     const { id } = req.params;
 
@@ -224,15 +424,22 @@ export const getProfessionalServices = async (req, res) => {
       services: result.rows,
     });
   } catch (error) {
-    console.error("Error obteniendo servicios del profesional:", error);
+    console.error(
+      "Error obteniendo servicios del profesional:",
+      error,
+    );
 
     res.status(500).json({
-      message: "Error al obtener los servicios del profesional",
+      message:
+        "Error al obtener los servicios del profesional",
     });
   }
 };
 
-export const setProfessionalServices = async (req, res) => {
+export const setProfessionalServices = async (
+  req,
+  res,
+) => {
   const client = await pool.connect();
 
   try {
@@ -241,26 +448,31 @@ export const setProfessionalServices = async (req, res) => {
 
     if (!Array.isArray(appointmentTypeIds)) {
       return res.status(400).json({
-        message: "appointmentTypeIds debe ser un array",
+        message:
+          "appointmentTypeIds debe ser un array",
       });
     }
 
     await client.query("BEGIN");
 
-    const professionalResult = await client.query(
-      `
-        SELECT id
-        FROM professionals
-        WHERE id = $1
-      `,
-      [id],
-    );
+    const professionalResult =
+      await client.query(
+        `
+          SELECT id
+          FROM professionals
+          WHERE id = $1
+        `,
+        [id],
+      );
 
-    if (professionalResult.rows.length === 0) {
+    if (
+      professionalResult.rows.length === 0
+    ) {
       await client.query("ROLLBACK");
 
       return res.status(404).json({
-        message: "Profesional no encontrado",
+        message:
+          "Profesional no encontrado",
       });
     }
 
@@ -276,9 +488,12 @@ export const setProfessionalServices = async (req, res) => {
       await client.query(
         `
           INSERT INTO professional_services
-            (professional_id, appointment_type_id)
+          (
+            professional_id,
+            appointment_type_id
+          )
           VALUES
-            ($1, $2)
+          ($1, $2)
         `,
         [id, appointmentTypeId],
       );
@@ -287,15 +502,20 @@ export const setProfessionalServices = async (req, res) => {
     await client.query("COMMIT");
 
     res.json({
-      message: "Servicios del profesional actualizados correctamente",
+      message:
+        "Servicios del profesional actualizados correctamente",
     });
   } catch (error) {
     await client.query("ROLLBACK");
 
-    console.error("Error actualizando servicios del profesional:", error);
+    console.error(
+      "Error actualizando servicios del profesional:",
+      error,
+    );
 
     res.status(500).json({
-      message: "Error al actualizar los servicios del profesional",
+      message:
+        "Error al actualizar los servicios del profesional",
     });
   } finally {
     client.release();

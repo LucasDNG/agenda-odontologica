@@ -3,6 +3,16 @@ import "./Configuration.css";
 
 const API_URL = "http://localhost:3000/api";
 
+const DAYS = [
+  { value: 1, label: "Lunes" },
+  { value: 2, label: "Martes" },
+  { value: 3, label: "Miércoles" },
+  { value: 4, label: "Jueves" },
+  { value: 5, label: "Viernes" },
+  { value: 6, label: "Sábado" },
+  { value: 0, label: "Domingo" },
+];
+
 function Configuration() {
   const [clinic, setClinic] = useState(null);
   const [professionals, setProfessionals] = useState([]);
@@ -20,11 +30,20 @@ function Configuration() {
   });
 
   const [selectedServices, setSelectedServices] = useState([]);
+  const [availability, setAvailability] = useState([]);
+
+  const [newSchedule, setNewSchedule] = useState({
+    dayOfWeek: 1,
+    startTime: "09:00",
+    endTime: "12:00",
+  });
 
   const [loading, setLoading] = useState(true);
   const [savingProfessional, setSavingProfessional] =
     useState(false);
   const [savingServices, setSavingServices] = useState(false);
+  const [savingAvailability, setSavingAvailability] =
+    useState(false);
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -33,22 +52,25 @@ function Configuration() {
     loadInitialData();
   }, []);
 
- useEffect(() => {
-  const updateSelectedProfessionalServices = async () => {
-    if (!selectedProfessionalId) {
+  useEffect(() => {
+    const updateSelectedProfessional = async () => {
+      if (!selectedProfessionalId) {
+        setSelectedServices([]);
+        setAvailability([]);
+        return;
+      }
+
       setSelectedServices([]);
-      return;
-    }
+      setAvailability([]);
 
-    setSelectedServices([]);
+      await Promise.all([
+        loadProfessionalServices(selectedProfessionalId),
+        loadProfessionalAvailability(selectedProfessionalId),
+      ]);
+    };
 
-    await loadProfessionalServices(
-      selectedProfessionalId,
-    );
-  };
-
-  updateSelectedProfessionalServices();
-}, [selectedProfessionalId]);
+    updateSelectedProfessional();
+  }, [selectedProfessionalId]);
 
   const showSuccess = (text) => {
     setError("");
@@ -148,39 +170,78 @@ function Configuration() {
     }
   };
 
-const loadProfessionalServices = async (
-  professionalId,
-) => {
-  try {
-    const response = await fetch(
-      `${API_URL}/admin/professionals/${professionalId}/services`,
-      {
-        credentials: "include",
-      },
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message ||
-          "No se pudieron cargar los servicios",
+  const loadProfessionalServices = async (
+    professionalId,
+  ) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/admin/professionals/${professionalId}/services`,
+        {
+          credentials: "include",
+        },
       );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "No se pudieron cargar los servicios",
+        );
+      }
+
+      const serviceIds = (data.services || []).map(
+        (service) => Number(service.id),
+      );
+
+      setSelectedServices(serviceIds);
+    } catch (currentError) {
+      console.error(currentError);
+
+      setSelectedServices([]);
+
+      showError(currentError.message);
     }
+  };
 
-    const serviceIds = (data.services || []).map(
-      (service) => Number(service.id),
-    );
+  const loadProfessionalAvailability = async (
+    professionalId,
+  ) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/admin/professionals/${professionalId}/availability`,
+        {
+          credentials: "include",
+        },
+      );
 
-    setSelectedServices(serviceIds);
-  } catch (currentError) {
-    console.error(currentError);
+      const data = await response.json();
 
-    setSelectedServices([]);
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "No se pudieron cargar los horarios",
+        );
+      }
 
-    showError(currentError.message);
-  }
-};
+      const schedules = (data.availability || []).map(
+        (item) => ({
+          dayOfWeek: Number(item.day_of_week),
+          startTime: item.start_time.slice(0, 5),
+          endTime: item.end_time.slice(0, 5),
+          active: item.active !== false,
+        }),
+      );
+
+      setAvailability(schedules);
+    } catch (currentError) {
+      console.error(currentError);
+
+      setAvailability([]);
+
+      showError(currentError.message);
+    }
+  };
 
   const handleProfessionalChange = (event) => {
     const { name, value } = event.target;
@@ -337,6 +398,139 @@ const loadProfessionalServices = async (
     }
   };
 
+  const handleNewScheduleChange = (event) => {
+    const { name, value } = event.target;
+
+    setNewSchedule((previous) => ({
+      ...previous,
+      [name]:
+        name === "dayOfWeek" ? Number(value) : value,
+    }));
+  };
+
+  const addSchedule = () => {
+    if (
+      !newSchedule.startTime ||
+      !newSchedule.endTime
+    ) {
+      showError(
+        "Debes indicar horario de inicio y finalización.",
+      );
+      return;
+    }
+
+    if (
+      newSchedule.startTime >= newSchedule.endTime
+    ) {
+      showError(
+        "El horario de inicio debe ser anterior al horario de finalización.",
+      );
+      return;
+    }
+
+    const duplicate = availability.some(
+      (schedule) =>
+        schedule.dayOfWeek ===
+          newSchedule.dayOfWeek &&
+        schedule.startTime ===
+          newSchedule.startTime &&
+        schedule.endTime === newSchedule.endTime,
+    );
+
+    if (duplicate) {
+      showError(
+        "Ese horario ya está agregado para el profesional.",
+      );
+      return;
+    }
+
+    setAvailability((previous) => [
+      ...previous,
+      {
+        ...newSchedule,
+        active: true,
+      },
+    ]);
+
+    setMessage("");
+    setError("");
+  };
+
+  const removeSchedule = (indexToRemove) => {
+    setAvailability((previous) =>
+      previous.filter(
+        (_, index) => index !== indexToRemove,
+      ),
+    );
+  };
+
+  const saveProfessionalAvailability = async () => {
+    if (!selectedProfessionalId) {
+      showError("Seleccioná un profesional.");
+      return;
+    }
+
+    setSavingAvailability(true);
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await fetch(
+        `${API_URL}/admin/professionals/${selectedProfessionalId}/availability`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            availability,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "No se pudieron guardar los horarios",
+        );
+      }
+
+      const schedules = (data.availability || []).map(
+        (item) => ({
+          dayOfWeek: Number(item.day_of_week),
+          startTime: item.start_time.slice(0, 5),
+          endTime: item.end_time.slice(0, 5),
+          active: item.active !== false,
+        }),
+      );
+
+      setAvailability(schedules);
+
+      showSuccess(
+        "Horarios del profesional actualizados.",
+      );
+    } catch (currentError) {
+      console.error(currentError);
+      showError(currentError.message);
+    } finally {
+      setSavingAvailability(false);
+    }
+  };
+
+  const getDayLabel = (dayOfWeek) => {
+    return (
+      DAYS.find(
+        (day) => day.value === dayOfWeek,
+      )?.label || "Día"
+    );
+  };
+
   if (loading) {
     return (
       <div className="configuration-empty">
@@ -354,8 +548,8 @@ const loadProfessionalServices = async (
         </div>
 
         <p className="configuration-description">
-          Administrá los profesionales y los servicios
-          disponibles del consultorio.
+          Administrá profesionales, servicios y horarios
+          del consultorio.
         </p>
       </div>
 
@@ -612,6 +806,143 @@ const loadProfessionalServices = async (
               {savingServices
                 ? "Guardando..."
                 : "Guardar servicios"}
+            </button>
+          </>
+        )}
+      </section>
+
+      <section className="configuration-card">
+        <div className="configuration-card-heading">
+          <div className="configuration-number">4</div>
+
+          <div>
+            <h3>Días y horarios de atención</h3>
+
+            <p>
+              Configurá las franjas horarias del profesional
+              seleccionado.
+            </p>
+          </div>
+        </div>
+
+        {!selectedProfessionalId ? (
+          <div className="configuration-empty small">
+            Seleccioná un profesional.
+          </div>
+        ) : (
+          <>
+            {availability.length > 0 ? (
+              <div className="availability-list">
+                {availability
+                  .map((schedule, index) => ({
+                    ...schedule,
+                    originalIndex: index,
+                  }))
+                  .sort((a, b) => {
+                    if (a.dayOfWeek !== b.dayOfWeek) {
+                      return a.dayOfWeek - b.dayOfWeek;
+                    }
+
+                    return a.startTime.localeCompare(
+                      b.startTime,
+                    );
+                  })
+                  .map((schedule) => (
+                    <div
+                      className="availability-item"
+                      key={`${schedule.dayOfWeek}-${schedule.startTime}-${schedule.endTime}-${schedule.originalIndex}`}
+                    >
+                      <div>
+                        <strong>
+                          {getDayLabel(
+                            schedule.dayOfWeek,
+                          )}
+                        </strong>
+
+                        <span>
+                          {schedule.startTime} a{" "}
+                          {schedule.endTime}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="availability-remove-button"
+                        onClick={() =>
+                          removeSchedule(
+                            schedule.originalIndex,
+                          )
+                        }
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="configuration-empty small">
+                Este profesional todavía no tiene horarios
+                cargados.
+              </div>
+            )}
+
+            <div className="availability-form">
+              <label className="configuration-field">
+                Día
+                <select
+                  name="dayOfWeek"
+                  value={newSchedule.dayOfWeek}
+                  onChange={handleNewScheduleChange}
+                >
+                  {DAYS.map((day) => (
+                    <option
+                      key={day.value}
+                      value={day.value}
+                    >
+                      {day.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="configuration-field">
+                Desde
+                <input
+                  type="time"
+                  name="startTime"
+                  value={newSchedule.startTime}
+                  onChange={handleNewScheduleChange}
+                />
+              </label>
+
+              <label className="configuration-field">
+                Hasta
+                <input
+                  type="time"
+                  name="endTime"
+                  value={newSchedule.endTime}
+                  onChange={handleNewScheduleChange}
+                />
+              </label>
+
+              <button
+                type="button"
+                className="configuration-primary-button"
+                onClick={addSchedule}
+              >
+                Agregar horario
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className="configuration-primary-button"
+              onClick={saveProfessionalAvailability}
+              disabled={savingAvailability}
+            >
+              {savingAvailability
+                ? "Guardando..."
+                : "Guardar horarios"}
             </button>
           </>
         )}
