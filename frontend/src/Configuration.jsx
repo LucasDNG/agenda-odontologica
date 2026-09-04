@@ -3,6 +3,7 @@ import {
   useState,
 } from "react";
 
+import ProfessionalManagement from "./ProfessionalManagement";
 import ServiceManagement from "./ServiceManagement";
 import "./Configuration.css";
 
@@ -49,17 +50,6 @@ function Configuration() {
   ] = useState("");
 
   const [
-    professionalForm,
-    setProfessionalForm,
-  ] = useState({
-    name: "",
-    lastname: "",
-    phone: "",
-    email: "",
-    specialty: "",
-  });
-
-  const [
     selectedServices,
     setSelectedServices,
   ] = useState([]);
@@ -78,14 +68,6 @@ function Configuration() {
     endTime: "12:00",
   });
 
-  const [loading, setLoading] =
-    useState(true);
-
-  const [
-    savingProfessional,
-    setSavingProfessional,
-  ] = useState(false);
-
   const [
     savingServices,
     setSavingServices,
@@ -95,6 +77,9 @@ function Configuration() {
     savingAvailability,
     setSavingAvailability,
   ] = useState(false);
+
+  const [loading, setLoading] =
+    useState(true);
 
   const [message, setMessage] =
     useState("");
@@ -107,7 +92,7 @@ function Configuration() {
   }, []);
 
   useEffect(() => {
-    const updateSelectedProfessional =
+    const loadSelectedProfessional =
       async () => {
         if (
           !selectedProfessionalId
@@ -124,21 +109,26 @@ function Configuration() {
           loadProfessionalServices(
             selectedProfessionalId,
           ),
+
           loadProfessionalAvailability(
             selectedProfessionalId,
           ),
         ]);
       };
 
-    updateSelectedProfessional();
+    loadSelectedProfessional();
   }, [selectedProfessionalId]);
 
-  const showSuccess = (text) => {
+  const showSuccess = (
+    text,
+  ) => {
     setError("");
     setMessage(text);
   };
 
-  const showError = (text) => {
+  const showError = (
+    text,
+  ) => {
     setMessage("");
     setError(text);
   };
@@ -168,6 +158,71 @@ function Configuration() {
         data.appointmentTypes ||
           [],
       );
+    };
+
+  const loadProfessionals =
+    async (
+      clinicId =
+        clinic?.id,
+    ) => {
+      if (!clinicId) {
+        return;
+      }
+
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/admin/professionals?clinicId=${clinicId}`,
+            {
+              credentials:
+                "include",
+            },
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "No se pudieron cargar los profesionales",
+          );
+        }
+
+        setProfessionals(
+          data.professionals ||
+            [],
+        );
+
+        const selectedStillExists =
+          (
+            data.professionals ||
+            []
+          ).some(
+            (professional) =>
+              String(
+                professional.id,
+              ) ===
+              selectedProfessionalId,
+          );
+
+        if (
+          selectedProfessionalId &&
+          !selectedStillExists
+        ) {
+          setSelectedProfessionalId(
+            "",
+          );
+        }
+      } catch (currentError) {
+        console.error(
+          currentError,
+        );
+
+        showError(
+          currentError.message,
+        );
+      }
     };
 
   const loadInitialData =
@@ -232,9 +287,7 @@ function Configuration() {
         await loadProfessionals(
           currentClinic.id,
         );
-      } catch (
-        currentError
-      ) {
+      } catch (currentError) {
         console.error(
           currentError,
         );
@@ -337,50 +390,13 @@ function Configuration() {
         showSuccess(
           "Límite de turnos actualizado.",
         );
-      } catch (
-        currentError
-      ) {
+      } catch (currentError) {
         showError(
           currentError.message,
         );
       } finally {
         setSavingClinicSettings(
           false,
-        );
-      }
-    };
-
-  const loadProfessionals =
-    async (clinicId) => {
-      try {
-        const response =
-          await fetch(
-            `${API_URL}/admin/professionals?clinicId=${clinicId}`,
-            {
-              credentials:
-                "include",
-            },
-          );
-
-        const data =
-          await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.message ||
-              "No se pudieron cargar los profesionales",
-          );
-        }
-
-        setProfessionals(
-          data.professionals ||
-            [],
-        );
-      } catch (
-        currentError
-      ) {
-        showError(
-          currentError.message,
         );
       }
     };
@@ -420,9 +436,7 @@ function Configuration() {
               ),
           ),
         );
-      } catch (
-        currentError
-      ) {
+      } catch (currentError) {
         setSelectedServices(
           [],
         );
@@ -486,127 +500,11 @@ function Configuration() {
             }),
           ),
         );
-      } catch (
-        currentError
-      ) {
+      } catch (currentError) {
         setAvailability([]);
 
         showError(
           currentError.message,
-        );
-      }
-    };
-
-  const handleProfessionalChange =
-    (event) => {
-      const {
-        name,
-        value,
-      } = event.target;
-
-      setProfessionalForm(
-        (previous) => ({
-          ...previous,
-          [name]: value,
-        }),
-      );
-    };
-
-  const createProfessional =
-    async (event) => {
-      event.preventDefault();
-
-      if (!clinic) {
-        showError(
-          "El consultorio todavía no está configurado.",
-        );
-
-        return;
-      }
-
-      if (
-        !professionalForm.name.trim() ||
-        !professionalForm.lastname.trim()
-      ) {
-        showError(
-          "Nombre y apellido del profesional son obligatorios.",
-        );
-
-        return;
-      }
-
-      setSavingProfessional(
-        true,
-      );
-
-      try {
-        const response =
-          await fetch(
-            `${API_URL}/admin/professionals`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-
-              credentials:
-                "include",
-
-              body:
-                JSON.stringify({
-                  clinicId:
-                    clinic.id,
-
-                  ...professionalForm,
-                }),
-            },
-          );
-
-        const data =
-          await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.message ||
-              "No se pudo crear el profesional",
-          );
-        }
-
-        setProfessionals(
-          (previous) => [
-            ...previous,
-            data.professional,
-          ],
-        );
-
-        setProfessionalForm({
-          name: "",
-          lastname: "",
-          phone: "",
-          email: "",
-          specialty: "",
-        });
-
-        setSelectedProfessionalId(
-          String(
-            data.professional.id,
-          ),
-        );
-
-        showSuccess(
-          "Profesional agregado correctamente.",
-        );
-      } catch (
-        currentError
-      ) {
-        showError(
-          currentError.message,
-        );
-      } finally {
-        setSavingProfessional(
-          false,
         );
       }
     };
@@ -700,9 +598,7 @@ function Configuration() {
         showSuccess(
           "Servicios del profesional actualizados.",
         );
-      } catch (
-        currentError
-      ) {
+      } catch (currentError) {
         showError(
           currentError.message,
         );
@@ -758,20 +654,20 @@ function Configuration() {
       return;
     }
 
-    const duplicate =
+    const overlaps =
       availability.some(
         (schedule) =>
           schedule.dayOfWeek ===
             newSchedule.dayOfWeek &&
-          schedule.startTime ===
-            newSchedule.startTime &&
-          schedule.endTime ===
-            newSchedule.endTime,
+          newSchedule.startTime <
+            schedule.endTime &&
+          newSchedule.endTime >
+            schedule.startTime,
       );
 
-    if (duplicate) {
+    if (overlaps) {
       showError(
-        "Ese horario ya está agregado para el profesional.",
+        "La nueva franja se superpone con otro horario del mismo día.",
       );
 
       return;
@@ -886,9 +782,7 @@ function Configuration() {
         showSuccess(
           "Horarios del profesional actualizados.",
         );
-      } catch (
-        currentError
-      ) {
+      } catch (currentError) {
         showError(
           currentError.message,
         );
@@ -907,6 +801,15 @@ function Configuration() {
         day.value ===
         dayOfWeek,
     )?.label || "Día";
+
+  const selectedProfessional =
+    professionals.find(
+      (professional) =>
+        String(
+          professional.id,
+        ) ===
+        selectedProfessionalId,
+    );
 
   if (loading) {
     return (
@@ -1056,161 +959,32 @@ function Configuration() {
         )}
       </section>
 
-      <section className="configuration-card">
-        <div className="configuration-card-heading">
-          <div className="configuration-number">
-            2
-          </div>
-
-          <div>
-            <h3>
-              Profesionales
-            </h3>
-
-            <p>
-              Administrá los
-              odontólogos del
-              consultorio.
-            </p>
-          </div>
-        </div>
-
-        {professionals.length >
-        0 ? (
-          <div className="professionals-list">
-            {professionals.map(
-              (
-                professional,
-              ) => (
-                <button
-                  key={
-                    professional.id
-                  }
-                  type="button"
-                  className={
-                    String(
-                      professional.id,
-                    ) ===
-                    selectedProfessionalId
-                      ? "professional-item active"
-                      : "professional-item"
-                  }
-                  onClick={() =>
-                    setSelectedProfessionalId(
-                      String(
-                        professional.id,
-                      ),
-                    )
-                  }
-                >
-                  <strong>
-                    {
-                      professional.name
-                    }{" "}
-                    {
-                      professional.lastname
-                    }
-                  </strong>
-
-                  <span>
-                    {professional.specialty ||
-                      "Odontología"}
-                  </span>
-                </button>
-              ),
-            )}
-          </div>
-        ) : (
-          <div className="configuration-empty small">
-            No hay profesionales
-            cargados.
-          </div>
-        )}
-
-        <details className="configuration-details">
-          <summary>
-            Agregar profesional
-          </summary>
-
-          <form
-            className="configuration-form"
-            onSubmit={
-              createProfessional
-            }
-          >
-            <div className="configuration-grid">
-              {[
-                [
-                  "name",
-                  "Nombre *",
-                ],
-                [
-                  "lastname",
-                  "Apellido *",
-                ],
-                [
-                  "specialty",
-                  "Especialidad",
-                ],
-                [
-                  "phone",
-                  "Teléfono",
-                ],
-                [
-                  "email",
-                  "Email",
-                ],
-              ].map(
-                ([
-                  field,
-                  label,
-                ]) => (
-                  <label
-                    className="configuration-field"
-                    key={
-                      field
-                    }
-                  >
-                    {label}
-
-                    <input
-                      name={
-                        field
-                      }
-                      type={
-                        field ===
-                        "email"
-                          ? "email"
-                          : "text"
-                      }
-                      value={
-                        professionalForm[
-                          field
-                        ]
-                      }
-                      onChange={
-                        handleProfessionalChange
-                      }
-                    />
-                  </label>
-                ),
-              )}
-            </div>
-
-            <button
-              className="configuration-primary-button"
-              type="submit"
-              disabled={
-                savingProfessional
-              }
-            >
-              {savingProfessional
-                ? "Guardando..."
-                : "Agregar profesional"}
-            </button>
-          </form>
-        </details>
-      </section>
+      <ProfessionalManagement
+        clinic={clinic}
+        professionals={
+          professionals
+        }
+        setProfessionals={
+          setProfessionals
+        }
+        selectedProfessionalId={
+          selectedProfessionalId
+        }
+        setSelectedProfessionalId={
+          setSelectedProfessionalId
+        }
+        reloadProfessionals={() =>
+          loadProfessionals(
+            clinic?.id,
+          )
+        }
+        showSuccess={
+          showSuccess
+        }
+        showError={
+          showError
+        }
+      />
 
       <ServiceManagement
         services={
@@ -1239,9 +1013,9 @@ function Configuration() {
             </h3>
 
             <p>
-              Definí qué servicios
-              realiza el profesional
-              seleccionado.
+              {selectedProfessional
+                ? `Configurando servicios de ${selectedProfessional.name} ${selectedProfessional.lastname}.`
+                : "Definí qué servicios realiza el profesional seleccionado."}
             </p>
           </div>
         </div>
@@ -1329,9 +1103,9 @@ function Configuration() {
             </h3>
 
             <p>
-              Configurá la
-              disponibilidad del
-              profesional seleccionado.
+              {selectedProfessional
+                ? `Disponibilidad de ${selectedProfessional.name} ${selectedProfessional.lastname}.`
+                : "Configurá la disponibilidad del profesional seleccionado."}
             </p>
           </div>
         </div>
@@ -1352,6 +1126,7 @@ function Configuration() {
                       index,
                     ) => ({
                       ...schedule,
+
                       originalIndex:
                         index,
                     }),
@@ -1368,7 +1143,7 @@ function Configuration() {
                     (schedule) => (
                       <div
                         className="availability-item"
-                        key={`${schedule.dayOfWeek}-${schedule.startTime}-${schedule.originalIndex}`}
+                        key={`${schedule.dayOfWeek}-${schedule.startTime}-${schedule.endTime}-${schedule.originalIndex}`}
                       >
                         <div>
                           <strong>
