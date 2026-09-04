@@ -126,12 +126,6 @@
     rgba(31, 120, 209, 0.1);
 }
 
-.patient-password-help {
-  margin: -7px 0 0;
-  color: var(--text-soft);
-  font-size: 12px;
-}
-
 .patient-auth-error,
 .patient-appointments-error {
   margin: 0;
@@ -141,6 +135,17 @@
   color: #a44b4b;
   background: var(--red-soft);
   font-size: 13px;
+}
+
+.patient-appointments-success {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border: 1px solid #bde1ca;
+  border-radius: 11px;
+  color: #26724a;
+  background: var(--green-soft);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .patient-primary-button {
@@ -162,17 +167,25 @@
   cursor: not-allowed;
 }
 
-.patient-admin-link {
-  display: block;
+.patient-professional-access {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
   margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
   color: var(--text-soft);
   font-size: 12px;
-  text-align: center;
+}
+
+.patient-professional-access a {
+  color: var(--blue);
+  font-weight: 700;
   text-decoration: none;
 }
 
-.patient-admin-link:hover {
-  color: var(--blue);
+.patient-professional-access a:hover {
+  text-decoration: underline;
 }
 
 .patient-loading-card {
@@ -223,10 +236,22 @@
 .patient-user-area {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
-.patient-user-area span {
+.patient-user-name {
+  display: grid;
+  text-align: right;
+}
+
+.patient-user-name small {
+  color: var(--text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.patient-user-name span {
   color: var(--text-main);
   font-size: 14px;
   font-weight: 700;
@@ -260,6 +285,9 @@
 }
 
 .patient-nav button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 16px;
   border: 1px solid transparent;
   border-radius: 11px;
@@ -276,6 +304,18 @@
   background: var(--blue-soft);
 }
 
+.patient-nav-count {
+  display: grid;
+  place-items: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 6px;
+  border-radius: 999px;
+  color: white;
+  background: var(--blue);
+  font-size: 11px;
+}
+
 .patient-appointments-page {
   width: min(920px, 92%);
   margin: 0 auto;
@@ -290,8 +330,30 @@
   font-size: 34px;
 }
 
+.patient-page-heading-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.patient-refresh-button {
+  padding: 10px 15px;
+  border: 1px solid var(--blue-border);
+  border-radius: 11px;
+  color: var(--blue-dark);
+  background: var(--blue-soft);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.patient-refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .patient-appointment-section {
-  margin-bottom: 28px;
+  margin-bottom: 30px;
 }
 
 .patient-section-heading {
@@ -307,7 +369,7 @@
   font-size: 20px;
 }
 
-.patient-section-heading span {
+.patient-section-heading > span {
   display: grid;
   place-items: center;
   min-width: 26px;
@@ -334,6 +396,14 @@
   border-radius: 16px;
   background: white;
   box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.patient-appointment-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .patient-appointment-card.history {
@@ -355,13 +425,20 @@
 
 .patient-appointment-date span {
   color: var(--blue);
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 800;
 }
 
 .patient-appointment-info {
   display: grid;
-  gap: 5px;
+  gap: 6px;
+}
+
+.patient-appointment-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .patient-appointment-info h3,
@@ -371,22 +448,214 @@
 
 .patient-appointment-info h3 {
   color: var(--text-main);
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .patient-appointment-info p,
-.patient-appointment-info span {
+.patient-appointment-info > span {
   color: var(--text-soft);
   font-size: 13px;
 }
 
+.patient-status {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.patient-status.scheduled,
+.patient-status.confirmed {
+  color: var(--blue-dark);
+  background: var(--blue-soft);
+}
+
+.patient-status.completed {
+  color: #26724a;
+  background: var(--green-soft);
+}
+
+.patient-status.absent {
+  color: #9b5d16;
+  background: var(--orange-soft);
+}
+
+.patient-status.cancelled {
+  color: #a44b4b;
+  background: var(--red-soft);
+}
+
+.patient-appointment-notes {
+  margin-top: 5px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  color: var(--text-soft);
+  background: var(--bg-soft);
+  font-size: 12px;
+}
+
+.patient-appointment-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.patient-cancel-button {
+  padding: 8px 12px;
+  border: 1px solid #efc4c4;
+  border-radius: 9px;
+  color: #a44b4b;
+  background: #fffafa;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.patient-cancel-button:hover {
+  background: var(--red-soft);
+}
+
+.patient-cancel-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .patient-empty-state {
-  padding: 24px;
+  padding: 28px;
   border: 1px dashed var(--blue-border);
   border-radius: 15px;
   color: var(--text-soft);
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.65);
   text-align: center;
+}
+
+.patient-empty-state strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-main);
+}
+
+.patient-empty-state p {
+  margin: 0 0 15px;
+}
+
+.patient-empty-action {
+  padding: 10px 15px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: var(--blue);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.patient-empty-action:hover {
+  background: var(--blue-dark);
+}
+
+.patient-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 39, 64, 0.45);
+  backdrop-filter: blur(5px);
+}
+
+.patient-cancel-modal {
+  width: min(100%, 430px);
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: white;
+  box-shadow: var(--shadow-md);
+}
+
+.patient-cancel-modal-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 15px;
+  border-radius: 13px;
+  color: #a44b4b;
+  background: var(--red-soft);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.patient-cancel-modal h2 {
+  margin: 0 0 8px;
+  color: var(--text-main);
+  font-size: 22px;
+}
+
+.patient-cancel-modal > p {
+  color: var(--text-soft);
+}
+
+.patient-cancel-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px;
+  margin: 18px 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-soft);
+  color: var(--text-main);
+  font-size: 13px;
+}
+
+.patient-cancel-summary strong {
+  color: var(--blue);
+  font-size: 16px;
+}
+
+.patient-cancel-warning {
+  font-size: 13px;
+}
+
+.patient-cancel-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.patient-modal-secondary,
+.patient-modal-danger {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.patient-modal-secondary {
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  background: white;
+}
+
+.patient-modal-danger {
+  border: 1px solid #d98c8c;
+  color: white;
+  background: #c95c5c;
+}
+
+.patient-modal-danger:hover {
+  background: #ad4545;
+}
+
+.patient-modal-secondary:disabled,
+.patient-modal-danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 @media (max-width: 650px) {
@@ -402,6 +671,11 @@
     grid-template-columns: 1fr;
   }
 
+  .patient-professional-access {
+    display: grid;
+    text-align: center;
+  }
+
   .patient-header {
     position: static;
     padding: 13px 16px;
@@ -411,16 +685,18 @@
     display: none;
   }
 
-  .patient-user-area span {
+  .patient-user-name {
     display: none;
   }
 
   .patient-nav {
     position: static;
+    padding: 9px 12px;
   }
 
   .patient-nav button {
     flex: 1;
+    justify-content: center;
   }
 
   .patient-appointments-page {
@@ -429,6 +705,15 @@
 
   .patient-page-heading h1 {
     font-size: 28px;
+  }
+
+  .patient-page-heading-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .patient-refresh-button {
+    width: 100%;
   }
 
   .patient-appointment-card {
@@ -441,5 +726,32 @@
     padding-bottom: 12px;
     border-right: 0;
     border-bottom: 1px solid var(--border);
+  }
+
+  .patient-appointment-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .patient-appointment-actions {
+    justify-content: stretch;
+  }
+
+  .patient-cancel-button {
+    width: 100%;
+  }
+
+  .patient-cancel-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .patient-cancel-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .patient-modal-secondary,
+  .patient-modal-danger {
+    width: 100%;
   }
 }

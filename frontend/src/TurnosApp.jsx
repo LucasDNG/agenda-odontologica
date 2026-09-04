@@ -15,12 +15,54 @@ const formatTime = (time) => {
   return String(time).slice(0, 5);
 };
 
+const formatDate = (date) => {
+  if (!date) return "";
+
+  const value =
+    String(date).slice(0, 10);
+
+  const [
+    year,
+    month,
+    day,
+  ] = value.split("-");
+
+  if (
+    !year ||
+    !month ||
+    !day
+  ) {
+    return date;
+  }
+
+  return `${day}/${month}/${year}`;
+};
+
+const getStatusLabel = (
+  status,
+) => {
+  const labels = {
+    scheduled: "Programado",
+    confirmed: "Confirmado",
+    completed: "Atendido",
+    absent: "Ausente",
+    cancelled: "Cancelado",
+  };
+
+  return (
+    labels[status] ||
+    status
+  );
+};
+
 function TurnosApp() {
   const [user, setUser] =
     useState(null);
 
-  const [checkingSession, setCheckingSession] =
-    useState(true);
+  const [
+    checkingSession,
+    setCheckingSession,
+  ] = useState(true);
 
   const [mode, setMode] =
     useState("signin");
@@ -28,8 +70,10 @@ function TurnosApp() {
   const [name, setName] =
     useState("");
 
-  const [lastname, setLastname] =
-    useState("");
+  const [
+    lastname,
+    setLastname,
+  ] = useState("");
 
   const [phone, setPhone] =
     useState("");
@@ -37,22 +81,30 @@ function TurnosApp() {
   const [email, setEmail] =
     useState("");
 
-  const [password, setPassword] =
-    useState("");
+  const [
+    password,
+    setPassword,
+  ] = useState("");
 
-  const [authError, setAuthError] =
-    useState("");
+  const [
+    authError,
+    setAuthError,
+  ] = useState("");
 
-  const [loadingAuth, setLoadingAuth] =
-    useState(false);
+  const [
+    loadingAuth,
+    setLoadingAuth,
+  ] = useState(false);
 
   const [
     upcomingAppointments,
     setUpcomingAppointments,
   ] = useState([]);
 
-  const [history, setHistory] =
-    useState([]);
+  const [
+    history,
+    setHistory,
+  ] = useState([]);
 
   const [
     loadingAppointments,
@@ -64,41 +116,63 @@ function TurnosApp() {
     setAppointmentError,
   ] = useState("");
 
-  const [section, setSection] =
-    useState("booking");
+  const [
+    appointmentMessage,
+    setAppointmentMessage,
+  ] = useState("");
+
+  const [
+    cancellingAppointmentId,
+    setCancellingAppointmentId,
+  ] = useState(null);
+
+  const [
+    appointmentToCancel,
+    setAppointmentToCancel,
+  ] = useState(null);
+
+  const [
+    section,
+    setSection,
+  ] = useState("booking");
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/profile`,
-          {
-            credentials: "include",
-          },
-        );
+    const checkSession =
+      async () => {
+        try {
+          const response =
+            await fetch(
+              `${API_URL}/profile`,
+              {
+                credentials:
+                  "include",
+              },
+            );
 
-        if (!response.ok) {
-          return;
+          if (!response.ok) {
+            return;
+          }
+
+          const data =
+            await response.json();
+
+          if (
+            data.user?.role ===
+            "patient"
+          ) {
+            setUser(data.user);
+          }
+        } catch (error) {
+          console.error(
+            "Error comprobando sesión:",
+            error,
+          );
+        } finally {
+          setCheckingSession(
+            false,
+          );
         }
-
-        const data =
-          await response.json();
-
-        if (
-          data.user?.role ===
-          "patient"
-        ) {
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error(
-          "Error comprobando sesión:",
-          error,
-        );
-      } finally {
-        setCheckingSession(false);
-      }
-    };
+      };
 
     checkSession();
   }, []);
@@ -106,7 +180,8 @@ function TurnosApp() {
   useEffect(() => {
     if (
       !user ||
-      user.role !== "patient"
+      user.role !==
+        "patient"
     ) {
       return;
     }
@@ -130,173 +205,221 @@ function TurnosApp() {
     clearAuthForm();
   };
 
-  const handleSignIn = async (
-    event,
-  ) => {
-    event.preventDefault();
+  const handleSignIn =
+    async (event) => {
+      event.preventDefault();
 
-    setLoadingAuth(true);
-    setAuthError("");
+      setLoadingAuth(true);
+      setAuthError("");
 
-    try {
-      const response = await fetch(
-        `${API_URL}/signin`,
-        {
-          method: "POST",
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/signin`,
+            {
+              method: "POST",
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
 
-          credentials: "include",
+              credentials:
+                "include",
 
-          body: JSON.stringify({
-            email: email.trim(),
-            password,
-          }),
-        },
-      );
+              body:
+                JSON.stringify({
+                  email:
+                    email
+                      .trim()
+                      .toLowerCase(),
 
-      const data =
-        await response.json();
+                  password,
+                }),
+            },
+          );
 
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "No se pudo iniciar sesión",
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "No se pudo iniciar sesión",
+          );
+        }
+
+        if (
+          data.user?.role !==
+          "patient"
+        ) {
+          await fetch(
+            `${API_URL}/signout`,
+            {
+              method: "POST",
+              credentials:
+                "include",
+            },
+          );
+
+          throw new Error(
+            "Este acceso es exclusivo para pacientes.",
+          );
+        }
+
+        setUser(data.user);
+        clearAuthForm();
+        setSection(
+          "booking",
         );
+      } catch (error) {
+        console.error(error);
+
+        setAuthError(
+          error.message,
+        );
+      } finally {
+        setLoadingAuth(
+          false,
+        );
+      }
+    };
+
+  const handleSignUp =
+    async (event) => {
+      event.preventDefault();
+
+      if (
+        !name.trim() ||
+        !lastname.trim() ||
+        !email.trim() ||
+        !password
+      ) {
+        setAuthError(
+          "Completá nombre, apellido, email y contraseña.",
+        );
+
+        return;
       }
 
       if (
-        data.user?.role !==
-        "patient"
+        password.length < 6
       ) {
+        setAuthError(
+          "La contraseña debe tener al menos 6 caracteres.",
+        );
+
+        return;
+      }
+
+      setLoadingAuth(true);
+      setAuthError("");
+
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/signup`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              credentials:
+                "include",
+
+              body:
+                JSON.stringify({
+                  name:
+                    name.trim(),
+
+                  lastname:
+                    lastname.trim(),
+
+                  email:
+                    email
+                      .trim()
+                      .toLowerCase(),
+
+                  password,
+
+                  phone:
+                    phone.trim() ||
+                    null,
+                }),
+            },
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "No se pudo crear la cuenta",
+          );
+        }
+
+        setUser(data.user);
+        clearAuthForm();
+
+        setSection(
+          "booking",
+        );
+      } catch (error) {
+        console.error(error);
+
+        setAuthError(
+          error.message,
+        );
+      } finally {
+        setLoadingAuth(
+          false,
+        );
+      }
+    };
+
+  const handleLogout =
+    async () => {
+      try {
         await fetch(
           `${API_URL}/signout`,
           {
             method: "POST",
-            credentials: "include",
+            credentials:
+              "include",
           },
         );
-
-        throw new Error(
-          "Este acceso es exclusivo para pacientes.",
-        );
+      } catch (error) {
+        console.error(error);
       }
 
-      setUser(data.user);
-      clearAuthForm();
-    } catch (error) {
-      console.error(error);
+      setUser(null);
 
-      setAuthError(
-        error.message,
-      );
-    } finally {
-      setLoadingAuth(false);
-    }
-  };
-
-  const handleSignUp = async (
-    event,
-  ) => {
-    event.preventDefault();
-
-    if (
-      !name.trim() ||
-      !lastname.trim() ||
-      !email.trim() ||
-      !password
-    ) {
-      setAuthError(
-        "Completá nombre, apellido, email y contraseña.",
+      setUpcomingAppointments(
+        [],
       );
 
-      return;
-    }
+      setHistory([]);
 
-    if (password.length < 6) {
-      setAuthError(
-        "La contraseña debe tener al menos 6 caracteres.",
+      setAppointmentMessage(
+        "",
       );
 
-      return;
-    }
-
-    setLoadingAuth(true);
-    setAuthError("");
-
-    try {
-      const response = await fetch(
-        `${API_URL}/signup`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          credentials: "include",
-
-          body: JSON.stringify({
-            name: name.trim(),
-            lastname:
-              lastname.trim(),
-            email:
-              email
-                .trim()
-                .toLowerCase(),
-            password,
-            phone:
-              phone.trim() ||
-              null,
-          }),
-        },
+      setAppointmentError(
+        "",
       );
 
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "No se pudo crear la cuenta",
-        );
-      }
-
-      setUser(data.user);
-      clearAuthForm();
-    } catch (error) {
-      console.error(error);
-
-      setAuthError(
-        error.message,
+      setAppointmentToCancel(
+        null,
       );
-    } finally {
-      setLoadingAuth(false);
-    }
-  };
 
-  const handleLogout = async () => {
-    try {
-      await fetch(
-        `${API_URL}/signout`,
-        {
-          method: "POST",
-          credentials: "include",
-        },
+      setSection(
+        "booking",
       );
-    } catch (error) {
-      console.error(error);
-    }
-
-    setUser(null);
-    setUpcomingAppointments([]);
-    setHistory([]);
-    setSection("booking");
-  };
+    };
 
   const loadAppointments =
     async () => {
@@ -304,15 +427,19 @@ function TurnosApp() {
         true,
       );
 
-      setAppointmentError("");
+      setAppointmentError(
+        "",
+      );
 
       try {
-        const response = await fetch(
-          `${API_URL}/appointments`,
-          {
-            credentials: "include",
-          },
-        );
+        const response =
+          await fetch(
+            `${API_URL}/appointments`,
+            {
+              credentials:
+                "include",
+            },
+          );
 
         const data =
           await response.json();
@@ -330,7 +457,8 @@ function TurnosApp() {
         );
 
         setHistory(
-          data.history || [],
+          data.history ||
+            [],
         );
       } catch (error) {
         console.error(error);
@@ -347,8 +475,138 @@ function TurnosApp() {
 
   const handleAppointmentCreated =
     async () => {
+      setAppointmentMessage(
+        "Turno reservado correctamente.",
+      );
+
       await loadAppointments();
-      setSection("appointments");
+
+      setSection(
+        "appointments",
+      );
+    };
+
+  const openCancelModal = (
+    appointment,
+  ) => {
+    setAppointmentError(
+      "",
+    );
+
+    setAppointmentMessage(
+      "",
+    );
+
+    setAppointmentToCancel(
+      appointment,
+    );
+  };
+
+  const closeCancelModal =
+    () => {
+      if (
+        cancellingAppointmentId
+      ) {
+        return;
+      }
+
+      setAppointmentToCancel(
+        null,
+      );
+    };
+
+  const confirmCancellation =
+    async () => {
+      if (
+        !appointmentToCancel
+      ) {
+        return;
+      }
+
+      const appointmentId =
+        appointmentToCancel.id;
+
+      setCancellingAppointmentId(
+        appointmentId,
+      );
+
+      setAppointmentError(
+        "",
+      );
+
+      setAppointmentMessage(
+        "",
+      );
+
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/appointments/${appointmentId}/cancel`,
+            {
+              method: "PATCH",
+
+              credentials:
+                "include",
+            },
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "No se pudo cancelar el turno",
+          );
+        }
+
+        setAppointmentToCancel(
+          null,
+        );
+
+        setAppointmentMessage(
+          "Turno cancelado correctamente. El horario volvió a quedar disponible.",
+        );
+
+        await loadAppointments();
+      } catch (error) {
+        console.error(error);
+
+        setAppointmentError(
+          error.message,
+        );
+      } finally {
+        setCancellingAppointmentId(
+          null,
+        );
+      }
+    };
+
+  const goToBooking = () => {
+    setAppointmentMessage(
+      "",
+    );
+
+    setAppointmentError(
+      "",
+    );
+
+    setSection(
+      "booking",
+    );
+  };
+
+  const goToAppointments =
+    async () => {
+      setSection(
+        "appointments",
+      );
+
+      setAppointmentMessage(
+        "",
+      );
+
+      await loadAppointments();
     };
 
   if (checkingSession) {
@@ -356,6 +614,7 @@ function TurnosApp() {
       <main className="patient-loading-page">
         <div className="patient-loading-card">
           <span>🦷</span>
+
           <p>
             Cargando agenda...
           </p>
@@ -384,7 +643,7 @@ function TurnosApp() {
 
               <p>
                 Reservá y consultá tus
-                próximos turnos.
+                turnos desde acá.
               </p>
             </div>
           </div>
@@ -393,12 +652,15 @@ function TurnosApp() {
             <button
               type="button"
               className={
-                mode === "signin"
+                mode ===
+                "signin"
                   ? "active"
                   : ""
               }
               onClick={() =>
-                changeMode("signin")
+                changeMode(
+                  "signin",
+                )
               }
             >
               Ingresar
@@ -407,19 +669,23 @@ function TurnosApp() {
             <button
               type="button"
               className={
-                mode === "signup"
+                mode ===
+                "signup"
                   ? "active"
                   : ""
               }
               onClick={() =>
-                changeMode("signup")
+                changeMode(
+                  "signup",
+                )
               }
             >
               Crear cuenta
             </button>
           </div>
 
-          {mode === "signin" ? (
+          {mode ===
+          "signin" ? (
             <form
               className="patient-auth-form"
               onSubmit={
@@ -431,7 +697,9 @@ function TurnosApp() {
 
                 <input
                   type="email"
-                  value={email}
+                  value={
+                    email
+                  }
                   placeholder="tu@email.com"
                   autoComplete="email"
                   required
@@ -439,7 +707,8 @@ function TurnosApp() {
                     event,
                   ) =>
                     setEmail(
-                      event.target
+                      event
+                        .target
                         .value,
                     )
                   }
@@ -451,7 +720,9 @@ function TurnosApp() {
 
                 <input
                   type="password"
-                  value={password}
+                  value={
+                    password
+                  }
                   placeholder="Contraseña"
                   autoComplete="current-password"
                   required
@@ -459,7 +730,8 @@ function TurnosApp() {
                     event,
                   ) =>
                     setPassword(
-                      event.target
+                      event
+                        .target
                         .value,
                     )
                   }
@@ -497,13 +769,17 @@ function TurnosApp() {
 
                   <input
                     type="text"
-                    value={name}
+                    value={
+                      name
+                    }
+                    autoComplete="given-name"
                     required
                     onChange={(
                       event,
                     ) =>
                       setName(
-                        event.target
+                        event
+                          .target
                           .value,
                       )
                     }
@@ -518,12 +794,14 @@ function TurnosApp() {
                     value={
                       lastname
                     }
+                    autoComplete="family-name"
                     required
                     onChange={(
                       event,
                     ) =>
                       setLastname(
-                        event.target
+                        event
+                          .target
                           .value,
                       )
                     }
@@ -536,14 +814,17 @@ function TurnosApp() {
 
                 <input
                   type="tel"
-                  value={phone}
-                  placeholder="Opcional"
+                  value={
+                    phone
+                  }
+                  placeholder="Ej: 11 1234 5678"
                   autoComplete="tel"
                   onChange={(
                     event,
                   ) =>
                     setPhone(
-                      event.target
+                      event
+                        .target
                         .value,
                     )
                   }
@@ -555,14 +836,18 @@ function TurnosApp() {
 
                 <input
                   type="email"
-                  value={email}
+                  value={
+                    email
+                  }
+                  placeholder="tu@email.com"
                   autoComplete="email"
                   required
                   onChange={(
                     event,
                   ) =>
                     setEmail(
-                      event.target
+                      event
+                        .target
                         .value,
                     )
                   }
@@ -574,24 +859,24 @@ function TurnosApp() {
 
                 <input
                   type="password"
-                  value={password}
+                  value={
+                    password
+                  }
                   minLength="6"
+                  placeholder="Mínimo 6 caracteres"
                   autoComplete="new-password"
                   required
                   onChange={(
                     event,
                   ) =>
                     setPassword(
-                      event.target
+                      event
+                        .target
                         .value,
                     )
                   }
                 />
               </label>
-
-              <p className="patient-password-help">
-                Mínimo 6 caracteres.
-              </p>
 
               {authError && (
                 <p className="patient-auth-error">
@@ -613,12 +898,15 @@ function TurnosApp() {
             </form>
           )}
 
-          <a
-            className="patient-admin-link"
-            href="/"
-          >
-            Soy profesional
-          </a>
+          <div className="patient-professional-access">
+            <span>
+              ¿Sos odontólogo?
+            </span>
+
+            <a href="/odontologo">
+              Ingresar al panel profesional
+            </a>
+          </div>
         </section>
       </main>
     );
@@ -632,7 +920,7 @@ function TurnosApp() {
 
           <div>
             <p className="patient-eyebrow">
-              Consultorio odontológico
+              Agenda odontológica
             </p>
 
             <strong>
@@ -642,13 +930,22 @@ function TurnosApp() {
         </div>
 
         <div className="patient-user-area">
-          <span>
-            Hola, {user.name}
-          </span>
+          <div className="patient-user-name">
+            <small>
+              Paciente
+            </small>
+
+            <span>
+              {user.name}{" "}
+              {user.lastname}
+            </span>
+          </div>
 
           <button
             type="button"
-            onClick={handleLogout}
+            onClick={
+              handleLogout
+            }
           >
             Salir
           </button>
@@ -659,12 +956,13 @@ function TurnosApp() {
         <button
           type="button"
           className={
-            section === "booking"
+            section ===
+            "booking"
               ? "active"
               : ""
           }
-          onClick={() =>
-            setSection("booking")
+          onClick={
+            goToBooking
           }
         >
           + Reservar turno
@@ -678,19 +976,25 @@ function TurnosApp() {
               ? "active"
               : ""
           }
-          onClick={() => {
-            setSection(
-              "appointments",
-            );
-
-            loadAppointments();
-          }}
+          onClick={
+            goToAppointments
+          }
         >
           Mis turnos
+
+          {upcomingAppointments.length >
+            0 && (
+            <span className="patient-nav-count">
+              {
+                upcomingAppointments.length
+              }
+            </span>
+          )}
         </button>
       </nav>
 
-      {section === "booking" && (
+      {section ===
+        "booking" && (
         <ReservaTurno
           onAppointmentCreated={
             handleAppointmentCreated
@@ -701,24 +1005,51 @@ function TurnosApp() {
       {section ===
         "appointments" && (
         <section className="patient-appointments-page">
-          <div className="patient-page-heading">
-            <p className="patient-eyebrow">
-              Mi agenda
-            </p>
+          <div className="patient-page-heading patient-page-heading-row">
+            <div>
+              <p className="patient-eyebrow">
+                Mi agenda
+              </p>
 
-            <h1>
-              Mis turnos
-            </h1>
+              <h1>
+                Mis turnos
+              </h1>
 
-            <p>
-              Consultá tus próximos
-              turnos y tu historial.
-            </p>
+              <p>
+                Revisá tus próximos
+                turnos y tu historial.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="patient-refresh-button"
+              onClick={
+                loadAppointments
+              }
+              disabled={
+                loadingAppointments
+              }
+            >
+              {loadingAppointments
+                ? "Actualizando..."
+                : "Actualizar"}
+            </button>
           </div>
+
+          {appointmentMessage && (
+            <p className="patient-appointments-success">
+              {
+                appointmentMessage
+              }
+            </p>
+          )}
 
           {appointmentError && (
             <p className="patient-appointments-error">
-              {appointmentError}
+              {
+                appointmentError
+              }
             </p>
           )}
 
@@ -744,8 +1075,26 @@ function TurnosApp() {
                 {upcomingAppointments.length ===
                 0 ? (
                   <div className="patient-empty-state">
-                    No tenés próximos
-                    turnos.
+                    <strong>
+                      No tenés próximos
+                      turnos.
+                    </strong>
+
+                    <p>
+                      Podés reservar uno
+                      desde la agenda
+                      online.
+                    </p>
+
+                    <button
+                      type="button"
+                      className="patient-empty-action"
+                      onClick={
+                        goToBooking
+                      }
+                    >
+                      Reservar turno
+                    </button>
                   </div>
                 ) : (
                   <div className="patient-appointment-list">
@@ -761,9 +1110,9 @@ function TurnosApp() {
                         >
                           <div className="patient-appointment-date">
                             <strong>
-                              {
-                                appointment.appointment_date
-                              }
+                              {formatDate(
+                                appointment.appointment_date,
+                              )}
                             </strong>
 
                             <span>
@@ -774,11 +1123,21 @@ function TurnosApp() {
                           </div>
 
                           <div className="patient-appointment-info">
-                            <h3>
-                              {
-                                appointment.service
-                              }
-                            </h3>
+                            <div className="patient-appointment-title-row">
+                              <h3>
+                                {
+                                  appointment.service
+                                }
+                              </h3>
+
+                              <span
+                                className={`patient-status ${appointment.status}`}
+                              >
+                                {getStatusLabel(
+                                  appointment.status,
+                                )}
+                              </span>
+                            </div>
 
                             {appointment.professional_name && (
                               <p>
@@ -792,13 +1151,49 @@ function TurnosApp() {
                               </p>
                             )}
 
-                            <span>
-                              Duración:{" "}
-                              {
-                                appointment.duration_minutes
-                              }{" "}
-                              min
-                            </span>
+                            {appointment.professional_specialty && (
+                              <p>
+                                {
+                                  appointment.professional_specialty
+                                }
+                              </p>
+                            )}
+
+                            {appointment.duration_minutes && (
+                              <span>
+                                Duración:{" "}
+                                {
+                                  appointment.duration_minutes
+                                }{" "}
+                                min
+                              </span>
+                            )}
+
+                            {appointment.notes && (
+                              <div className="patient-appointment-notes">
+                                {
+                                  appointment.notes
+                                }
+                              </div>
+                            )}
+
+                            <div className="patient-appointment-actions">
+                              <button
+                                type="button"
+                                className="patient-cancel-button"
+                                disabled={
+                                  cancellingAppointmentId ===
+                                  appointment.id
+                                }
+                                onClick={() =>
+                                  openCancelModal(
+                                    appointment,
+                                  )
+                                }
+                              >
+                                Cancelar turno
+                              </button>
+                            </div>
                           </div>
                         </article>
                       ),
@@ -824,7 +1219,7 @@ function TurnosApp() {
                 0 ? (
                   <div className="patient-empty-state">
                     Todavía no hay
-                    historial.
+                    turnos anteriores.
                   </div>
                 ) : (
                   <div className="patient-appointment-list">
@@ -840,9 +1235,9 @@ function TurnosApp() {
                         >
                           <div className="patient-appointment-date">
                             <strong>
-                              {
-                                appointment.appointment_date
-                              }
+                              {formatDate(
+                                appointment.appointment_date,
+                              )}
                             </strong>
 
                             <span>
@@ -853,11 +1248,21 @@ function TurnosApp() {
                           </div>
 
                           <div className="patient-appointment-info">
-                            <h3>
-                              {
-                                appointment.service
-                              }
-                            </h3>
+                            <div className="patient-appointment-title-row">
+                              <h3>
+                                {
+                                  appointment.service
+                                }
+                              </h3>
+
+                              <span
+                                className={`patient-status ${appointment.status}`}
+                              >
+                                {getStatusLabel(
+                                  appointment.status,
+                                )}
+                              </span>
+                            </div>
 
                             {appointment.professional_name && (
                               <p>
@@ -871,12 +1276,13 @@ function TurnosApp() {
                               </p>
                             )}
 
-                            <span>
-                              Estado:{" "}
-                              {
-                                appointment.status
-                              }
-                            </span>
+                            {appointment.professional_specialty && (
+                              <p>
+                                {
+                                  appointment.professional_specialty
+                                }
+                              </p>
+                            )}
                           </div>
                         </article>
                       ),
@@ -887,6 +1293,107 @@ function TurnosApp() {
             </>
           )}
         </section>
+      )}
+
+      {appointmentToCancel && (
+        <div
+          className="patient-modal-overlay"
+          onMouseDown={
+            closeCancelModal
+          }
+        >
+          <section
+            className="patient-cancel-modal"
+            onMouseDown={(
+              event,
+            ) =>
+              event.stopPropagation()
+            }
+          >
+            <div className="patient-cancel-modal-icon">
+              !
+            </div>
+
+            <h2>
+              Cancelar turno
+            </h2>
+
+            <p>
+              Vas a cancelar tu turno de{" "}
+              <strong>
+                {
+                  appointmentToCancel.service
+                }
+              </strong>
+              .
+            </p>
+
+            <div className="patient-cancel-summary">
+              <span>
+                {formatDate(
+                  appointmentToCancel.appointment_date,
+                )}
+              </span>
+
+              <strong>
+                {formatTime(
+                  appointmentToCancel.start_time,
+                )}
+              </strong>
+
+              {appointmentToCancel.professional_name && (
+                <span>
+                  {
+                    appointmentToCancel.professional_name
+                  }{" "}
+                  {
+                    appointmentToCancel.professional_lastname
+                  }
+                </span>
+              )}
+            </div>
+
+            <p className="patient-cancel-warning">
+              Al confirmar, el horario
+              quedará disponible para
+              otro paciente.
+            </p>
+
+            <div className="patient-cancel-modal-actions">
+              <button
+                type="button"
+                className="patient-modal-secondary"
+                onClick={
+                  closeCancelModal
+                }
+                disabled={
+                  Boolean(
+                    cancellingAppointmentId,
+                  )
+                }
+              >
+                Volver
+              </button>
+
+              <button
+                type="button"
+                className="patient-modal-danger"
+                onClick={
+                  confirmCancellation
+                }
+                disabled={
+                  Boolean(
+                    cancellingAppointmentId,
+                  )
+                }
+              >
+                {cancellingAppointmentId
+                  ? "Cancelando..."
+                  : "Sí, cancelar turno"}
+              </button>
+            </div>
+          </section>
+        </div>
       )}
     </main>
   );
