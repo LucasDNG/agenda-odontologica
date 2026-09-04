@@ -1,0 +1,138 @@
+.service-admin-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.service-admin-item {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: white;
+}
+
+.service-admin-item.inactive {
+  opacity: 0.72;
+  background: var(--bg-soft);
+}
+
+.service-admin-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.service-admin-info > div {
+  display: grid;
+  gap: 4px;
+}
+
+.service-admin-info strong {
+  color: var(--text-main);
+}
+
+.service-admin-info span {
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.service-state {
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11px !important;
+  font-weight: 800;
+}
+
+.service-state.active {
+  color: #26724a;
+  background: var(--green-soft);
+}
+
+.service-state.inactive {
+  color: var(--text-soft);
+  background: #e9eef3;
+}
+
+.service-admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.service-secondary-button,
+.service-disable-button,
+.service-enable-button {
+  padding: 9px 13px;
+  border-radius: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.service-secondary-button {
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  background: white;
+}
+
+.service-disable-button {
+  border: 1px solid #efc4c4;
+  color: #a44b4b;
+  background: #fffafa;
+}
+
+.service-enable-button {
+  border: 1px solid #bde1ca;
+  color: #26724a;
+  background: var(--green-soft);
+}
+
+.service-admin-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.service-admin-edit-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 2fr)
+    minmax(150px, 1fr);
+  gap: 12px;
+}
+
+.service-duration-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-duration-field input {
+  min-width: 0;
+}
+
+.service-duration-field span {
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+@media (max-width: 650px) {
+  .service-admin-info {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .service-admin-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-admin-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .service-admin-actions button {
+    width: 100%;
+  }
+}

@@ -3,6 +3,7 @@ import {
   useState,
 } from "react";
 
+import ServiceManagement from "./ServiceManagement";
 import "./Configuration.css";
 
 const API_URL =
@@ -123,7 +124,6 @@ function Configuration() {
           loadProfessionalServices(
             selectedProfessionalId,
           ),
-
           loadProfessionalAvailability(
             selectedProfessionalId,
           ),
@@ -143,37 +143,49 @@ function Configuration() {
     setError(text);
   };
 
+  const loadAppointmentTypes =
+    async () => {
+      const response =
+        await fetch(
+          `${API_URL}/admin/appointment-types`,
+          {
+            credentials:
+              "include",
+          },
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "No se pudieron cargar los servicios",
+        );
+      }
+
+      setAppointmentTypes(
+        data.appointmentTypes ||
+          [],
+      );
+    };
+
   const loadInitialData =
     async () => {
       setLoading(true);
 
       try {
-        const [
-          clinicsResponse,
-          servicesResponse,
-        ] = await Promise.all([
-          fetch(
+        const clinicsResponse =
+          await fetch(
             `${API_URL}/admin/clinics`,
             {
               credentials:
                 "include",
             },
-          ),
-
-          fetch(
-            `${API_URL}/appointment-types`,
-            {
-              credentials:
-                "include",
-            },
-          ),
-        ]);
+          );
 
         const clinicsData =
           await clinicsResponse.json();
-
-        const servicesData =
-          await servicesResponse.json();
 
         if (
           !clinicsResponse.ok
@@ -184,14 +196,7 @@ function Configuration() {
           );
         }
 
-        if (
-          !servicesResponse.ok
-        ) {
-          throw new Error(
-            servicesData.message ||
-              "No se pudieron cargar los servicios",
-          );
-        }
+        await loadAppointmentTypes();
 
         const clinics =
           clinicsData.clinics ||
@@ -205,37 +210,27 @@ function Configuration() {
           showError(
             "El consultorio todavía no fue configurado por el administrador.",
           );
-        } else {
-          const currentClinic =
-            clinics[0];
 
-          setClinic(
-            currentClinic,
-          );
-
-          setMaxActiveAppointments(
-            Number(
-              currentClinic
-                .max_active_appointments_per_patient ||
-                1,
-            ),
-          );
-
-          await loadProfessionals(
-            currentClinic.id,
-          );
+          return;
         }
 
-        const types =
-          servicesData
-            .appointmentTypes ||
-          servicesData
-            .appointment_types ||
-          servicesData.types ||
-          [];
+        const currentClinic =
+          clinics[0];
 
-        setAppointmentTypes(
-          types,
+        setClinic(
+          currentClinic,
+        );
+
+        setMaxActiveAppointments(
+          Number(
+            currentClinic
+              .max_active_appointments_per_patient ||
+              1,
+          ),
+        );
+
+        await loadProfessionals(
+          currentClinic.id,
         );
       } catch (
         currentError
@@ -282,9 +277,6 @@ function Configuration() {
       setSavingClinicSettings(
         true,
       );
-
-      setMessage("");
-      setError("");
 
       try {
         const response =
@@ -342,23 +334,12 @@ function Configuration() {
           data.clinic,
         );
 
-        setMaxActiveAppointments(
-          Number(
-            data.clinic
-              .max_active_appointments_per_patient,
-          ),
-        );
-
         showSuccess(
           "Límite de turnos actualizado.",
         );
       } catch (
         currentError
       ) {
-        console.error(
-          currentError,
-        );
-
         showError(
           currentError.message,
         );
@@ -398,10 +379,6 @@ function Configuration() {
       } catch (
         currentError
       ) {
-        console.error(
-          currentError,
-        );
-
         showError(
           currentError.message,
         );
@@ -432,7 +409,7 @@ function Configuration() {
           );
         }
 
-        const serviceIds =
+        setSelectedServices(
           (
             data.services ||
             []
@@ -441,18 +418,11 @@ function Configuration() {
               Number(
                 service.id,
               ),
-          );
-
-        setSelectedServices(
-          serviceIds,
+          ),
         );
       } catch (
         currentError
       ) {
-        console.error(
-          currentError,
-        );
-
         setSelectedServices(
           [],
         );
@@ -487,43 +457,38 @@ function Configuration() {
           );
         }
 
-        const schedules =
+        setAvailability(
           (
             data.availability ||
             []
-          ).map((item) => ({
-            dayOfWeek:
-              Number(
-                item.day_of_week,
-              ),
+          ).map(
+            (item) => ({
+              dayOfWeek:
+                Number(
+                  item.day_of_week,
+                ),
 
-            startTime:
-              item.start_time.slice(
-                0,
-                5,
-              ),
+              startTime:
+                item.start_time.slice(
+                  0,
+                  5,
+                ),
 
-            endTime:
-              item.end_time.slice(
-                0,
-                5,
-              ),
+              endTime:
+                item.end_time.slice(
+                  0,
+                  5,
+                ),
 
-            active:
-              item.active !==
-              false,
-          }));
-
-        setAvailability(
-          schedules,
+              active:
+                item.active !==
+                false,
+            }),
+          ),
         );
       } catch (
         currentError
       ) {
-        console.error(
-          currentError,
-        );
-
         setAvailability([]);
 
         showError(
@@ -560,10 +525,8 @@ function Configuration() {
       }
 
       if (
-        !professionalForm
-          .name.trim() ||
-        !professionalForm
-          .lastname.trim()
+        !professionalForm.name.trim() ||
+        !professionalForm.lastname.trim()
       ) {
         showError(
           "Nombre y apellido del profesional son obligatorios.",
@@ -575,9 +538,6 @@ function Configuration() {
       setSavingProfessional(
         true,
       );
-
-      setMessage("");
-      setError("");
 
       try {
         const response =
@@ -599,25 +559,7 @@ function Configuration() {
                   clinicId:
                     clinic.id,
 
-                  name:
-                    professionalForm
-                      .name,
-
-                  lastname:
-                    professionalForm
-                      .lastname,
-
-                  phone:
-                    professionalForm
-                      .phone,
-
-                  email:
-                    professionalForm
-                      .email,
-
-                  specialty:
-                    professionalForm
-                      .specialty,
+                  ...professionalForm,
                 }),
             },
           );
@@ -659,10 +601,6 @@ function Configuration() {
       } catch (
         currentError
       ) {
-        console.error(
-          currentError,
-        );
-
         showError(
           currentError.message,
         );
@@ -676,28 +614,37 @@ function Configuration() {
   const toggleService = (
     serviceId,
   ) => {
+    const service =
+      appointmentTypes.find(
+        (item) =>
+          Number(item.id) ===
+          Number(serviceId),
+      );
+
+    if (
+      service &&
+      service.active === false
+    ) {
+      return;
+    }
+
     const numericId =
       Number(serviceId);
 
     setSelectedServices(
-      (previous) => {
-        if (
-          previous.includes(
-            numericId,
-          )
-        ) {
-          return previous.filter(
-            (id) =>
-              id !==
-              numericId,
-          );
-        }
-
-        return [
-          ...previous,
+      (previous) =>
+        previous.includes(
           numericId,
-        ];
-      },
+        )
+          ? previous.filter(
+              (id) =>
+                id !==
+                numericId,
+            )
+          : [
+              ...previous,
+              numericId,
+            ],
     );
   };
 
@@ -716,9 +663,6 @@ function Configuration() {
       setSavingServices(
         true,
       );
-
-      setMessage("");
-      setError("");
 
       try {
         const response =
@@ -759,10 +703,6 @@ function Configuration() {
       } catch (
         currentError
       ) {
-        console.error(
-          currentError,
-        );
-
         showError(
           currentError.message,
         );
@@ -881,9 +821,6 @@ function Configuration() {
         true,
       );
 
-      setMessage("");
-      setError("");
-
       try {
         const response =
           await fetch(
@@ -916,35 +853,34 @@ function Configuration() {
           );
         }
 
-        const schedules =
+        setAvailability(
           (
             data.availability ||
             []
-          ).map((item) => ({
-            dayOfWeek:
-              Number(
-                item.day_of_week,
-              ),
+          ).map(
+            (item) => ({
+              dayOfWeek:
+                Number(
+                  item.day_of_week,
+                ),
 
-            startTime:
-              item.start_time.slice(
-                0,
-                5,
-              ),
+              startTime:
+                item.start_time.slice(
+                  0,
+                  5,
+                ),
 
-            endTime:
-              item.end_time.slice(
-                0,
-                5,
-              ),
+              endTime:
+                item.end_time.slice(
+                  0,
+                  5,
+                ),
 
-            active:
-              item.active !==
-              false,
-          }));
-
-        setAvailability(
-          schedules,
+              active:
+                item.active !==
+                false,
+            }),
+          ),
         );
 
         showSuccess(
@@ -953,10 +889,6 @@ function Configuration() {
       } catch (
         currentError
       ) {
-        console.error(
-          currentError,
-        );
-
         showError(
           currentError.message,
         );
@@ -969,16 +901,12 @@ function Configuration() {
 
   const getDayLabel = (
     dayOfWeek,
-  ) => {
-    return (
-      DAYS.find(
-        (day) =>
-          day.value ===
-          dayOfWeek,
-      )?.label ||
-      "Día"
-    );
-  };
+  ) =>
+    DAYS.find(
+      (day) =>
+        day.value ===
+        dayOfWeek,
+    )?.label || "Día";
 
   if (loading) {
     return (
@@ -1002,9 +930,9 @@ function Configuration() {
         </div>
 
         <p className="configuration-description">
-          Administrá profesionales,
-          servicios y horarios del
-          consultorio.
+          Administrá el consultorio,
+          profesionales, servicios y
+          horarios.
         </p>
       </div>
 
@@ -1032,7 +960,7 @@ function Configuration() {
             </h3>
 
             <p>
-              Información general de
+              Configuración general de
               esta instalación.
             </p>
           </div>
@@ -1047,22 +975,19 @@ function Configuration() {
 
               {clinic.address && (
                 <p>
-                  📍{" "}
-                  {clinic.address}
+                  📍 {clinic.address}
                 </p>
               )}
 
               {clinic.phone && (
                 <p>
-                  📱{" "}
-                  {clinic.phone}
+                  📱 {clinic.phone}
                 </p>
               )}
 
               {clinic.email && (
                 <p>
-                  ✉️{" "}
-                  {clinic.email}
+                  ✉️ {clinic.email}
                 </p>
               )}
             </div>
@@ -1081,41 +1006,31 @@ function Configuration() {
                   ) =>
                     setMaxActiveAppointments(
                       Number(
-                        event
-                          .target
+                        event.target
                           .value,
                       ),
                     )
                   }
                 >
-                  <option value={1}>
-                    1 turno
-                  </option>
-
-                  <option value={2}>
-                    2 turnos
-                  </option>
-
-                  <option value={3}>
-                    3 turnos
-                  </option>
-
-                  <option value={4}>
-                    4 turnos
-                  </option>
-
-                  <option value={5}>
-                    5 turnos
-                  </option>
+                  {[1, 2, 3, 4, 5].map(
+                    (value) => (
+                      <option
+                        key={
+                          value
+                        }
+                        value={
+                          value
+                        }
+                      >
+                        {value}{" "}
+                        {value === 1
+                          ? "turno"
+                          : "turnos"}
+                      </option>
+                    ),
+                  )}
                 </select>
               </label>
-
-              <p className="configuration-description">
-                Define cuántos turnos
-                futuros puede mantener
-                un paciente al mismo
-                tiempo.
-              </p>
 
               <button
                 type="button"
@@ -1153,188 +1068,169 @@ function Configuration() {
             </h3>
 
             <p>
-              Agregá los odontólogos
-              que trabajan en el
+              Administrá los
+              odontólogos del
               consultorio.
             </p>
           </div>
         </div>
 
-        {!clinic ? (
-          <div className="configuration-empty small">
-            El administrador debe
-            configurar primero el
-            consultorio.
-          </div>
-        ) : (
-          <>
-            {professionals.length >
-            0 ? (
-              <div className="professionals-list">
-                {professionals.map(
-                  (
-                    professional,
-                  ) => (
-                    <button
-                      key={
-                        professional.id
-                      }
-                      type="button"
-                      className={
-                        String(
-                          professional.id,
-                        ) ===
-                        selectedProfessionalId
-                          ? "professional-item active"
-                          : "professional-item"
-                      }
-                      onClick={() =>
-                        setSelectedProfessionalId(
-                          String(
-                            professional.id,
-                          ),
-                        )
-                      }
-                    >
-                      <strong>
-                        {
-                          professional.name
-                        }{" "}
-                        {
-                          professional.lastname
-                        }
-                      </strong>
-
-                      <span>
-                        {professional.specialty ||
-                          "Sin especialidad especificada"}
-                      </span>
-                    </button>
-                  ),
-                )}
-              </div>
-            ) : (
-              <div className="configuration-empty small">
-                Todavía no hay
-                profesionales cargados.
-              </div>
-            )}
-
-            <details className="configuration-details">
-              <summary>
-                Agregar profesional
-              </summary>
-
-              <form
-                className="configuration-form"
-                onSubmit={
-                  createProfessional
-                }
-              >
-                <div className="configuration-grid">
-                  <label className="configuration-field">
-                    Nombre *
-
-                    <input
-                      name="name"
-                      value={
-                        professionalForm
-                          .name
-                      }
-                      onChange={
-                        handleProfessionalChange
-                      }
-                      placeholder="Nombre"
-                    />
-                  </label>
-
-                  <label className="configuration-field">
-                    Apellido *
-
-                    <input
-                      name="lastname"
-                      value={
-                        professionalForm
-                          .lastname
-                      }
-                      onChange={
-                        handleProfessionalChange
-                      }
-                      placeholder="Apellido"
-                    />
-                  </label>
-
-                  <label className="configuration-field">
-                    Especialidad
-
-                    <input
-                      name="specialty"
-                      value={
-                        professionalForm
-                          .specialty
-                      }
-                      onChange={
-                        handleProfessionalChange
-                      }
-                      placeholder="Ej. Ortodoncia"
-                    />
-                  </label>
-
-                  <label className="configuration-field">
-                    Teléfono
-
-                    <input
-                      name="phone"
-                      value={
-                        professionalForm
-                          .phone
-                      }
-                      onChange={
-                        handleProfessionalChange
-                      }
-                      placeholder="Teléfono"
-                    />
-                  </label>
-
-                  <label className="configuration-field">
-                    Email
-
-                    <input
-                      type="email"
-                      name="email"
-                      value={
-                        professionalForm
-                          .email
-                      }
-                      onChange={
-                        handleProfessionalChange
-                      }
-                      placeholder="Email"
-                    />
-                  </label>
-                </div>
-
+        {professionals.length >
+        0 ? (
+          <div className="professionals-list">
+            {professionals.map(
+              (
+                professional,
+              ) => (
                 <button
-                  className="configuration-primary-button"
-                  type="submit"
-                  disabled={
-                    savingProfessional
+                  key={
+                    professional.id
+                  }
+                  type="button"
+                  className={
+                    String(
+                      professional.id,
+                    ) ===
+                    selectedProfessionalId
+                      ? "professional-item active"
+                      : "professional-item"
+                  }
+                  onClick={() =>
+                    setSelectedProfessionalId(
+                      String(
+                        professional.id,
+                      ),
+                    )
                   }
                 >
-                  {savingProfessional
-                    ? "Guardando..."
-                    : "Agregar profesional"}
+                  <strong>
+                    {
+                      professional.name
+                    }{" "}
+                    {
+                      professional.lastname
+                    }
+                  </strong>
+
+                  <span>
+                    {professional.specialty ||
+                      "Odontología"}
+                  </span>
                 </button>
-              </form>
-            </details>
-          </>
+              ),
+            )}
+          </div>
+        ) : (
+          <div className="configuration-empty small">
+            No hay profesionales
+            cargados.
+          </div>
         )}
+
+        <details className="configuration-details">
+          <summary>
+            Agregar profesional
+          </summary>
+
+          <form
+            className="configuration-form"
+            onSubmit={
+              createProfessional
+            }
+          >
+            <div className="configuration-grid">
+              {[
+                [
+                  "name",
+                  "Nombre *",
+                ],
+                [
+                  "lastname",
+                  "Apellido *",
+                ],
+                [
+                  "specialty",
+                  "Especialidad",
+                ],
+                [
+                  "phone",
+                  "Teléfono",
+                ],
+                [
+                  "email",
+                  "Email",
+                ],
+              ].map(
+                ([
+                  field,
+                  label,
+                ]) => (
+                  <label
+                    className="configuration-field"
+                    key={
+                      field
+                    }
+                  >
+                    {label}
+
+                    <input
+                      name={
+                        field
+                      }
+                      type={
+                        field ===
+                        "email"
+                          ? "email"
+                          : "text"
+                      }
+                      value={
+                        professionalForm[
+                          field
+                        ]
+                      }
+                      onChange={
+                        handleProfessionalChange
+                      }
+                    />
+                  </label>
+                ),
+              )}
+            </div>
+
+            <button
+              className="configuration-primary-button"
+              type="submit"
+              disabled={
+                savingProfessional
+              }
+            >
+              {savingProfessional
+                ? "Guardando..."
+                : "Agregar profesional"}
+            </button>
+          </form>
+        </details>
       </section>
+
+      <ServiceManagement
+        services={
+          appointmentTypes
+        }
+        onChanged={
+          loadAppointmentTypes
+        }
+        showSuccess={
+          showSuccess
+        }
+        showError={
+          showError
+        }
+      />
 
       <section className="configuration-card">
         <div className="configuration-card-heading">
           <div className="configuration-number">
-            3
+            4
           </div>
 
           <div>
@@ -1343,9 +1239,9 @@ function Configuration() {
             </h3>
 
             <p>
-              Elegí un profesional y
-              definí qué servicios
-              realiza.
+              Definí qué servicios
+              realiza el profesional
+              seleccionado.
             </p>
           </div>
         </div>
@@ -1353,11 +1249,6 @@ function Configuration() {
         {!selectedProfessionalId ? (
           <div className="configuration-empty small">
             Seleccioná un profesional.
-          </div>
-        ) : appointmentTypes.length ===
-          0 ? (
-          <div className="configuration-empty small">
-            No hay servicios cargados.
           </div>
         ) : (
           <>
@@ -1372,6 +1263,10 @@ function Configuration() {
                   >
                     <input
                       type="checkbox"
+                      disabled={
+                        service.active ===
+                        false
+                      }
                       checked={selectedServices.includes(
                         Number(
                           service.id,
@@ -1386,16 +1281,17 @@ function Configuration() {
 
                     <div>
                       <strong>
-                        {
-                          service.name
-                        }
+                        {service.name}
                       </strong>
 
                       <span>
                         {
                           service.duration_minutes
                         }{" "}
-                        minutos
+                        min
+                        {service.active
+                          ? ""
+                          : " · Inactivo"}
                       </span>
                     </div>
                   </label>
@@ -1424,19 +1320,18 @@ function Configuration() {
       <section className="configuration-card">
         <div className="configuration-card-heading">
           <div className="configuration-number">
-            4
+            5
           </div>
 
           <div>
             <h3>
-              Días y horarios de
-              atención
+              Días y horarios
             </h3>
 
             <p>
-              Configurá las franjas
-              horarias del profesional
-              seleccionado.
+              Configurá la
+              disponibilidad del
+              profesional seleccionado.
             </p>
           </div>
         </div>
@@ -1457,33 +1352,23 @@ function Configuration() {
                       index,
                     ) => ({
                       ...schedule,
-
                       originalIndex:
                         index,
                     }),
                   )
                   .sort(
-                    (a, b) => {
-                      if (
-                        a.dayOfWeek !==
-                        b.dayOfWeek
-                      ) {
-                        return (
-                          a.dayOfWeek -
-                          b.dayOfWeek
-                        );
-                      }
-
-                      return a.startTime.localeCompare(
+                    (a, b) =>
+                      a.dayOfWeek -
+                        b.dayOfWeek ||
+                      a.startTime.localeCompare(
                         b.startTime,
-                      );
-                    },
+                      ),
                   )
                   .map(
                     (schedule) => (
                       <div
                         className="availability-item"
-                        key={`${schedule.dayOfWeek}-${schedule.startTime}-${schedule.endTime}-${schedule.originalIndex}`}
+                        key={`${schedule.dayOfWeek}-${schedule.startTime}-${schedule.originalIndex}`}
                       >
                         <div>
                           <strong>
@@ -1520,8 +1405,7 @@ function Configuration() {
               </div>
             ) : (
               <div className="configuration-empty small">
-                Este profesional todavía
-                no tiene horarios
+                No hay horarios
                 cargados.
               </div>
             )}
