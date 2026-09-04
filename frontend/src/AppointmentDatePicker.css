@@ -1,6 +1,7 @@
 .appointment-date-picker {
   display: grid;
-  gap: 16px;
+  gap: 18px;
+  color: var(--text-main);
 }
 
 .date-picker-header,
@@ -14,22 +15,39 @@
 .date-picker-header > div,
 .time-picker-heading > div {
   display: grid;
-  gap: 3px;
+  gap: 4px;
+}
+
+.date-picker-header strong,
+.time-picker-heading strong {
+  color: var(--text-main);
 }
 
 .date-picker-header span,
 .time-picker-heading span {
+  color: var(--text-soft);
   font-size: 13px;
-  opacity: 0.68;
+  opacity: 1;
 }
 
 .date-picker-today {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 9px;
-  padding: 8px 13px;
-  background: rgba(255, 255, 255, 0.05);
-  color: inherit;
+  padding: 8px 14px;
+  color: var(--blue-dark);
+  border: 1px solid var(--blue-border);
+  border-radius: 10px;
+  background: var(--blue-soft);
+  font-weight: 700;
   cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.date-picker-today:hover {
+  border-color: var(--blue);
+  background: #dceeff;
+  transform: translateY(-1px);
 }
 
 .week-navigation {
@@ -40,158 +58,232 @@
 }
 
 .week-navigation strong {
+  color: var(--text-main);
   text-align: center;
 }
 
 .week-navigation button {
   height: 42px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--blue);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  color: inherit;
+  background: white;
   font-size: 20px;
   cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.week-navigation button:hover {
+  border-color: var(--blue-border);
+  background: var(--blue-soft);
+  transform: translateY(-1px);
 }
 
 .week-days {
   display: grid;
-  grid-template-columns: repeat(7, minmax(92px, 1fr));
-  gap: 8px;
+  grid-template-columns:
+    repeat(7, minmax(96px, 1fr));
+  gap: 9px;
   overflow-x: auto;
-  padding-bottom: 5px;
+  padding: 2px 1px 7px;
 }
 
 .week-day-card {
-  min-width: 92px;
-  min-height: 146px;
+  min-width: 96px;
+  min-height: 158px;
   display: grid;
   justify-items: center;
   align-content: start;
-  gap: 3px;
-  padding: 12px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.035);
-  color: inherit;
+  gap: 4px;
+  padding: 13px 8px;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: white;
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .week-day-card:hover {
-  background: rgba(255, 255, 255, 0.075);
+  border-color: var(--blue-border);
+  background: #fbfdff;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .week-day-card.selected {
-  border-color: rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.12);
+  color: var(--blue-dark);
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  box-shadow:
+    0 0 0 2px
+      rgba(31, 120, 209, 0.08),
+    var(--shadow-sm);
 }
 
 .week-day-card.today {
-  box-shadow: inset 0 0 0 1px rgba(83, 190, 160, 0.5);
+  box-shadow:
+    inset 0 0 0 2px
+      rgba(31, 120, 209, 0.2),
+    var(--shadow-sm);
+}
+
+.week-day-card.today.selected {
+  box-shadow:
+    inset 0 0 0 1px
+      rgba(31, 120, 209, 0.18),
+    0 0 0 2px
+      rgba(31, 120, 209, 0.08),
+    var(--shadow-sm);
 }
 
 .week-day-name {
+  color: var(--text-soft);
   font-size: 12px;
-  font-weight: 700;
-  opacity: 0.7;
+  font-weight: 800;
+  opacity: 1;
 }
 
 .week-day-card > strong {
   margin-top: 3px;
-  font-size: 24px;
+  color: inherit;
+  font-size: 25px;
 }
 
 .week-day-month {
+  color: var(--text-soft);
   font-size: 12px;
-  opacity: 0.6;
+  opacity: 1;
 }
 
 .day-work-status {
   margin-top: 7px;
-  padding: 3px 6px;
+  padding: 4px 7px;
+  color: var(--text-soft);
   border-radius: 999px;
   font-size: 10px;
-  background: rgba(255, 255, 255, 0.06);
-  opacity: 0.7;
+  background: #f0f4f7;
+  opacity: 1;
 }
 
 .day-work-status.works {
-  background: rgba(72, 187, 120, 0.13);
-  opacity: 1;
+  color: #26724a;
+  background: var(--green-soft);
 }
 
 .day-appointments-count {
   margin-top: 2px;
+  color: var(--text-soft);
   font-size: 10px;
   font-weight: 700;
-  opacity: 0.76;
+  opacity: 1;
 }
 
 .day-delay {
   margin-top: 2px;
+  padding: 3px 6px;
+  color: var(--text-muted);
+  border-radius: 999px;
   font-size: 10px;
   font-weight: 700;
-  opacity: 0.55;
   white-space: nowrap;
+  background: #f4f7f9;
+  opacity: 1;
 }
 
 .day-delay.has-delay {
-  opacity: 1;
-  padding: 3px 6px;
-  border-radius: 999px;
-  background: rgba(255, 179, 71, 0.12);
+  color: #9a641f;
+  background: var(--orange-soft);
 }
 
 .time-picker-section {
   display: grid;
-  gap: 12px;
-  padding-top: 8px;
+  gap: 14px;
+  padding-top: 10px;
 }
 
 .selected-time-label {
-  padding: 5px 10px;
+  padding: 6px 11px;
+  color: var(--blue-dark) !important;
   border-radius: 999px;
+  background: var(--blue-soft);
   font-weight: 800;
-  background: rgba(255, 255, 255, 0.1);
   opacity: 1 !important;
 }
 
 .time-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  max-height: 260px;
+  grid-template-columns:
+    repeat(5, 1fr);
+  gap: 9px;
+  max-height: 270px;
   overflow-y: auto;
+  padding: 2px;
 }
 
 .time-option {
-  min-height: 58px;
+  min-height: 60px;
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.035);
-  color: inherit;
+  gap: 4px;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: white;
   cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .time-option:hover {
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--blue-border);
+  background: var(--blue-soft);
+  transform: translateY(-1px);
+}
+
+.time-option strong {
+  color: inherit;
 }
 
 .time-option.selected {
-  border-color: rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  border-color: var(--blue);
+  background: var(--blue);
+  box-shadow:
+    0 5px 14px
+    rgba(31, 120, 209, 0.18);
 }
 
 .time-option.occupied {
-  border-color: rgba(255, 179, 71, 0.35);
+  border-color: #e7b36f;
+  background: var(--orange-soft);
+}
+
+.time-option.occupied.selected {
+  border-color: var(--blue);
+  background: var(--blue);
 }
 
 .time-option span {
+  color: var(--text-soft);
   font-size: 10px;
-  opacity: 0.68;
+  opacity: 1;
+}
+
+.time-option.selected span {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .custom-time {
@@ -199,26 +291,52 @@
   grid-template-columns: 180px 1fr;
   align-items: end;
   gap: 14px;
+  padding-top: 4px;
 }
 
 .custom-time label {
   display: grid;
-  gap: 6px;
+  gap: 7px;
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.custom-time input {
+  min-height: 44px;
+  padding: 10px 12px;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  background: #fbfdff;
+}
+
+.custom-time input:focus {
+  border-color: var(--blue);
+  background: white;
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 120, 209, 0.1);
 }
 
 .custom-time p {
   margin: 0 0 4px;
+  color: var(--text-soft);
   font-size: 12px;
-  opacity: 0.62;
+  line-height: 1.5;
+  opacity: 1;
 }
 
 @media (max-width: 720px) {
   .week-days {
-    grid-template-columns: repeat(7, 96px);
+    grid-template-columns:
+      repeat(7, 100px);
   }
 
   .time-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns:
+      repeat(3, 1fr);
   }
 
   .custom-time {
