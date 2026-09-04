@@ -3,6 +3,7 @@ import {
   useState,
 } from "react";
 
+import ReprogramAppointment from "./ReprogramAppointment";
 import "./AgendaView.css";
 
 const DAYS = [
@@ -31,41 +32,23 @@ const MONTHS = [
 ];
 
 const pad = (value) =>
-  String(value).padStart(2, "0");
+  String(value).padStart(
+    2,
+    "0",
+  );
 
-const dateToDisplay = (date) =>
-  `${pad(date.getDate())}/${pad(
+const dateToDisplay = (
+  date,
+) =>
+  `${pad(
+    date.getDate(),
+  )}/${pad(
     date.getMonth() + 1,
   )}/${date.getFullYear()}`;
 
-const displayToDate = (value) => {
-  if (!value) {
-    return null;
-  }
-
-  const match = value.match(
-    /^(\d{2})\/(\d{2})\/(\d{4})$/,
-  );
-
-  if (!match) {
-    return null;
-  }
-
-  const [, day, month, year] =
-    match;
-
-  return new Date(
-    Number(year),
-    Number(month) - 1,
-    Number(day),
-    12,
-    0,
-    0,
-    0,
-  );
-};
-
-const startOfWeek = (date) => {
+const startOfWeek = (
+  date,
+) => {
   const result =
     new Date(date);
 
@@ -162,12 +145,19 @@ function AgendaView({
   const [
     selectedDate,
     setSelectedDate,
-  ] = useState(new Date());
+  ] = useState(
+    new Date(),
+  );
 
   const [
     professionalId,
     setProfessionalId,
   ] = useState("all");
+
+  const [
+    reprogramAppointment,
+    setReprogramAppointment,
+  ] = useState(null);
 
   const professionals =
     useMemo(() => {
@@ -281,7 +271,9 @@ function AgendaView({
             appointment.appointment_date;
 
           if (
-            !grouped.has(key)
+            !grouped.has(
+              key,
+            )
           ) {
             grouped.set(
               key,
@@ -299,14 +291,15 @@ function AgendaView({
 
       grouped.forEach(
         (items) => {
-          items.sort((a, b) =>
-            String(
-              a.start_time,
-            ).localeCompare(
+          items.sort(
+            (a, b) =>
               String(
-                b.start_time,
+                a.start_time,
+              ).localeCompare(
+                String(
+                  b.start_time,
+                ),
               ),
-            ),
           );
         },
       );
@@ -384,114 +377,169 @@ function AgendaView({
     );
   };
 
+  const handleReprogrammed =
+    async (
+      updatedAppointment,
+    ) => {
+      if (
+        updatedAppointment
+          ?.appointment_date
+      ) {
+        const [
+          day,
+          month,
+          year,
+        ] =
+          updatedAppointment
+            .appointment_date
+            .split("/")
+            .map(Number);
+
+        setSelectedDate(
+          new Date(
+            year,
+            month - 1,
+            day,
+            12,
+            0,
+            0,
+            0,
+          ),
+        );
+      }
+
+      await onRefresh();
+    };
+
   const renderAppointment = (
     appointment,
-  ) => (
-    <article
-      className={[
-        "agenda-appointment",
-        appointment.is_overbooked
-          ? "overbooked"
-          : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
-      key={
-        appointment.id
-      }
-    >
-      <div className="agenda-appointment-time">
-        <strong>
-          {formatTime(
-            appointment.start_time,
-          )}
-        </strong>
+  ) => {
+    const canModify =
+      appointment.status !==
+        "completed" &&
+      appointment.status !==
+        "absent";
 
-        <span>
-          {formatTime(
-            appointment.end_time,
-          )}
-        </span>
+    return (
+      <article
+        className={[
+          "agenda-appointment",
 
-        {appointment.is_overbooked && (
-          <span className="agenda-overbooked-badge">
-            SOBRETURNO
-          </span>
-        )}
-      </div>
+          appointment.is_overbooked
+            ? "overbooked"
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        key={
+          appointment.id
+        }
+      >
+        <div className="agenda-appointment-time">
+          <strong>
+            {formatTime(
+              appointment.start_time,
+            )}
+          </strong>
 
-      <div className="agenda-appointment-main">
-        <div className="agenda-patient-row">
-          <h3>
-            {
-              appointment.patient_name
-            }{" "}
-            {
-              appointment.patient_lastname
-            }
-          </h3>
-
-          <span
-            className={`appointment-status ${appointment.status}`}
-          >
-            {getStatusLabel(
-              appointment.status,
+          <span>
+            {formatTime(
+              appointment.end_time,
             )}
           </span>
-        </div>
 
-        <p className="agenda-service">
-          {
-            appointment.service
-          }
-        </p>
-
-        <p className="agenda-professional">
-          🦷{" "}
-          {
-            appointment.professional_name
-          }{" "}
-          {
-            appointment.professional_lastname
-          }
-        </p>
-
-        <div className="agenda-contact">
-          {appointment.patient_phone && (
-            <span>
-              📱{" "}
-              {
-                appointment.patient_phone
-              }
-            </span>
-          )}
-
-          {appointment.patient_email && (
-            <span>
-              ✉️{" "}
-              {
-                appointment.patient_email
-              }
+          {appointment.is_overbooked && (
+            <span className="agenda-overbooked-badge">
+              SOBRETURNO
             </span>
           )}
         </div>
 
-        {appointment.notes && (
-          <p className="agenda-notes">
-            Nota:{" "}
+        <div className="agenda-appointment-main">
+          <div className="agenda-patient-row">
+            <h3>
+              {
+                appointment.patient_name
+              }{" "}
+              {
+                appointment.patient_lastname
+              }
+            </h3>
+
+            <span
+              className={`appointment-status ${appointment.status}`}
+            >
+              {getStatusLabel(
+                appointment.status,
+              )}
+            </span>
+          </div>
+
+          <p className="agenda-service">
             {
-              appointment.notes
+              appointment.service
             }
           </p>
-        )}
-      </div>
 
-      <div className="agenda-appointment-actions">
-        {appointment.status !==
-          "completed" &&
-          appointment.status !==
-            "absent" && (
+          <p className="agenda-professional">
+            🦷{" "}
+            {
+              appointment.professional_name
+            }{" "}
+            {
+              appointment.professional_lastname
+            }
+          </p>
+
+          <div className="agenda-contact">
+            {appointment.patient_phone && (
+              <span>
+                📱{" "}
+                {
+                  appointment.patient_phone
+                }
+              </span>
+            )}
+
+            {appointment.patient_email && (
+              <span>
+                ✉️{" "}
+                {
+                  appointment.patient_email
+                }
+              </span>
+            )}
+          </div>
+
+          {appointment.notes && (
+            <p className="agenda-notes">
+              Nota:{" "}
+              {
+                appointment.notes
+              }
+            </p>
+          )}
+        </div>
+
+        <div className="agenda-appointment-actions">
+          {canModify && (
             <>
+              <button
+                type="button"
+                className="agenda-reprogram-button"
+                disabled={
+                  updatingAppointmentId ===
+                  appointment.id
+                }
+                onClick={() =>
+                  setReprogramAppointment(
+                    appointment,
+                  )
+                }
+              >
+                Reprogramar
+              </button>
+
               <button
                 type="button"
                 className="action-button completed"
@@ -544,9 +592,10 @@ function AgendaView({
               </button>
             </>
           )}
-      </div>
-    </article>
-  );
+        </div>
+      </article>
+    );
+  };
 
   return (
     <div className="agenda-view">
@@ -594,7 +643,9 @@ function AgendaView({
                 : ""
             }
             onClick={() =>
-              setView("day")
+              setView(
+                "day",
+              )
             }
           >
             Día
@@ -608,7 +659,9 @@ function AgendaView({
                 : ""
             }
             onClick={() =>
-              setView("week")
+              setView(
+                "week",
+              )
             }
           >
             Semana
@@ -668,11 +721,6 @@ function AgendaView({
           onClick={
             goPrevious
           }
-          aria-label={
-            view === "week"
-              ? "Semana anterior"
-              : "Día anterior"
-          }
         >
           ←
         </button>
@@ -718,11 +766,6 @@ function AgendaView({
           type="button"
           onClick={
             goNext
-          }
-          aria-label={
-            view === "week"
-              ? "Semana siguiente"
-              : "Día siguiente"
           }
         >
           →
@@ -823,6 +866,7 @@ function AgendaView({
                 <section
                   className={[
                     "agenda-week-day",
+
                     isToday
                       ? "today"
                       : "",
@@ -878,8 +922,7 @@ function AgendaView({
                         : "turnos"}
                     </span>
 
-                    {delay >
-                      0 && (
+                    {delay > 0 && (
                       <span className="agenda-delay">
                         +{delay} min
                       </span>
@@ -901,6 +944,7 @@ function AgendaView({
                             type="button"
                             className={[
                               "agenda-week-appointment",
+
                               appointment.is_overbooked
                                 ? "overbooked"
                                 : "",
@@ -955,6 +999,20 @@ function AgendaView({
           )}
         </div>
       )}
+
+      <ReprogramAppointment
+        appointment={
+          reprogramAppointment
+        }
+        onClose={() =>
+          setReprogramAppointment(
+            null,
+          )
+        }
+        onUpdated={
+          handleReprogrammed
+        }
+      />
     </div>
   );
 }

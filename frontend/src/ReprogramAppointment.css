@@ -1,0 +1,212 @@
+.reprogram-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background:
+    rgba(15, 39, 64, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+.reprogram-modal {
+  width: min(
+    100%,
+    500px
+  );
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 26px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: white;
+  box-shadow: var(--shadow-md);
+}
+
+.reprogram-header {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 20px;
+}
+
+.reprogram-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--blue-soft);
+  font-size: 21px;
+}
+
+.reprogram-header h2 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 22px;
+}
+
+.reprogram-appointment-info {
+  display: grid;
+  gap: 5px;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--bg-soft);
+}
+
+.reprogram-appointment-info strong {
+  color: var(--text-main);
+}
+
+.reprogram-appointment-info span {
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.reprogram-overbooked {
+  width: fit-content;
+  margin-top: 4px;
+  padding: 4px 7px;
+  border-radius: 7px;
+  color: #7047a5 !important;
+  background: #eee5fb;
+  font-size: 9px !important;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.reprogram-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 13px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: var(--blue-soft);
+}
+
+.reprogram-current span {
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.reprogram-current strong {
+  color: var(--blue-dark);
+  font-size: 13px;
+}
+
+.reprogram-form {
+  display: grid;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.reprogram-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.reprogram-form input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-main);
+  background: white;
+  font: inherit;
+}
+
+.reprogram-form input:focus {
+  border-color: var(--blue-border);
+  outline: none;
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 120, 209, 0.08);
+}
+
+.reprogram-form small {
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.reprogram-note {
+  padding: 11px 13px;
+  border: 1px solid var(--blue-border);
+  border-radius: 10px;
+  color: var(--text-soft);
+  background: var(--blue-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.reprogram-note.overbooked {
+  border-color: #d9c8f4;
+  background: #f8f3ff;
+}
+
+.reprogram-error {
+  padding: 11px 13px;
+  border: 1px solid #efc4c4;
+  border-radius: 10px;
+  color: #a44b4b;
+  background: #fff7f7;
+  font-size: 12px;
+}
+
+.reprogram-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 4px;
+}
+
+.reprogram-cancel-button,
+.reprogram-save-button {
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.reprogram-cancel-button {
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  background: white;
+}
+
+.reprogram-save-button {
+  border: 1px solid var(--blue);
+  color: white;
+  background: var(--blue);
+}
+
+.reprogram-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 550px) {
+  .reprogram-modal {
+    padding: 20px;
+  }
+
+  .reprogram-current {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .reprogram-actions {
+    flex-direction: column-reverse;
+  }
+
+  .reprogram-actions button {
+    width: 100%;
+  }
+}
