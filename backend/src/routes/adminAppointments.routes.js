@@ -6,6 +6,7 @@ import {
   createOverbookedAppointment,
   getAllAppointments,
   rescheduleAppointment,
+  restoreAppointment,
   updateAppointmentStatus,
 } from "../controllers/adminAppointments.controllers.js";
 
@@ -17,7 +18,8 @@ import {
   isDentist,
 } from "../middlewares/role.middleware.js";
 
-const router = Router();
+const router =
+  Router();
 
 router.get(
   "/admin/appointments",
@@ -45,6 +47,13 @@ router.patch(
   isAuth,
   isDentist,
   rescheduleAppointment,
+);
+
+router.patch(
+  "/admin/appointments/:id/restore",
+  isAuth,
+  isDentist,
+  restoreAppointment,
 );
 
 export default router;

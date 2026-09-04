@@ -1,0 +1,161 @@
+.cancelled-page {
+  display: grid;
+  gap: 20px;
+}
+
+.cancelled-info {
+  padding: 13px 15px;
+  border: 1px solid var(--blue-border);
+  border-radius: 12px;
+  color: var(--text-soft);
+  background: var(--blue-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cancelled-error {
+  padding: 12px 14px;
+  border: 1px solid #efc4c4;
+  border-radius: 10px;
+  color: #a44b4b;
+  background: #fff7f7;
+  font-size: 13px;
+}
+
+.cancelled-list {
+  display: grid;
+  gap: 12px;
+}
+
+.cancelled-card {
+  display: grid;
+  grid-template-columns:
+    150px
+    minmax(0, 1fr)
+    auto;
+  gap: 18px;
+  align-items: center;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.cancelled-date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding-right: 15px;
+  border-right: 1px solid var(--border);
+}
+
+.cancelled-date strong {
+  color: var(--text-main);
+  font-size: 16px;
+}
+
+.cancelled-date span {
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.cancelled-overbooked {
+  margin-top: 4px;
+  padding: 5px 7px;
+  border-radius: 7px;
+  color: #7047a5 !important;
+  background: #eee5fb;
+  font-size: 9px !important;
+  font-weight: 900;
+}
+
+.cancelled-main {
+  display: grid;
+  gap: 5px;
+}
+
+.cancelled-main h3 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 16px;
+}
+
+.cancelled-main p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.cancelled-main
+  .cancelled-service {
+  color: var(--blue-dark);
+  font-weight: 700;
+}
+
+.cancelled-notes {
+  width: fit-content;
+  margin-top: 4px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  color: var(--text-soft);
+  background: var(--bg-soft);
+  font-size: 11px;
+}
+
+.cancelled-actions {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.cancelled-badge {
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: #a44b4b;
+  background: #fff0f0;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.restore-button {
+  padding: 10px 13px;
+  border: 1px solid #bde1ca;
+  border-radius: 9px;
+  color: #26724a;
+  background: var(--green-soft);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.restore-button:hover {
+  border-color: #7bc696;
+}
+
+.restore-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 750px) {
+  .cancelled-card {
+    grid-template-columns: 1fr;
+  }
+
+  .cancelled-date {
+    padding-right: 0;
+    padding-bottom: 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cancelled-actions {
+    justify-items: stretch;
+  }
+
+  .restore-button {
+    width: 100%;
+  }
+}

@@ -4,6 +4,7 @@ import {
 } from "react";
 
 import AgendaView from "./AgendaView";
+import CancelledAppointments from "./CancelledAppointments";
 import Configuration from "./Configuration";
 import OverbookedAppointment from "./OverbookedAppointment";
 import "./App.css";
@@ -102,7 +103,8 @@ function App() {
     }
 
     if (
-      section === "agenda"
+      section === "agenda" ||
+      section === "cancelled"
     ) {
       loadAppointments();
     }
@@ -689,6 +691,22 @@ function App() {
         <button
           className={
             section ===
+            "cancelled"
+              ? "nav-button active"
+              : "nav-button"
+          }
+          onClick={() =>
+            setSection(
+              "cancelled",
+            )
+          }
+        >
+          🗂️ Cancelados
+        </button>
+
+        <button
+          className={
+            section ===
             "consultations"
               ? "nav-button active"
               : "nav-button"
@@ -763,6 +781,18 @@ function App() {
               }
             />
           </>
+        )}
+
+        {section ===
+          "cancelled" && (
+          <CancelledAppointments
+            appointments={
+              appointments
+            }
+            onRefresh={
+              loadAppointments
+            }
+          />
         )}
 
         {section ===
