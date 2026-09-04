@@ -131,24 +131,32 @@
 }
 
 .admin-header {
-  min-height: 96px;
-  padding: 20px 5%;
+  min-height: 86px;
+  padding: 16px 5%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
   border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: var(--shadow-sm);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+}
+
+.admin-header > div:first-child {
+  display: grid;
+  gap: 2px;
 }
 
 .eyebrow {
-  margin: 0 0 5px;
+  margin: 0 0 4px;
   color: var(--blue);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
 }
 
 .admin-header h1,
@@ -158,14 +166,25 @@
 }
 
 .admin-header h1 {
-  font-size: 27px;
+  font-size: 24px;
+  letter-spacing: -0.02em;
 }
 
 .user-area {
   display: flex;
   align-items: center;
-  gap: 16px;
-  color: var(--text-soft);
+  gap: 12px;
+  padding: 7px 8px 7px 13px;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.user-area span {
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .logout-button,
@@ -176,55 +195,65 @@
   border-radius: 10px;
   background: white;
   transition:
+    color 0.2s ease,
     border-color 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .logout-button:hover,
 .secondary-button:hover {
+  color: var(--blue-dark);
   border-color: var(--blue-border);
   background: var(--blue-soft);
+  transform: translateY(-1px);
 }
 
 .main-nav {
-  padding: 14px 5%;
+  padding: 12px 5%;
   display: flex;
-  gap: 9px;
+  gap: 8px;
+  position: sticky;
+  top: 86px;
+  z-index: 25;
   border-bottom: 1px solid var(--border);
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
 }
 
 .nav-button {
-  padding: 11px 18px;
+  min-height: 42px;
+  padding: 10px 16px;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 11px;
   color: var(--text-soft);
   background: transparent;
   font-weight: 700;
   transition:
     color 0.2s ease,
     background 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .nav-button:hover {
   color: var(--blue-dark);
+  border-color: var(--blue-border);
   background: var(--blue-soft);
+  transform: translateY(-1px);
 }
 
 .nav-button.active {
-  color: white;
-  border-color: var(--blue);
-  background: var(--blue);
-  box-shadow:
-    0 6px 16px
-    rgba(31, 120, 209, 0.18);
+  color: var(--blue-dark);
+  border-color: var(--blue-border);
+  background: var(--blue-soft);
+  box-shadow: inset 0 0 0 1px rgba(31, 120, 209, 0.04);
 }
 
 .content {
   width: min(1180px, 92%);
   margin: 0 auto;
-  padding: 34px 0 60px;
+  padding: 36px 0 60px;
 }
 
 .section-heading {
@@ -236,7 +265,8 @@
 }
 
 .section-heading h2 {
-  font-size: 28px;
+  font-size: 30px;
+  letter-spacing: -0.025em;
 }
 
 .tabs {
@@ -259,9 +289,9 @@
 }
 
 .tab.active {
-  color: white;
-  border-color: var(--blue);
-  background: var(--blue);
+  color: var(--blue-dark);
+  border-color: var(--blue-border);
+  background: var(--blue-soft);
   font-weight: 700;
 }
 
@@ -287,7 +317,7 @@
 .appointments-list,
 .consultations-list {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .appointment-card {
@@ -296,7 +326,6 @@
     120px
     1fr
     260px;
-
   gap: 22px;
   padding: 22px;
   border: 1px solid var(--border);
@@ -310,7 +339,7 @@
 }
 
 .appointment-card:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   border-color: var(--blue-border);
   box-shadow: var(--shadow-md);
 }
@@ -591,6 +620,7 @@
 
 @media (max-width: 650px) {
   .admin-header {
+    position: static;
     align-items: flex-start;
     flex-direction: column;
   }
@@ -601,6 +631,7 @@
   }
 
   .main-nav {
+    position: static;
     overflow-x: auto;
   }
 
