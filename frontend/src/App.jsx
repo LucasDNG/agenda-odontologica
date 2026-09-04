@@ -1,389 +1,556 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import AgendaView from "./AgendaView";
 import Configuration from "./Configuration";
 import OverbookedAppointment from "./OverbookedAppointment";
 import "./App.css";
 
-const API_URL = "http://localhost:3000/api";
+const API_URL =
+  "http://localhost:3000/api";
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [loginError, setLoginError] = useState("");
-  const [loadingLogin, setLoadingLogin] = useState(false);
-
-  const [section, setSection] = useState("agenda");
-
-  const [appointments, setAppointments] = useState([]);
-  const [loadingAppointments, setLoadingAppointments] =
-    useState(false);
-
-  const [appointmentMessage, setAppointmentMessage] =
-    useState("");
-
-  const [updatingAppointmentId, setUpdatingAppointmentId] =
+  const [user, setUser] =
     useState(null);
 
-  const [showOverbookedModal, setShowOverbookedModal] =
-    useState(false);
-
-  const [consultations, setConsultations] = useState([]);
-
-  const [consultationStatus, setConsultationStatus] =
-    useState("pending");
-
-  const [loadingConsultations, setLoadingConsultations] =
-    useState(false);
-
-  const [replyTexts, setReplyTexts] = useState({});
-  const [sendingId, setSendingId] = useState(null);
-
-  const [consultationMessage, setConsultationMessage] =
+  const [email, setEmail] =
     useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const [
+    loginError,
+    setLoginError,
+  ] = useState("");
+
+  const [
+    loadingLogin,
+    setLoadingLogin,
+  ] = useState(false);
+
+  const [section, setSection] =
+    useState("agenda");
+
+  const [
+    appointments,
+    setAppointments,
+  ] = useState([]);
+
+  const [
+    loadingAppointments,
+    setLoadingAppointments,
+  ] = useState(false);
+
+  const [
+    appointmentMessage,
+    setAppointmentMessage,
+  ] = useState("");
+
+  const [
+    updatingAppointmentId,
+    setUpdatingAppointmentId,
+  ] = useState(null);
+
+  const [
+    showOverbookedModal,
+    setShowOverbookedModal,
+  ] = useState(false);
+
+  const [
+    consultations,
+    setConsultations,
+  ] = useState([]);
+
+  const [
+    consultationStatus,
+    setConsultationStatus,
+  ] = useState("pending");
+
+  const [
+    loadingConsultations,
+    setLoadingConsultations,
+  ] = useState(false);
+
+  const [
+    replyTexts,
+    setReplyTexts,
+  ] = useState({});
+
+  const [
+    sendingId,
+    setSendingId,
+  ] = useState(null);
+
+  const [
+    consultationMessage,
+    setConsultationMessage,
+  ] = useState("");
 
   useEffect(() => {
     checkSession();
   }, []);
 
   useEffect(() => {
-    if (!user || user.role !== "dentist") return;
-
-    if (section === "agenda") {
-      loadAppointments();
-    }
-
-    if (section === "consultations") {
-      loadConsultations(consultationStatus);
-    }
-  }, [user, section, consultationStatus]);
-
-  const checkSession = async () => {
-    try {
-      const response = await fetch(`${API_URL}/profile`, {
-        credentials: "include",
-      });
-
-      if (!response.ok) return;
-
-      const data = await response.json();
-
-      if (data.user?.role === "dentist") {
-        setUser(data.user);
-      }
-    } catch (error) {
-      console.error(
-        "Error comprobando sesión:",
-        error,
-      );
-    }
-  };
-
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
-    setLoadingLogin(true);
-    setLoginError("");
-
-    try {
-      const response = await fetch(`${API_URL}/signin`, {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        credentials: "include",
-
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setLoginError(
-          data.message ||
-            "No se pudo iniciar sesión",
-        );
-
-        return;
-      }
-
-      if (data.user.role !== "dentist") {
-        setLoginError(
-          "Este panel es exclusivo para odontólogos",
-        );
-
-        return;
-      }
-
-      setUser(data.user);
-      setEmail("");
-      setPassword("");
-    } catch (error) {
-      console.error(error);
-
-      setLoginError(
-        "No se pudo conectar con el servidor",
-      );
-    } finally {
-      setLoadingLogin(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await fetch(`${API_URL}/signout`, {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch (error) {
-      console.error(error);
-    }
-
-    setUser(null);
-    setAppointments([]);
-    setConsultations([]);
-    setShowOverbookedModal(false);
-  };
-
-  const loadAppointments = async () => {
-    setLoadingAppointments(true);
-    setAppointmentMessage("");
-
-    try {
-      const response = await fetch(
-        `${API_URL}/admin/appointments`,
-        {
-          credentials: "include",
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Error obteniendo turnos",
-        );
-      }
-
-      setAppointments(data.appointments || []);
-    } catch (error) {
-      console.error(error);
-
-      setAppointmentMessage(
-        "No se pudieron cargar los turnos.",
-      );
-    } finally {
-      setLoadingAppointments(false);
-    }
-  };
-
-  const handleOverbookedCreated = async () => {
-    setAppointmentMessage(
-      "Sobreturno creado correctamente.",
-    );
-
-    await loadAppointments();
-  };
-
-  const updateAppointmentStatus = async (
-    id,
-    status,
-  ) => {
-    setUpdatingAppointmentId(id);
-    setAppointmentMessage("");
-
-    try {
-      const response = await fetch(
-        `${API_URL}/admin/appointments/${id}/status`,
-        {
-          method: "PATCH",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          credentials: "include",
-
-          body: JSON.stringify({
-            status,
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "No se pudo actualizar el turno",
-        );
-      }
-
-      await loadAppointments();
-    } catch (error) {
-      console.error(error);
-
-      setAppointmentMessage(error.message);
-    } finally {
-      setUpdatingAppointmentId(null);
-    }
-  };
-
-  const loadConsultations = async (
-    selectedStatus,
-  ) => {
-    setLoadingConsultations(true);
-    setConsultationMessage("");
-
-    try {
-      const response = await fetch(
-        `${API_URL}/admin/whatsapp-consultations?status=${selectedStatus}`,
-        {
-          credentials: "include",
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Error obteniendo consultas",
-        );
-      }
-
-      setConsultations(
-        data.consultations || [],
-      );
-    } catch (error) {
-      console.error(error);
-
-      setConsultationMessage(
-        "No se pudieron cargar las consultas.",
-      );
-    } finally {
-      setLoadingConsultations(false);
-    }
-  };
-
-  const handleReplyChange = (id, value) => {
-    setReplyTexts((previous) => ({
-      ...previous,
-      [id]: value,
-    }));
-  };
-
-  const handleReply = async (
-    consultationId,
-  ) => {
-    const reply =
-      replyTexts[consultationId]?.trim();
-
-    if (!reply) {
-      setConsultationMessage(
-        "Escribí una respuesta antes de enviar.",
-      );
-
+    if (
+      !user ||
+      user.role !== "dentist"
+    ) {
       return;
     }
 
-    setSendingId(consultationId);
-    setConsultationMessage("");
+    if (
+      section === "agenda"
+    ) {
+      loadAppointments();
+    }
 
-    try {
-      const response = await fetch(
-        `${API_URL}/admin/whatsapp-consultations/${consultationId}/reply`,
-        {
-          method: "POST",
+    if (
+      section ===
+      "consultations"
+    ) {
+      loadConsultations(
+        consultationStatus,
+      );
+    }
+  }, [
+    user,
+    section,
+    consultationStatus,
+  ]);
 
-          headers: {
-            "Content-Type": "application/json",
-          },
+  const checkSession =
+    async () => {
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/profile`,
+            {
+              credentials:
+                "include",
+            },
+          );
 
-          credentials: "include",
+        if (!response.ok) {
+          return;
+        }
 
-          body: JSON.stringify({
-            message: reply,
-          }),
-        },
+        const data =
+          await response.json();
+
+        if (
+          data.user?.role ===
+          "dentist"
+        ) {
+          setUser(
+            data.user,
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Error comprobando sesión:",
+          error,
+        );
+      }
+    };
+
+  const handleLogin =
+    async (event) => {
+      event.preventDefault();
+
+      setLoadingLogin(
+        true,
       );
 
-      const data = await response.json();
+      setLoginError("");
 
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "No se pudo enviar la respuesta",
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/signin`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              credentials:
+                "include",
+
+              body:
+                JSON.stringify({
+                  email,
+                  password,
+                }),
+            },
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          setLoginError(
+            data.message ||
+              "No se pudo iniciar sesión",
+          );
+
+          return;
+        }
+
+        if (
+          data.user.role !==
+          "dentist"
+        ) {
+          setLoginError(
+            "Este panel es exclusivo para odontólogos",
+          );
+
+          return;
+        }
+
+        setUser(
+          data.user,
+        );
+
+        setEmail("");
+        setPassword("");
+      } catch (error) {
+        console.error(
+          error,
+        );
+
+        setLoginError(
+          "No se pudo conectar con el servidor",
+        );
+      } finally {
+        setLoadingLogin(
+          false,
+        );
+      }
+    };
+
+  const handleLogout =
+    async () => {
+      try {
+        await fetch(
+          `${API_URL}/signout`,
+          {
+            method: "POST",
+
+            credentials:
+              "include",
+          },
+        );
+      } catch (error) {
+        console.error(
+          error,
         );
       }
 
-      setReplyTexts((previous) => ({
-        ...previous,
-        [consultationId]: "",
-      }));
+      setUser(null);
+      setAppointments([]);
+      setConsultations([]);
 
-      setConsultationMessage(
-        "Respuesta enviada correctamente.",
+      setShowOverbookedModal(
+        false,
       );
-
-      await loadConsultations(
-        consultationStatus,
-      );
-    } catch (error) {
-      console.error(error);
-
-      setConsultationMessage(
-        error.message,
-      );
-    } finally {
-      setSendingId(null);
-    }
-  };
-
-  const formatWhatsappDate = (date) => {
-    if (!date) return "";
-
-    return new Intl.DateTimeFormat("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(date));
-  };
-
-  const formatTime = (time) => {
-    if (!time) return "";
-
-    return String(time).slice(0, 5);
-  };
-
-  const getAppointmentStatusLabel = (
-    status,
-  ) => {
-    const labels = {
-      scheduled: "Programado",
-      confirmed: "Confirmado",
-      cancelled: "Cancelado",
-      completed: "Atendido",
-      absent: "Ausente",
     };
 
-    return labels[status] || status;
+  const loadAppointments =
+    async () => {
+      setLoadingAppointments(
+        true,
+      );
+
+      setAppointmentMessage(
+        "",
+      );
+
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/admin/appointments`,
+            {
+              credentials:
+                "include",
+            },
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Error obteniendo turnos",
+          );
+        }
+
+        setAppointments(
+          data.appointments ||
+            [],
+        );
+      } catch (error) {
+        console.error(
+          error,
+        );
+
+        setAppointmentMessage(
+          "No se pudieron cargar los turnos.",
+        );
+      } finally {
+        setLoadingAppointments(
+          false,
+        );
+      }
+    };
+
+  const handleOverbookedCreated =
+    async () => {
+      setAppointmentMessage(
+        "Sobreturno creado correctamente.",
+      );
+
+      await loadAppointments();
+    };
+
+  const updateAppointmentStatus =
+    async (
+      id,
+      status,
+    ) => {
+      setUpdatingAppointmentId(
+        id,
+      );
+
+      setAppointmentMessage(
+        "",
+      );
+
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/admin/appointments/${id}/status`,
+            {
+              method: "PATCH",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              credentials:
+                "include",
+
+              body:
+                JSON.stringify({
+                  status,
+                }),
+            },
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "No se pudo actualizar el turno",
+          );
+        }
+
+        await loadAppointments();
+      } catch (error) {
+        console.error(
+          error,
+        );
+
+        setAppointmentMessage(
+          error.message,
+        );
+      } finally {
+        setUpdatingAppointmentId(
+          null,
+        );
+      }
+    };
+
+  const loadConsultations =
+    async (
+      selectedStatus,
+    ) => {
+      setLoadingConsultations(
+        true,
+      );
+
+      setConsultationMessage(
+        "",
+      );
+
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/admin/whatsapp-consultations?status=${selectedStatus}`,
+            {
+              credentials:
+                "include",
+            },
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Error obteniendo consultas",
+          );
+        }
+
+        setConsultations(
+          data.consultations ||
+            [],
+        );
+      } catch (error) {
+        console.error(
+          error,
+        );
+
+        setConsultationMessage(
+          "No se pudieron cargar las consultas.",
+        );
+      } finally {
+        setLoadingConsultations(
+          false,
+        );
+      }
+    };
+
+  const handleReplyChange = (
+    id,
+    value,
+  ) => {
+    setReplyTexts(
+      (previous) => ({
+        ...previous,
+        [id]: value,
+      }),
+    );
   };
 
-  const visibleAppointments = useMemo(() => {
-    return appointments.filter(
-      (appointment) =>
-        appointment.status !== "cancelled",
+  const handleReply =
+    async (
+      consultationId,
+    ) => {
+      const reply =
+        replyTexts[
+          consultationId
+        ]?.trim();
+
+      if (!reply) {
+        setConsultationMessage(
+          "Escribí una respuesta antes de enviar.",
+        );
+
+        return;
+      }
+
+      setSendingId(
+        consultationId,
+      );
+
+      setConsultationMessage(
+        "",
+      );
+
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/admin/whatsapp-consultations/${consultationId}/reply`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              credentials:
+                "include",
+
+              body:
+                JSON.stringify({
+                  message:
+                    reply,
+                }),
+            },
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "No se pudo enviar la respuesta",
+          );
+        }
+
+        setReplyTexts(
+          (previous) => ({
+            ...previous,
+
+            [consultationId]:
+              "",
+          }),
+        );
+
+        setConsultationMessage(
+          "Respuesta enviada correctamente.",
+        );
+
+        await loadConsultations(
+          consultationStatus,
+        );
+      } catch (error) {
+        console.error(
+          error,
+        );
+
+        setConsultationMessage(
+          error.message,
+        );
+      } finally {
+        setSendingId(
+          null,
+        );
+      }
+    };
+
+  const formatWhatsappDate = (
+    date,
+  ) => {
+    if (!date) {
+      return "";
+    }
+
+    return new Intl.DateTimeFormat(
+      "es-AR",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      },
+    ).format(
+      new Date(date),
     );
-  }, [appointments]);
+  };
 
   if (!user) {
     return (
@@ -395,13 +562,20 @@ function App() {
             </span>
 
             <div>
-              <h1>Agenda Odontológica</h1>
-              <p>Panel del consultorio</p>
+              <h1>
+                Agenda Odontológica
+              </h1>
+
+              <p>
+                Panel del consultorio
+              </p>
             </div>
           </div>
 
           <form
-            onSubmit={handleLogin}
+            onSubmit={
+              handleLogin
+            }
             className="login-form"
           >
             <label>
@@ -410,8 +584,13 @@ function App() {
               <input
                 type="email"
                 value={email}
-                onChange={(event) =>
-                  setEmail(event.target.value)
+                onChange={(
+                  event,
+                ) =>
+                  setEmail(
+                    event.target
+                      .value,
+                  )
                 }
                 placeholder="Email"
                 required
@@ -423,10 +602,15 @@ function App() {
 
               <input
                 type="password"
-                value={password}
-                onChange={(event) =>
+                value={
+                  password
+                }
+                onChange={(
+                  event,
+                ) =>
                   setPassword(
-                    event.target.value,
+                    event.target
+                      .value,
                   )
                 }
                 placeholder="Contraseña"
@@ -442,7 +626,9 @@ function App() {
 
             <button
               type="submit"
-              disabled={loadingLogin}
+              disabled={
+                loadingLogin
+              }
             >
               {loadingLogin
                 ? "Ingresando..."
@@ -469,12 +655,15 @@ function App() {
 
         <div className="user-area">
           <span>
-            {user.name} {user.lastname}
+            {user.name}{" "}
+            {user.lastname}
           </span>
 
           <button
             className="logout-button"
-            onClick={handleLogout}
+            onClick={
+              handleLogout
+            }
           >
             Salir
           </button>
@@ -489,7 +678,9 @@ function App() {
               : "nav-button"
           }
           onClick={() =>
-            setSection("agenda")
+            setSection(
+              "agenda",
+            )
           }
         >
           📅 Agenda
@@ -497,12 +688,15 @@ function App() {
 
         <button
           className={
-            section === "consultations"
+            section ===
+            "consultations"
               ? "nav-button active"
               : "nav-button"
           }
           onClick={() =>
-            setSection("consultations")
+            setSection(
+              "consultations",
+            )
           }
         >
           💬 Consultas
@@ -510,12 +704,15 @@ function App() {
 
         <button
           className={
-            section === "configuration"
+            section ===
+            "configuration"
               ? "nav-button active"
               : "nav-button"
           }
           onClick={() =>
-            setSection("configuration")
+            setSection(
+              "configuration",
+            )
           }
         >
           ⚙️ Configuración
@@ -523,210 +720,43 @@ function App() {
       </nav>
 
       <section className="content">
-        {section === "agenda" && (
+        {section ===
+          "agenda" && (
           <>
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">
-                  Turnos
-                </p>
-
-                <h2>Agenda</h2>
-              </div>
-
-              <div className="agenda-heading-actions">
-                <button
-                  className="overbooked-create-button"
-                  type="button"
-                  onClick={() =>
-                    setShowOverbookedModal(true)
-                  }
-                >
-                  + Sobreturno
-                </button>
-
-                <button
-                  className="secondary-button"
-                  onClick={loadAppointments}
-                >
-                  Actualizar
-                </button>
-              </div>
-            </div>
-
-            {appointmentMessage && (
-              <div className="status-message">
-                {appointmentMessage}
-              </div>
-            )}
-
-            {loadingAppointments ? (
-              <div className="empty-state">
-                Cargando turnos...
-              </div>
-            ) : visibleAppointments.length ===
-              0 ? (
-              <div className="empty-state">
-                No hay turnos para mostrar.
-              </div>
-            ) : (
-              <div className="appointments-list">
-                {visibleAppointments.map(
-                  (appointment) => (
-                    <article
-                      className={
-                        appointment.is_overbooked
-                          ? "appointment-card overbooked-appointment-card"
-                          : "appointment-card"
-                      }
-                      key={appointment.id}
-                    >
-                      <div className="appointment-time">
-                        <strong>
-                          {formatTime(
-                            appointment.start_time,
-                          )}
-                        </strong>
-
-                        <span>
-                          {
-                            appointment.appointment_date
-                          }
-                        </span>
-
-                        {appointment.is_overbooked && (
-                          <span className="overbooked-badge">
-                            SOBRETURNO
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="appointment-info">
-                        <h3>
-                          {
-                            appointment.patient_name
-                          }{" "}
-                          {
-                            appointment.patient_lastname
-                          }
-                        </h3>
-
-                        <p>
-                          {appointment.service}
-                        </p>
-
-                        {appointment.professional_name && (
-                          <p className="appointment-professional">
-                            🦷{" "}
-                            {
-                              appointment.professional_name
-                            }{" "}
-                            {
-                              appointment.professional_lastname
-                            }
-                          </p>
-                        )}
-
-                        <div className="appointment-contact">
-                          <span>
-                            📱{" "}
-                            {
-                              appointment.patient_phone
-                            }
-                          </span>
-
-                          <span>
-                            ✉️{" "}
-                            {
-                              appointment.patient_email
-                            }
-                          </span>
-                        </div>
-
-                        {appointment.notes && (
-                          <p className="appointment-notes">
-                            Nota:{" "}
-                            {
-                              appointment.notes
-                            }
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="appointment-actions">
-                        <span
-                          className={`appointment-status ${appointment.status}`}
-                        >
-                          {getAppointmentStatusLabel(
-                            appointment.status,
-                          )}
-                        </span>
-
-                        {appointment.status !==
-                          "completed" &&
-                          appointment.status !==
-                            "absent" && (
-                            <div className="action-buttons">
-                              <button
-                                className="action-button completed"
-                                disabled={
-                                  updatingAppointmentId ===
-                                  appointment.id
-                                }
-                                onClick={() =>
-                                  updateAppointmentStatus(
-                                    appointment.id,
-                                    "completed",
-                                  )
-                                }
-                              >
-                                Atendido
-                              </button>
-
-                              <button
-                                className="action-button absent"
-                                disabled={
-                                  updatingAppointmentId ===
-                                  appointment.id
-                                }
-                                onClick={() =>
-                                  updateAppointmentStatus(
-                                    appointment.id,
-                                    "absent",
-                                  )
-                                }
-                              >
-                                Ausente
-                              </button>
-
-                              <button
-                                className="action-button cancelled"
-                                disabled={
-                                  updatingAppointmentId ===
-                                  appointment.id
-                                }
-                                onClick={() =>
-                                  updateAppointmentStatus(
-                                    appointment.id,
-                                    "cancelled",
-                                  )
-                                }
-                              >
-                                Cancelar
-                              </button>
-                            </div>
-                          )}
-                      </div>
-                    </article>
-                  ),
-                )}
-              </div>
-            )}
+            <AgendaView
+              appointments={
+                appointments
+              }
+              loading={
+                loadingAppointments
+              }
+              message={
+                appointmentMessage
+              }
+              updatingAppointmentId={
+                updatingAppointmentId
+              }
+              onUpdateStatus={
+                updateAppointmentStatus
+              }
+              onRefresh={
+                loadAppointments
+              }
+              onCreateOverbooked={() =>
+                setShowOverbookedModal(
+                  true,
+                )
+              }
+            />
 
             <OverbookedAppointment
-              open={showOverbookedModal}
+              open={
+                showOverbookedModal
+              }
               onClose={() =>
-                setShowOverbookedModal(false)
+                setShowOverbookedModal(
+                  false,
+                )
               }
               onCreated={
                 handleOverbookedCreated
@@ -735,7 +765,8 @@ function App() {
           </>
         )}
 
-        {section === "consultations" && (
+        {section ===
+          "consultations" && (
           <>
             <div className="section-heading">
               <div>
@@ -743,7 +774,9 @@ function App() {
                   WhatsApp
                 </p>
 
-                <h2>Consultas</h2>
+                <h2>
+                  Consultas
+                </h2>
               </div>
             </div>
 
@@ -783,7 +816,9 @@ function App() {
 
             {consultationMessage && (
               <div className="status-message">
-                {consultationMessage}
+                {
+                  consultationMessage
+                }
               </div>
             )}
 
@@ -791,7 +826,8 @@ function App() {
               <div className="empty-state">
                 Cargando consultas...
               </div>
-            ) : consultations.length === 0 ? (
+            ) : consultations.length ===
+              0 ? (
               <div className="empty-state">
                 {consultationStatus ===
                 "pending"
@@ -801,10 +837,14 @@ function App() {
             ) : (
               <div className="consultations-list">
                 {consultations.map(
-                  (consultation) => (
+                  (
+                    consultation,
+                  ) => (
                     <article
                       className="consultation-card"
-                      key={consultation.id}
+                      key={
+                        consultation.id
+                      }
                     >
                       <div className="consultation-top">
                         <div>
@@ -853,13 +893,17 @@ function App() {
                             placeholder="Escribir respuesta para el paciente..."
                             value={
                               replyTexts[
-                                consultation.id
+                                consultation
+                                  .id
                               ] || ""
                             }
-                            onChange={(event) =>
+                            onChange={(
+                              event,
+                            ) =>
                               handleReplyChange(
                                 consultation.id,
-                                event.target.value,
+                                event.target
+                                  .value,
                               )
                             }
                           />
@@ -899,7 +943,8 @@ function App() {
           </>
         )}
 
-        {section === "configuration" && (
+        {section ===
+          "configuration" && (
           <Configuration />
         )}
       </section>
