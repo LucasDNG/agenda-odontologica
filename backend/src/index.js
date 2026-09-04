@@ -17,6 +17,7 @@ import whatsappWebhookRoutes from "./routes/whatsappWebhook.routes.js";
 import whatsappConsultationsRoutes from "./routes/whatsappConsultations.routes.js";
 import clinicsRoutes from "./routes/clinics.routes.js";
 import professionalsRoutes from "./routes/professionals.routes.js";
+import publicProfessionalsRoutes from "./routes/publicProfessionals.routes.js";
 import patientsRoutes from "./routes/patients.routes.js";
 
 const app = express();
@@ -43,22 +44,28 @@ app.use("/api", whatsappWebhookRoutes);
 app.use("/api", whatsappConsultationsRoutes);
 app.use("/api", clinicsRoutes);
 app.use("/api", professionalsRoutes);
+app.use("/api", publicProfessionalsRoutes);
 app.use("/api", patientsRoutes);
 
 app.get("/", async (req, res) => {
   try {
-    const result = await pool.query("SELECT NOW()");
+    const result = await pool.query(
+      "SELECT NOW()",
+    );
 
     res.json({
-      message: "API Agenda Odontológica funcionando",
-      database: "Neon PostgreSQL conectado",
+      message:
+        "API Agenda Odontológica funcionando",
+      database:
+        "Neon PostgreSQL conectado",
       time: result.rows[0].now,
     });
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
-      message: "Error conectando con la base de datos",
+      message:
+        "Error conectando con la base de datos",
     });
   }
 });
@@ -66,5 +73,7 @@ app.get("/", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
+  console.log(
+    `Servidor escuchando en el puerto ${PORT}`,
+  );
 });
