@@ -11,20 +11,20 @@ import TurnosApp from "./TurnosApp.jsx";
 const pathname =
   window.location.pathname;
 
-const isPatientApp =
-  pathname === "/turnos" ||
+const isDentistApp =
+  pathname === "/odontologo" ||
   pathname.startsWith(
-    "/turnos/",
+    "/odontologo/",
   );
 
 createRoot(
   document.getElementById("root"),
 ).render(
   <StrictMode>
-    {isPatientApp ? (
-      <TurnosApp />
-    ) : (
+    {isDentistApp ? (
       <App />
+    ) : (
+      <TurnosApp />
     )}
   </StrictMode>,
 );
