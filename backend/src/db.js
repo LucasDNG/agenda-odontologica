@@ -8,5 +8,5 @@ export const pool = new Pool({
 });
 
 pool.on("connect", () => {
-  console.log("Base de datos Neon conectada");
+  console.log("PostgreSQL conectado");
 });

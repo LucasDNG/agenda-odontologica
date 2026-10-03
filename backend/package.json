@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "db:schema": "node src/scripts/apply-schema.js",
+    "db:seed": "node src/scripts/seed-demo.js"
   },
   "keywords": [],
   "author": "",

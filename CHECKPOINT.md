@@ -2,9 +2,9 @@
 
 ## Base de referencia
 Repositorio: `LucasDNG/agenda-odontologica`
-Rama: `main`
-Commit base usado para esta entrega:
-`551c0bff8b62454ec9294e7b21e8921144291d06`
+Rama de trabajo: `cursor/levantar-agenda-local-9f25`
+Commit de `main` desde el que parte esta entrega:
+`c6105564d07cc3dbaf2a1476593e21d67ec1e35a`
 
 ## Funcionalidad ya existente
 - Login/registro.
@@ -23,29 +23,44 @@ Commit base usado para esta entrega:
 - Webhook/consultas de WhatsApp.
 - Tabla/log de `whatsapp_notifications`.
 - Worker de recordatorios.
+- Plantillas oficiales de WhatsApp en el código.
 
-## Entrega actual
-Se reemplazan:
-- `backend/src/services/whatsapp.service.js`
-- `backend/src/services/appointmentNotifications.service.js`
+## Esta entrega
+BACKEND:
+- `backend/sql/001_schema.sql`: esquema idempotente reconstruido desde las consultas actuales.
+- `backend/src/scripts/apply-schema.js` y `npm run db:schema`.
+- `backend/src/scripts/seed-demo.js` y `npm run db:seed`, con datos ficticios.
+- La reserva pública crea o reutiliza la ficha de paciente y guarda `patient_record_id`.
+- La agenda del odontólogo muestra el turno aunque falte la ficha, usando la cuenta del paciente.
+- Las notificaciones toman teléfono y nombre de la ficha o, si no hay, de la cuenta.
+- Un profesional desactivado no puede iniciar sesión.
+- Cancelar un turno propio ya no falla por `FOR UPDATE` sobre joins externos.
+- El mensaje de conexión ya no dice que Neon está conectado si no se probó Neon.
 
-Objetivo:
-- Enviar notificaciones de turnos mediante plantillas oficiales de WhatsApp.
-- Mantener normalización de teléfonos.
-- Mantener logs.
-- Mantener recordatorios y prevención de duplicados.
+BASE DE DATOS:
+- El SQL está en `backend/sql/001_schema.sql`.
+- Se aplicó y se probó en PostgreSQL 16 local.
+- Neon/producción no se modificó ni se verificó.
 
-## Base de datos
-Esta entrega NO requiere cambios SQL.
+FRONTEND:
+- Sin cambios de pantallas.
+- Las llamadas a la API usan el mismo host que la página (`localhost` o `127.0.0.1`) para que la cookie de sesión viaje.
 
-## Frontend
-Esta entrega NO modifica frontend.
+## Verificación local
+Con PostgreSQL local, backend en el puerto 3000 y Vite en el puerto 5173:
+- alta de paciente, horarios, reserva, agenda del odontólogo, cancelación, restauración y reprogramación respondieron bien;
+- cada una de esas acciones dejó una fila en `whatsapp_notifications`;
+- sin `WHATSAPP_TOKEN`, el turno se guardó igual y la notificación quedó en `failed` con el texto `Falta WHATSAPP_TOKEN en el .env`.
+
+No se envió ningún mensaje a Meta. WhatsApp de producción no está verificado.
+
+## Datos demo locales
+No son clientes reales.
+- Odontólogo: `ana.demo@example.com` / `demo1234`
+- Paciente: `paciente.demo@example.com` / `demo1234`
+- Consultorio: Consultorio Demo
 
 ## Pendiente inmediato
-1. Esperar aprobación de plantillas en Meta.
-2. Reemplazar archivos con este ZIP.
-3. Ejecutar backend y comprobar que inicia sin errores.
-4. Probar un flujo de turno con un número válido.
-5. Revisar `whatsapp_notifications`.
-6. Commit/push.
-7. Verificar el commit remoto.
+1. Aplicar `backend/sql/001_schema.sql` en la base real solo cuando se decida hacerlo.
+2. Cargar token, phone number id y plantillas aprobadas de Meta.
+3. Repetir un turno con un teléfono real y revisar que `whatsapp_notifications.status` pase a `sent`.

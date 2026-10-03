@@ -290,11 +290,30 @@ export const getAllAppointments =
             a.is_overbooked,
             a.delay_minutes,
 
-            p.id AS patient_record_id,
-            p.name AS patient_name,
-            p.lastname AS patient_lastname,
-            p.email AS patient_email,
-            p.phone AS patient_phone,
+            COALESCE(
+              p.id,
+              account_patient.id
+            ) AS patient_record_id,
+            COALESCE(
+              p.name,
+              account_patient.name,
+              account_user.name
+            ) AS patient_name,
+            COALESCE(
+              p.lastname,
+              account_patient.lastname,
+              account_user.lastname
+            ) AS patient_lastname,
+            COALESCE(
+              p.email,
+              account_patient.email,
+              account_user.email
+            ) AS patient_email,
+            COALESCE(
+              p.phone,
+              account_patient.phone,
+              account_user.phone
+            ) AS patient_phone,
 
             at.id AS appointment_type_id,
             at.name AS service,
@@ -307,8 +326,14 @@ export const getAllAppointments =
 
           FROM appointments a
 
-          JOIN patients p
+          LEFT JOIN patients p
             ON a.patient_record_id = p.id
+
+          LEFT JOIN patients account_patient
+            ON account_patient.user_id = a.patient_id
+
+          LEFT JOIN users account_user
+            ON account_user.id = a.patient_id
 
           JOIN appointment_types at
             ON a.appointment_type_id = at.id

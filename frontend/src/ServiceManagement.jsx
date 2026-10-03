@@ -5,7 +5,7 @@ import {
 import "./ServiceManagement.css";
 
 const API_URL =
-  "http://localhost:3000/api";
+  `${window.location.protocol}//${window.location.hostname}:3000/api`;
 
 function ServiceManagement({
   services,

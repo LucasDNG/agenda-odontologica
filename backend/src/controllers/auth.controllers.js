@@ -78,6 +78,28 @@ export const signIn = async (req, res) => {
       });
     }
 
+    if (user.role === "dentist") {
+      const professionalResult = await pool.query(
+        `
+          SELECT active
+          FROM professionals
+          WHERE user_id = $1
+          ORDER BY id
+          LIMIT 1
+        `,
+        [user.id],
+      );
+
+      if (
+        professionalResult.rows.length > 0 &&
+        professionalResult.rows[0].active === false
+      ) {
+        return res.status(403).json({
+          message: "Este profesional está inactivo",
+        });
+      }
+    }
+
     const token = await createAccessToken({
       id: user.id,
     });

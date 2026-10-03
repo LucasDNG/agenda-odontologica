@@ -71,6 +71,93 @@ const getMaxActiveAppointments =
     return value;
   };
 
+const ensurePatientRecord = async (
+  client,
+  user,
+) => {
+  const existing =
+    await client.query(
+      `
+        SELECT id
+        FROM patients
+        WHERE user_id = $1
+          AND active = TRUE
+        ORDER BY id
+        LIMIT 1
+      `,
+      [user.id],
+    );
+
+  if (
+    existing.rows.length > 0
+  ) {
+    return existing.rows[0].id;
+  }
+
+  const clinicResult =
+    await client.query(`
+      SELECT id
+      FROM clinics
+      WHERE active = TRUE
+      ORDER BY id
+      LIMIT 1
+    `);
+
+  if (
+    clinicResult.rows.length === 0
+  ) {
+    return null;
+  }
+
+  const inserted =
+    await client.query(
+      `
+        INSERT INTO patients
+        (
+          clinic_id,
+          user_id,
+          name,
+          lastname,
+          phone,
+          email,
+          profile_type,
+          active
+        )
+        VALUES
+        (
+          $1,
+          $2,
+          $3,
+          $4,
+          $5,
+          $6,
+          'quick',
+          TRUE
+        )
+        ON CONFLICT (user_id)
+          WHERE user_id IS NOT NULL
+        DO UPDATE SET
+          active = TRUE,
+          phone = COALESCE(
+            patients.phone,
+            EXCLUDED.phone
+          ),
+          updated_at = NOW()
+        RETURNING id
+      `,
+      [
+        clinicResult.rows[0].id,
+        user.id,
+        user.name,
+        user.lastname,
+        user.phone,
+        user.email,
+      ],
+    );
+
+  return inserted.rows[0].id;
+};
+
 export const createAppointment =
   async (req, res) => {
     const client =
@@ -183,7 +270,11 @@ export const createAppointment =
           `
             SELECT
               id,
-              role
+              role,
+              name,
+              lastname,
+              phone,
+              email
             FROM users
             WHERE id = $1
             FOR UPDATE
@@ -205,9 +296,11 @@ export const createAppointment =
         });
       }
 
+      const bookingUser =
+        userResult.rows[0];
+
       if (
-        userResult.rows[0]
-          .role !== "patient"
+        bookingUser.role !== "patient"
       ) {
         await client.query(
           "ROLLBACK",
@@ -216,6 +309,23 @@ export const createAppointment =
         return res.status(403).json({
           message:
             "Solo los pacientes pueden reservar turnos",
+        });
+      }
+
+      const patientRecordId =
+        await ensurePatientRecord(
+          client,
+          bookingUser,
+        );
+
+      if (!patientRecordId) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        return res.status(400).json({
+          message:
+            "No hay un consultorio activo configurado",
         });
       }
 
@@ -567,6 +677,7 @@ export const createAppointment =
             INSERT INTO appointments
             (
               patient_id,
+              patient_record_id,
               professional_id,
               appointment_type_id,
               appointment_date,
@@ -584,6 +695,7 @@ export const createAppointment =
               $5,
               $6,
               $7,
+              $8,
               FALSE
             )
             RETURNING
@@ -607,6 +719,7 @@ export const createAppointment =
           `,
           [
             patientId,
+            patientRecordId,
             professionalId,
             appointmentTypeId,
             date,

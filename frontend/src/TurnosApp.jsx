@@ -7,7 +7,7 @@ import ReservaTurno from "./ReservaTurno";
 import "./TurnosApp.css";
 
 const API_URL =
-  "http://localhost:3000/api";
+  `${window.location.protocol}//${window.location.hostname}:3000/api`;
 
 const formatTime = (time) => {
   if (!time) return "";

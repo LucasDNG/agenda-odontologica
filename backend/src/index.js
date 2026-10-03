@@ -31,11 +31,32 @@ import {
 
 const app = express();
 
+const allowedOrigins = new Set(
+  [
+    process.env.FRONTEND_URL ||
+      "http://localhost:5173",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+  ]
+    .flatMap((value) =>
+      String(value).split(","),
+    )
+    .map((value) => value.trim())
+    .filter(Boolean),
+);
+
 app.use(
   cors({
-    origin:
-      process.env.FRONTEND_URL ||
-      "http://localhost:5173",
+    origin(origin, callback) {
+      if (
+        !origin ||
+        allowedOrigins.has(origin)
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
 
     credentials: true,
   }),
@@ -130,7 +151,7 @@ app.get("/", async (req, res) => {
         "API Agenda Odontológica funcionando",
 
       database:
-        "Neon PostgreSQL conectado",
+        "PostgreSQL conectado",
 
       time:
         result.rows[0].now,
