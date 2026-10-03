@@ -22,7 +22,9 @@ El usuario prefiere entregas completas. Si se entrega un ZIP:
 - si hay SQL, entregarlo de forma controlada y no mezclar migraciones no verificadas.
 
 ## Estado actual
-La aplicación puede levantarse en local con PostgreSQL. El esquema está versionado en `backend/sql/001_schema.sql`.
+La base del consultorio va a estar en Neon. Meta no se conecta a la computadora de desarrollo: usa la dirección https del sitio publicado.
+
+La aplicación también puede levantarse en local con PostgreSQL. El esquema está versionado en `backend/sql/001_schema.sql`.
 
 Para arrancar una base vacía:
 1. copiar `backend/.env.example` a `backend/.env` y completar `DATABASE_URL` y `JWT_SECRET`;

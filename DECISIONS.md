@@ -32,6 +32,12 @@
 - El fallo de WhatsApp no debe deshacer una reserva/cancelación/reprogramación/restauración ya confirmada en DB.
 - Los recordatorios deben evitar duplicados.
 
+## Publicación
+- La base de datos del consultorio va en Neon.
+- El programa se publica en un sitio con dirección https fija. Meta usa esa dirección.
+- El túnel hacia la computadora de desarrollo no forma parte del uso real.
+- En producción el mismo servidor entrega la página y la API.
+
 ## Base de datos local
 - El esquema que usa el código queda en `backend/sql/001_schema.sql`.
 - Ese archivo es idempotente y se aplica con `npm run db:schema`.

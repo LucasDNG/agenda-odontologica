@@ -9,8 +9,7 @@ import Configuration from "./Configuration";
 import OverbookedAppointment from "./OverbookedAppointment";
 import "./App.css";
 
-const API_URL =
-  `${window.location.protocol}//${window.location.hostname}:3000/api`;
+const API_URL = "/api";
 
 function App() {
   const [user, setUser] =

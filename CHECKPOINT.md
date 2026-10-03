@@ -60,7 +60,12 @@ No son clientes reales.
 - Paciente: `paciente.demo@example.com` / `demo1234`
 - Consultorio: Consultorio Demo
 
+## Publicación
+Neon guarda los datos. El sitio público entrega la página y la API. Meta apunta a `https://el-sitio/api/webhooks/whatsapp`. Esa publicación todavía no se hizo y Neon todavía no tiene el proyecto creado.
+
 ## Pendiente inmediato
-1. Aplicar `backend/sql/001_schema.sql` en la base real solo cuando se decida hacerlo.
-2. Cargar token, phone number id y plantillas aprobadas de Meta.
-3. Repetir un turno con un teléfono real y revisar que `whatsapp_notifications.status` pase a `sent`.
+1. Crear el proyecto en Neon y dejar visible la connection string, sin pegarla en el chat.
+2. Publicar el sitio y cargar ahí `DATABASE_URL`.
+3. Aplicar `backend/sql/001_schema.sql` sobre Neon.
+4. Cargar token, phone number id y plantillas aprobadas de Meta en el sitio, no en la computadora.
+5. Repetir un turno con un teléfono real y revisar que `whatsapp_notifications.status` pase a `sent`.

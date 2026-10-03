@@ -7,8 +7,7 @@ import ProfessionalManagement from "./ProfessionalManagement";
 import ServiceManagement from "./ServiceManagement";
 import "./Configuration.css";
 
-const API_URL =
-  `${window.location.protocol}//${window.location.hostname}:3000/api`;
+const API_URL = "/api";
 
 const DAYS = [
   { value: 1, label: "Lunes" },

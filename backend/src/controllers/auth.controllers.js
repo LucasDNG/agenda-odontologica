@@ -2,6 +2,13 @@ import bcrypt from "bcrypt";
 import { pool } from "../db.js";
 import { createAccessToken } from "../libs/jwt.js";
 
+const sessionCookie = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 1000 * 60 * 60 * 24,
+};
+
 export const signUp = async (req, res) => {
   try {
     const { name, lastname, email, password, phone } = req.body;
@@ -33,12 +40,7 @@ export const signUp = async (req, res) => {
       id: user.id,
     });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24,
-    });
+    res.cookie("token", token, sessionCookie);
 
     res.status(201).json({
       message: "Usuario registrado correctamente",
@@ -104,12 +106,7 @@ export const signIn = async (req, res) => {
       id: user.id,
     });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24,
-    });
+    res.cookie("token", token, sessionCookie);
 
     res.json({
       message: "Sesión iniciada correctamente",

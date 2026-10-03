@@ -3,8 +3,14 @@ import "dotenv/config";
 
 const { Pool } = pg;
 
+const connectionString = process.env.DATABASE_URL;
+const useNeonSsl = connectionString?.includes("neon.tech");
+
 export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
+  ssl: useNeonSsl
+    ? { rejectUnauthorized: false }
+    : undefined,
 });
 
 pool.on("connect", () => {

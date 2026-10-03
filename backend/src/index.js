@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import "dotenv/config";
 
 import { pool } from "./db.js";
@@ -139,7 +142,7 @@ app.use(
   patientsRoutes,
 );
 
-app.get("/", async (req, res) => {
+const sendHealth = async (req, res) => {
   try {
     const result =
       await pool.query(
@@ -164,7 +167,33 @@ app.get("/", async (req, res) => {
         "Error conectando con la base de datos",
     });
   }
-});
+};
+
+app.get("/api/health", sendHealth);
+
+const frontendDist = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../frontend/dist",
+);
+
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+
+  app.use((req, res, next) => {
+    if (
+      req.method !== "GET" ||
+      req.path.startsWith("/api")
+    ) {
+      return next();
+    }
+
+    res.sendFile(
+      path.join(frontendDist, "index.html"),
+    );
+  });
+} else {
+  app.get("/", sendHealth);
+}
 
 app.use(
   (error, req, res, next) => {
