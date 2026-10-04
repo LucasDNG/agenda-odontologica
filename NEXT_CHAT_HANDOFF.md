@@ -46,7 +46,7 @@ Parámetros, en orden: paciente, consultorio, fecha, hora, servicio, profesional
 En local, sin token de Meta, el turno se confirma y la notificación queda registrada como fallida. Eso se probó. El envío real a WhatsApp no.
 
 ## Próximo paso
-El portal del paciente muestra el nombre, la calle, el teléfono y el email que se guardan en Configuración. En el ingreso, ese nombre es la primera línea. El resto de esa carta usa el mismo color y las líneas van juntas. En la agenda del panel, un día sin turnos muestra el próximo turno y permite abrirlo.
+El portal del paciente muestra el nombre, la calle, el teléfono y el email que se guardan en Configuración. En el ingreso, ese nombre es la primera línea de una carta con cabecera, filas de contacto y el formulario debajo. En la agenda del panel, un día sin turnos muestra el próximo turno y permite abrirlo.
 
 La odontóloga de este consultorio es Laura Guilenia. Guilenia es el apellido. El ingreso del panel usa el email y la contraseña cargados en Neon. Esa contraseña no está en el repositorio.
 

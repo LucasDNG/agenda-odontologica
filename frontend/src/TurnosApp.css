@@ -9,15 +9,28 @@
   display: grid;
   place-items: center;
   padding: 28px;
+  background:
+    radial-gradient(
+      70% 32% at 50% 0%,
+      #d7ebff 0%,
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg,
+      #f7fbff 0%,
+      #e7eef5 100%
+    );
 }
 
 .patient-auth-card {
-  width: min(100%, 480px);
-  padding: 26px 26px 22px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
+  width: min(100%, 440px);
+  padding: 0 0 18px;
+  overflow: hidden;
+  border: 1px solid rgba(207, 227, 246, 0.9);
+  border-radius: 28px;
   background: var(--bg-card);
-  box-shadow: var(--shadow-md);
+  box-shadow:
+    0 24px 50px rgba(22, 50, 79, 0.1);
   color: var(--text-main);
   line-height: 1.4;
 }
@@ -105,9 +118,13 @@
   box-shadow: var(--shadow-sm);
 }
 
+.patient-auth-card > .patient-auth-form {
+  margin: 0 22px;
+}
+
 .patient-auth-form {
   display: grid;
-  gap: 15px;
+  gap: 14px;
 }
 
 .patient-form-row {
@@ -126,12 +143,12 @@
 
 .patient-auth-form input {
   width: 100%;
-  padding: 12px 13px;
+  padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 11px;
+  border-radius: 14px;
   outline: none;
   color: var(--text-main);
-  background: #fbfdff;
+  background: #f7fafc;
   font: inherit;
 }
 
@@ -247,13 +264,16 @@
 }
 
 .patient-primary-button {
+  min-height: 48px;
   padding: 13px 18px;
   border: 0;
-  border-radius: 11px;
+  border-radius: 14px;
   color: white;
   background: var(--blue);
   font-weight: 600;
   cursor: pointer;
+  box-shadow:
+    0 10px 20px rgba(31, 120, 209, 0.24);
 }
 
 .patient-primary-button:hover {
@@ -267,12 +287,12 @@
 
 .patient-clinic-card {
   display: grid;
-  gap: 8px;
+  gap: 14px;
   margin: 0 0 18px;
-  padding: 14px 16px;
+  padding: 18px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: #f7fbff;
+  border-radius: 18px;
+  background: white;
 }
 
 .patient-clinic-card h1,
@@ -283,9 +303,9 @@
 }
 
 .patient-clinic-card h1 {
-  font-size: 30px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 32px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
 }
 
 .patient-clinic-card h2 {
@@ -293,42 +313,60 @@
   font-weight: 600;
 }
 
-.patient-clinic-card dl {
+.patient-clinic-facts {
   display: grid;
-  gap: 8px;
-  margin: 4px 0 0;
-}
-
-.patient-clinic-card dl > div {
-  display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  gap: 8px;
-  align-items: baseline;
-}
-
-.patient-clinic-card dt,
-.patient-clinic-card dd {
+  gap: 4px;
   margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.patient-clinic-card dt {
+.patient-clinic-facts li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 8px 4px;
+}
+
+.patient-clinic-fact-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.patient-clinic-fact-icon svg,
+.patient-auth-mark svg {
+  width: 18px;
+  height: 18px;
+}
+
+.patient-clinic-facts small {
+  display: block;
   color: var(--text-soft);
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
 }
 
-.patient-clinic-card dd,
-.patient-clinic-card a {
+.patient-clinic-facts li > span:last-child > span,
+.patient-clinic-facts a {
+  display: block;
   color: var(--text-main);
   font-size: 15px;
-  font-weight: 400;
+  font-weight: 500;
+  line-height: 1.3;
   text-decoration: none;
   overflow-wrap: anywhere;
 }
 
-.patient-clinic-card a:hover {
+.patient-clinic-facts a:hover {
   color: var(--blue-dark);
-  text-decoration: underline;
 }
 
 .patient-clinic-banner {
@@ -339,25 +377,57 @@
 }
 
 .patient-auth-clinic {
-  gap: 10px;
-  margin: 0 0 20px;
-  padding: 0 0 18px;
+  gap: 0;
+  margin: 0 0 18px;
+  padding: 0;
   border: 0;
-  border-bottom: 1px solid var(--border);
   border-radius: 0;
   background: transparent;
 }
 
+.patient-auth-clinic .patient-clinic-identity {
+  padding: 28px 26px 22px;
+  background:
+    radial-gradient(
+      90% 140% at 100% 0%,
+      rgba(31, 120, 209, 0.18),
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      #e8f3ff 0%,
+      #ffffff 78%
+    );
+}
+
+.patient-auth-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  color: var(--blue);
+  background: white;
+  box-shadow:
+    0 10px 24px rgba(31, 78, 121, 0.1);
+}
+
+.patient-auth-mark svg {
+  width: 26px;
+  height: 26px;
+}
+
 .patient-auth-clinic h1 {
-  font-size: 30px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 34px;
+  font-weight: 650;
+  line-height: 1.1;
 }
 
 .patient-auth-clinic .patient-auth-brand {
   display: grid;
   gap: 0;
-  margin: 0;
+  margin: 8px 0 0;
 }
 
 .patient-auth-clinic .patient-auth-brand h2,
@@ -370,13 +440,22 @@
   line-height: 1.35;
 }
 
-.patient-auth-clinic dl {
-  gap: 6px;
-  margin: 0;
+.patient-auth-clinic .patient-clinic-facts {
+  gap: 0;
+  margin: 0 18px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.patient-auth-clinic .patient-clinic-facts li {
+  padding: 8px 10px;
 }
 
 .patient-auth-switch {
-  margin: 16px 0 0;
+  margin: 16px 22px 0;
   color: var(--text-soft);
   font-size: 14px;
   text-align: center;
@@ -400,8 +479,8 @@
   display: flex;
   justify-content: center;
   gap: 5px;
-  margin-top: 22px;
-  padding-top: 18px;
+  margin: 16px 22px 0;
+  padding-top: 16px;
   border-top: 1px solid var(--border);
   color: var(--text-soft);
   font-size: 12px;
@@ -923,10 +1002,6 @@
     padding: 16px;
   }
 
-  .patient-auth-card {
-    padding: 22px;
-  }
-
   .patient-form-row {
     grid-template-columns: 1fr;
   }
@@ -934,16 +1009,6 @@
   .patient-professional-access {
     display: grid;
     text-align: center;
-  }
-
-  .patient-clinic-card dl > div {
-    grid-template-columns: 1fr;
-    gap: 2px;
-  }
-
-  .patient-auth-clinic dl > div {
-    grid-template-columns: 88px minmax(0, 1fr);
-    gap: 8px;
   }
 
   .patient-header {

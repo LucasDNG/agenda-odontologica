@@ -88,7 +88,7 @@ BASE DE DATOS:
 FRONTEND:
 - En Configuración, el nombre, el teléfono, el email y la dirección del consultorio se editan y se guardan con el límite de turnos.
 - El portal del paciente muestra ese nombre, la calle, el teléfono y el email.
-- En el ingreso, el nombre del consultorio es la primera línea. Agenda odontológica, Turnos online y el texto de reserva van juntos, con el mismo color y sin negrita de más.
+- En el ingreso, el nombre del consultorio es la primera línea. La carta tiene cabecera, filas de contacto con ícono y el formulario debajo.
 - El sitio publicado muestra eso cuando Render termina de publicar esta rama.
 
 ## Agenda del consultorio
