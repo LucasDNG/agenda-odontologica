@@ -15,6 +15,7 @@
 - El paciente elige entre tres grupos: Consulta, Ortodoncia y Otros.
 - Reglas, fracciones, ajuste y el resto no tienen un botón propio. Entran en Otros.
 - Cada grupo dura 30 minutos en los datos de prueba. La odontóloga puede cambiar los minutos desde el panel.
+- La fecha de la reserva se elige en una semana visible. Sábado y domingo no se pueden elegir. Un día completo tampoco.
 - Laura es la primera odontóloga del consultorio. El programa no deja su nombre fijo en la pantalla.
 
 ## Pacientes y turnos

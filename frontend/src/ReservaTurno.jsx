@@ -1,12 +1,21 @@
 import {
   useEffect,
-  useRef,
   useState,
 } from "react";
 
 import "./ReservaTurno.css";
 
 const API_URL = "/api";
+
+const WEEKDAY_LABELS = [
+  "Lun",
+  "Mar",
+  "Mié",
+  "Jue",
+  "Vie",
+  "Sáb",
+  "Dom",
+];
 
 const formatDate = (date) => {
   if (!date) return "";
@@ -15,6 +24,42 @@ const formatDate = (date) => {
     date.split("-");
 
   return `${day}/${month}/${year}`;
+};
+
+const toIsoDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(
+    date.getMonth() + 1,
+  ).padStart(2, "0");
+  const day = String(
+    date.getDate(),
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const mondayOf = (date) => {
+  const result = new Date(date);
+  const day = result.getDay();
+  const difference =
+    day === 0 ? -6 : 1 - day;
+
+  result.setDate(
+    result.getDate() + difference,
+  );
+  result.setHours(12, 0, 0, 0);
+
+  return result;
+};
+
+const addDays = (date, count) => {
+  const result = new Date(date);
+
+  result.setDate(
+    result.getDate() + count,
+  );
+
+  return result;
 };
 
 function ReservaTurno({
@@ -75,8 +120,14 @@ function ReservaTurno({
   const [error, setError] =
     useState("");
 
-  const dateInputRef =
-    useRef(null);
+  const [weekOffset, setWeekOffset] =
+    useState(0);
+
+  const [weekDays, setWeekDays] =
+    useState([]);
+
+  const [loadingWeek, setLoadingWeek] =
+    useState(false);
 
   useEffect(() => {
     const loadAppointmentTypes =
@@ -128,6 +179,8 @@ function ReservaTurno({
         setDate("");
         setStartTime("");
         setAvailableSlots([]);
+        setWeekOffset(0);
+        setWeekDays([]);
         setError("");
 
         try {
@@ -164,6 +217,78 @@ function ReservaTurno({
 
     loadProfessionals();
   }, [appointmentTypeId]);
+
+  const currentMonday = mondayOf(
+    new Date(),
+  );
+
+  const visibleMonday = addDays(
+    currentMonday,
+    weekOffset * 7,
+  );
+
+  const today = toIsoDate(new Date());
+  const weekFrom = toIsoDate(
+    visibleMonday,
+  );
+
+  useEffect(() => {
+    if (
+      !appointmentTypeId ||
+      !professionalId
+    ) {
+      setWeekDays([]);
+      return;
+    }
+
+    const loadWeek = async () => {
+      setLoadingWeek(true);
+
+      try {
+        const params =
+          new URLSearchParams({
+            from: weekFrom,
+            appointmentTypeId,
+            professionalId,
+          });
+
+        const response = await fetch(
+          `${API_URL}/available-week?${params.toString()}`,
+          {
+            credentials: "include",
+          },
+        );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "No se pudo cargar la semana",
+          );
+        }
+
+        setWeekDays(
+          data.days || [],
+        );
+      } catch (requestError) {
+        console.error(requestError);
+
+        setError(
+          requestError.message,
+        );
+      } finally {
+        setLoadingWeek(false);
+      }
+    };
+
+    loadWeek();
+  }, [
+    appointmentTypeId,
+    professionalId,
+    weekFrom,
+  ]);
 
   useEffect(() => {
     if (
@@ -337,9 +462,10 @@ function ReservaTurno({
     }
   };
 
-  const today = new Date()
-    .toISOString()
-    .split("T")[0];
+  const weekEnd = addDays(
+    visibleMonday,
+    6,
+  );
 
   return (
     <section className="booking-page">
@@ -517,28 +643,140 @@ function ReservaTurno({
               </div>
             </div>
 
-            <div className="booking-date-field">
-              <span className="booking-date-display">
-                {date
-                  ? formatDate(date)
-                  : "DD/MM/AAAA"}
-              </span>
+            <div className="booking-week">
+              <div className="booking-week-nav">
+                <button
+                  type="button"
+                  aria-label="Semana anterior"
+                  disabled={
+                    weekOffset === 0
+                  }
+                  onClick={() =>
+                    setWeekOffset(
+                      (current) =>
+                        Math.max(
+                          0,
+                          current - 1,
+                        ),
+                    )
+                  }
+                >
+                  ‹
+                </button>
 
-              <input
-                ref={dateInputRef}
-                className="booking-date-native"
-                type="date"
-                min={today}
-                value={date}
-                aria-label="Fecha del turno"
-                onChange={(event) => {
-                  setDate(
-                    event.target.value,
-                  );
+                <strong>
+                  {formatDate(
+                    toIsoDate(
+                      visibleMonday,
+                    ),
+                  ).slice(0, 5)}
+                  {" – "}
+                  {formatDate(
+                    toIsoDate(weekEnd),
+                  ).slice(0, 5)}
+                </strong>
 
-                  setStartTime("");
-                }}
-              />
+                <button
+                  type="button"
+                  aria-label="Semana siguiente"
+                  onClick={() =>
+                    setWeekOffset(
+                      (current) =>
+                        current + 1,
+                    )
+                  }
+                >
+                  ›
+                </button>
+              </div>
+
+              <div className="booking-week-days">
+                {(loadingWeek
+                  ? WEEKDAY_LABELS.map(
+                      (
+                        label,
+                        index,
+                      ) => ({
+                        date: `placeholder-${index}`,
+                        status:
+                          "loading",
+                        label,
+                      }),
+                    )
+                  : weekDays
+                ).map(
+                  (day, index) => {
+                    const isPast =
+                      day.status !==
+                        "loading" &&
+                      day.date < today;
+                    const status =
+                      isPast
+                        ? "past"
+                        : day.status;
+                    const canSelect =
+                      status === "open";
+
+                    return (
+                      <button
+                        type="button"
+                        key={day.date}
+                        className={`booking-day ${status}${
+                          date ===
+                          day.date
+                            ? " selected"
+                            : ""
+                        }`}
+                        disabled={
+                          !canSelect
+                        }
+                        onClick={() => {
+                          setDate(
+                            day.date,
+                          );
+                          setStartTime(
+                            "",
+                          );
+                        }}
+                      >
+                        <span>
+                          {
+                            WEEKDAY_LABELS[
+                              index
+                            ]
+                          }
+                        </span>
+                        <strong>
+                          {day.status ===
+                          "loading"
+                            ? "·"
+                            : day.date.slice(
+                                8,
+                              )}
+                        </strong>
+                        {status ===
+                          "full" && (
+                          <small>
+                            Completo
+                          </small>
+                        )}
+                      </button>
+                    );
+                  },
+                )}
+              </div>
+
+              <div className="booking-week-legend">
+                <span>
+                  Lun a vie, con lugar
+                </span>
+                <span>
+                  Completo
+                </span>
+                <span>
+                  No atiende
+                </span>
+              </div>
             </div>
           </div>
         )}
