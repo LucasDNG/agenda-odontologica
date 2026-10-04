@@ -49,34 +49,60 @@ const seedDemo = async () => {
       throw new Error("No se pudo crear el consultorio demo");
     }
 
-    const dentistResult = await client.query(
+    const otherDentist = await client.query(
       `
-        INSERT INTO users (
-          name,
-          lastname,
-          email,
-          password,
-          phone,
-          role
-        )
-        VALUES ($1, $2, $3, $4, $5, 'dentist')
-        ON CONFLICT (email) DO UPDATE
-          SET
-            role = 'dentist',
-            name = EXCLUDED.name,
-            lastname = EXCLUDED.lastname
-        RETURNING id
+        SELECT id
+        FROM users
+        WHERE role = 'dentist'
+          AND LOWER(email) <> 'ana.demo@example.com'
+        ORDER BY id
+        LIMIT 1
       `,
-      [
-        "Laura",
-        "Guilenia",
-        "ana.demo@example.com",
-        passwordHash,
-        "1140000001",
-      ],
     );
 
-    const dentistUserId = dentistResult.rows[0].id;
+    let dentistUserId = otherDentist.rows[0]?.id;
+
+    if (!dentistUserId) {
+      const dentistResult = await client.query(
+        `
+          INSERT INTO users (
+            name,
+            lastname,
+            email,
+            password,
+            phone,
+            role
+          )
+          VALUES ($1, $2, $3, $4, $5, 'dentist')
+          ON CONFLICT (email) DO UPDATE
+            SET
+              role = 'dentist',
+              name = EXCLUDED.name,
+              lastname = EXCLUDED.lastname
+          RETURNING id
+        `,
+        [
+          "Laura",
+          "Guilenia",
+          "ana.demo@example.com",
+          passwordHash,
+          "1140000001",
+        ],
+      );
+
+      dentistUserId = dentistResult.rows[0].id;
+    }
+
+    const dentistEmailResult = await client.query(
+      `
+        SELECT email
+        FROM users
+        WHERE id = $1
+      `,
+      [dentistUserId],
+    );
+
+    const dentistEmail = dentistEmailResult.rows[0].email;
 
     const existingProfessional = await client.query(
       `
@@ -106,7 +132,7 @@ const seedDemo = async () => {
             VALUES ($1, $2, 'Laura', 'Guilenia', '1140000001', $3, 'Odontología general', TRUE)
             RETURNING id
           `,
-          [clinicId, dentistUserId, "ana.demo@example.com"],
+          [clinicId, dentistUserId, dentistEmail],
         )
       ).rows[0].id;
 

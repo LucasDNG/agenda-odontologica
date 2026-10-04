@@ -56,7 +56,7 @@ No se envió ningún mensaje a Meta. WhatsApp de producción no está verificado
 
 ## Datos demo
 No son clientes reales.
-- Odontóloga: Laura Guilenia. Ingreso del panel: `ana.demo@example.com` / `demo1234`
+- Odontóloga: Laura Guilenia. El email y la contraseña del panel están en Neon, no en este repositorio.
 - Paciente: DNI `30123456` / `demo1234`
 - Consultorio: Consultorio Demo
 
@@ -82,7 +82,7 @@ FRONTEND:
 BASE DE DATOS:
 - El profesional que ve el paciente pasa a llamarse Laura Guilenia. Guilenia es el apellido.
 - El cambio está en `backend/sql/005_odontologa.sql`. En Neon todavía no se ejecutó desde acá.
-- El ingreso del panel sigue siendo `ana.demo@example.com` / `demo1234`.
+- El ingreso del panel se cambia en Neon. La contraseña no queda en el repositorio. Desde acá no se ejecutó ese cambio.
 
 ## Pendiente inmediato
 1. Ejecutar `backend/sql/005_odontologa.sql` en la conexión de Neon, con Alt+X, y recargar el sitio.

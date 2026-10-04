@@ -21,13 +21,18 @@ WHERE NOT EXISTS (
 );
 
 INSERT INTO users (name, lastname, email, password, phone, role)
-VALUES (
+SELECT
   'Laura',
   'Guilenia',
   'ana.demo@example.com',
   '$2b$10$ORjvCOqE4tM9C5dHk7T6TOTuoKcBmTxVwKwIJsZMi0YJA0BhgEJli',
   '1140000001',
   'dentist'
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM users
+  WHERE role = 'dentist'
+    AND LOWER(email) <> 'ana.demo@example.com'
 )
 ON CONFLICT (email) DO UPDATE
 SET

@@ -18,7 +18,7 @@
 - La fecha de la reserva se elige en una semana visible. Sábado y domingo no se pueden elegir. Un día completo tampoco.
 - La odontóloga de este consultorio es Laura Guilenia. Guilenia es el apellido.
 - Ese nombre está en los datos del profesional. La pantalla no lo tiene escrito fijo.
-- El panel sigue ingresando con `ana.demo@example.com` y `demo1234`.
+- El panel entra con el email y la contraseña de la odontóloga, guardados en la base. Esa contraseña no se escribe en el repositorio.
 
 ## Pacientes y turnos
 - Mantener historial: cancelar no elimina.
