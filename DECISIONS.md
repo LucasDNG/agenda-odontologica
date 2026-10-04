@@ -6,7 +6,7 @@
 - No crear selector de múltiples clínicas por ahora: una instalación corresponde a una clínica.
 
 ## Ingreso de pacientes
-- En el portal de pacientes, el ingreso y el alta piden DNI, no email.
+- En el portal de pacientes, el alta pide nombre, apellido, teléfono, DNI y contraseña. No pide email.
 - El DNI se guarda solo con números, sin puntos. Vale con 7 u 8 dígitos.
 - El panel del odontólogo sigue ingresando con el email de acceso.
 - El paciente de prueba usa el DNI ficticio `30123456` y la contraseña `demo1234`.

@@ -293,11 +293,12 @@ function TurnosApp() {
       if (
         !name.trim() ||
         !lastname.trim() ||
+        !phone.trim() ||
         !normalizeDni(dni) ||
         !password
       ) {
         setAuthError(
-          "Completá nombre, apellido, DNI y contraseña.",
+          "Completá nombre, apellido, teléfono, DNI y contraseña.",
         );
 
         return;
@@ -346,8 +347,7 @@ function TurnosApp() {
                   password,
 
                   phone:
-                    phone.trim() ||
-                    null,
+                    phone.trim(),
                 }),
             },
           );
@@ -820,6 +820,7 @@ function TurnosApp() {
                   }
                   placeholder="Ej: 11 1234 5678"
                   autoComplete="tel"
+                  required
                   onChange={(
                     event,
                   ) =>

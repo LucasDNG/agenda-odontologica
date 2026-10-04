@@ -26,6 +26,12 @@ export const signUp = async (req, res) => {
       });
     }
 
+    if (!String(phone || "").trim()) {
+      return res.status(400).json({
+        message: "Completá el teléfono",
+      });
+    }
+
     if (!isArgentineDni(dni)) {
       return res.status(400).json({
         message: "El DNI tiene que tener 7 u 8 números, sin puntos.",
@@ -60,7 +66,7 @@ export const signUp = async (req, res) => {
         String(name).trim(),
         String(lastname).trim(),
         hashedPassword,
-        phone,
+        String(phone).trim(),
         dni,
       ],
     );
