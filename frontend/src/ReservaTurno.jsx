@@ -711,17 +711,20 @@ function ReservaTurno({
                         "loading" &&
                       day.date < today;
                     const status =
-                      isPast
-                        ? "past"
-                        : day.status;
+                      day.status;
                     const canSelect =
-                      status === "open";
+                      status === "open" &&
+                      !isPast;
 
                     return (
                       <button
                         type="button"
                         key={day.date}
                         className={`booking-day ${status}${
+                          isPast
+                            ? " past"
+                            : ""
+                        }${
                           date ===
                           day.date
                             ? " selected"
@@ -755,9 +758,21 @@ function ReservaTurno({
                               )}
                         </strong>
                         {status ===
+                          "open" && (
+                          <small>
+                            Libre
+                          </small>
+                        )}
+                        {status ===
                           "full" && (
                           <small>
                             Completo
+                          </small>
+                        )}
+                        {status ===
+                          "closed" && (
+                          <small>
+                            Cerrado
                           </small>
                         )}
                       </button>
@@ -768,7 +783,7 @@ function ReservaTurno({
 
               <div className="booking-week-legend">
                 <span>
-                  Lun a vie, con lugar
+                  Con lugar
                 </span>
                 <span>
                   Completo

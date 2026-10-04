@@ -164,46 +164,75 @@
 .booking-day {
   display: grid;
   justify-items: center;
+  align-content: center;
   gap: 2px;
-  min-height: 72px;
-  padding: 8px 2px;
-  border: 1px solid var(--blue-border);
-  border-radius: 12px;
-  background: var(--blue-soft);
-  color: var(--blue-dark);
+  min-height: 86px;
+  padding: 10px 2px 8px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(22, 50, 79, 0.06);
   cursor: pointer;
 }
 
-.booking-day span,
-.booking-day small {
+.booking-day span {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.booking-day small {
+  font-size: 10px;
+  font-weight: 800;
 }
 
 .booking-day strong {
-  font-size: 16px;
+  font-size: 20px;
+  line-height: 1;
 }
 
-.booking-day.closed,
-.booking-day.past,
-.booking-day.loading {
-  border-color: #e4ebf2;
-  background: #f4f7fa;
-  color: #9aabba;
-  cursor: default;
+.booking-day.open {
+  border-color: #8ed7a8;
+  background:
+    linear-gradient(180deg, #f3fff7 0%, #d9f7e4 100%);
+  color: #0f7a3a;
+}
+
+.booking-day.open:not(.past):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(22, 140, 70, 0.16);
 }
 
 .booking-day.full {
-  border-color: #f3c7c7;
-  background: #fdecec;
-  color: #9b3b3b;
+  border-color: #f0a3a3;
+  background:
+    linear-gradient(180deg, #fff5f5 0%, #ffd6d6 100%);
+  color: #b42323;
   cursor: default;
 }
 
+.booking-day.closed,
+.booking-day.loading {
+  border-color: #d9e0e7;
+  background: #eef1f4;
+  color: #8d99a6;
+  box-shadow: none;
+  cursor: default;
+}
+
+.booking-day.past {
+  cursor: default;
+}
+
+.booking-day.open.past {
+  opacity: 0.72;
+}
+
 .booking-day.selected {
-  border-color: var(--blue);
-  background: var(--blue);
+  border-color: #0f7a3a;
+  background: #149447;
   color: white;
+  box-shadow: 0 10px 22px rgba(20, 148, 71, 0.28);
 }
 
 .booking-week-legend {
@@ -225,15 +254,15 @@
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: var(--blue);
+  background: #149447;
 }
 
 .booking-week-legend span:nth-child(2)::before {
-  background: #d96565;
+  background: #d64545;
 }
 
 .booking-week-legend span:nth-child(3)::before {
-  background: #b7c5d3;
+  background: #a8b3be;
 }
 
 .booking-times {
