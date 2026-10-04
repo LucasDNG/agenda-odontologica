@@ -74,8 +74,7 @@ El paciente ve tres grupos de 30 minutos: Consulta, Ortodoncia y Otros. Reglas, 
 
 ## Pendiente inmediato
 1. Ejecutar `backend/sql/003_dni_login.sql` en la conexión nueva de Neon, con Alt+X, si todavía no se ejecutó.
-2. Ejecutar `backend/sql/004_servicios.sql` en esa misma conexión.
-2. Publicar este cambio en el servicio de Render que ya está Live.
+2. Ejecutar `backend/sql/004_servicios.sql` en esa misma conexión y recargar la reserva.
 3. Probar el ingreso del paciente demo con DNI `30123456` y contraseña `demo1234`.
 4. Cargar token, phone number id y plantillas aprobadas de Meta en el sitio, no en la computadora.
 5. Repetir un turno con un teléfono real y revisar que `whatsapp_notifications.status` pase a `sent`.
