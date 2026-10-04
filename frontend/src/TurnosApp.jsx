@@ -668,42 +668,6 @@ function TurnosApp() {
 
           <ClinicContact />
 
-          <div className="patient-auth-tabs">
-            <button
-              type="button"
-              className={
-                mode ===
-                "signin"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                changeMode(
-                  "signin",
-                )
-              }
-            >
-              Ingresar
-            </button>
-
-            <button
-              type="button"
-              className={
-                mode ===
-                "signup"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                changeMode(
-                  "signup",
-                )
-              }
-            >
-              Crear cuenta
-            </button>
-          </div>
-
           {mode ===
           "signin" ? (
             <form
@@ -920,6 +884,39 @@ function TurnosApp() {
               </button>
             </form>
           )}
+
+          <p className="patient-auth-switch">
+            {mode ===
+            "signin" ? (
+              <>
+                ¿No tenés cuenta?{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    changeMode(
+                      "signup",
+                    )
+                  }
+                >
+                  Crear cuenta
+                </button>
+              </>
+            ) : (
+              <>
+                ¿Ya tenés cuenta?{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    changeMode(
+                      "signin",
+                    )
+                  }
+                >
+                  Ingresar
+                </button>
+              </>
+            )}
+          </p>
 
           <div className="patient-professional-access">
             <span>

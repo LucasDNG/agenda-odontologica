@@ -311,6 +311,27 @@
   box-shadow: var(--shadow-sm);
 }
 
+.patient-auth-switch {
+  margin: 16px 0 0;
+  color: var(--text-soft);
+  font-size: 14px;
+  text-align: center;
+}
+
+.patient-auth-switch button {
+  padding: 0;
+  border: 0;
+  color: var(--blue);
+  background: transparent;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.patient-auth-switch button:hover {
+  text-decoration: underline;
+}
+
 .patient-professional-access {
   display: flex;
   justify-content: center;

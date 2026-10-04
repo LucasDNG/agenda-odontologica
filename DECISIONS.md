@@ -8,6 +8,7 @@
 ## Ingreso de pacientes
 - En el portal de pacientes, el alta pide nombre, apellido, teléfono, DNI y contraseña. No pide email.
 - El DNI se guarda solo con números, sin puntos. Vale con 7 u 8 dígitos.
+- En la pantalla de ingreso hay un solo botón Ingresar. Crear cuenta queda como un enlace.
 - El panel del odontólogo sigue ingresando con el email de acceso.
 - El paciente de prueba usa el DNI ficticio `30123456` y la contraseña `demo1234`.
 
