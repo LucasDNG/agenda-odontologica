@@ -48,10 +48,6 @@ function ClinicContact({
     <section
       className={`patient-clinic-card ${className}`.trim()}
     >
-      <p className="patient-eyebrow">
-        Consultorio
-      </p>
-
       <h2>{clinic.name}</h2>
 
       <dl>
