@@ -62,6 +62,33 @@ const addDays = (date, count) => {
   return result;
 };
 
+const initialWeekOffset = () => {
+  const now = new Date();
+  now.setHours(12, 0, 0, 0);
+
+  const currentMonday = mondayOf(now);
+  const day = now.getDay();
+  const target = new Date(now);
+
+  if (day === 6) {
+    target.setDate(now.getDate() + 2);
+  } else if (day === 0) {
+    target.setDate(now.getDate() + 1);
+  }
+
+  const targetMonday = mondayOf(target);
+  const difference = Math.round(
+    (targetMonday.getTime() -
+      currentMonday.getTime()) /
+      86400000,
+  );
+
+  return Math.max(
+    0,
+    Math.round(difference / 7),
+  );
+};
+
 function ReservaTurno({
   onAppointmentCreated,
 }) {
@@ -121,7 +148,7 @@ function ReservaTurno({
     useState("");
 
   const [weekOffset, setWeekOffset] =
-    useState(0);
+    useState(initialWeekOffset);
 
   const [weekDays, setWeekDays] =
     useState([]);
@@ -179,7 +206,9 @@ function ReservaTurno({
         setDate("");
         setStartTime("");
         setAvailableSlots([]);
-        setWeekOffset(0);
+        setWeekOffset(
+          initialWeekOffset(),
+        );
         setWeekDays([]);
         setError("");
 
@@ -758,9 +787,17 @@ function ReservaTurno({
                               )}
                         </strong>
                         {status ===
-                          "open" && (
+                          "open" &&
+                          !isPast && (
                           <small>
                             Libre
+                          </small>
+                        )}
+                        {status ===
+                          "open" &&
+                          isPast && (
+                          <small>
+                            Pasado
                           </small>
                         )}
                         {status ===
@@ -780,6 +817,10 @@ function ReservaTurno({
                   },
                 )}
               </div>
+
+              <p className="booking-week-help">
+                Tocá un día en verde para ver los horarios.
+              </p>
 
               <div className="booking-week-legend">
                 <span>
