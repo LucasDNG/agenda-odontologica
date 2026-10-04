@@ -19,6 +19,7 @@
 - La odontóloga de este consultorio es Laura Guilenia. Guilenia es el apellido.
 - Ese nombre está en los datos del profesional. La pantalla no lo tiene escrito fijo.
 - El panel entra con el email y la contraseña de la odontóloga, guardados en la base. Esa contraseña no se escribe en el repositorio.
+- En Configuración, la odontóloga edita el nombre, el teléfono, el email, la dirección y el máximo de turnos activos del consultorio.
 
 ## Pacientes y turnos
 - Mantener historial: cancelar no elimina.

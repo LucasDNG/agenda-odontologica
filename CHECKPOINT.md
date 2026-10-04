@@ -84,6 +84,11 @@ BASE DE DATOS:
 - El cambio está en `backend/sql/005_odontologa.sql`. En Neon todavía no se ejecutó desde acá.
 - El ingreso del panel se cambia en Neon. La contraseña no queda en el repositorio. Desde acá no se ejecutó ese cambio.
 
+## Consultorio editable
+FRONTEND:
+- En Configuración, el nombre, el teléfono, el email y la dirección del consultorio se editan y se guardan con el límite de turnos.
+- El sitio publicado muestra esos datos recién cuando Render termina de publicar esta rama.
+
 ## Pendiente inmediato
 1. Ejecutar `backend/sql/005_odontologa.sql` en la conexión de Neon, con Alt+X, y recargar el sitio.
 2. Ejecutar `backend/sql/003_dni_login.sql` en la conexión nueva de Neon, con Alt+X, si todavía no se ejecutó.
