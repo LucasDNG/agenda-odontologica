@@ -8,6 +8,7 @@ const phoneHref = (phone) =>
 
 function ClinicContact({
   className = "",
+  titleTag = "h2",
 }) {
   const [clinic, setClinic] =
     useState(null);
@@ -48,7 +49,11 @@ function ClinicContact({
     <section
       className={`patient-clinic-card ${className}`.trim()}
     >
-      <h2>{clinic.name}</h2>
+      {titleTag === "h1" ? (
+        <h1>{clinic.name}</h1>
+      ) : (
+        <h2>{clinic.name}</h2>
+      )}
 
       <dl>
         {clinic.address && (

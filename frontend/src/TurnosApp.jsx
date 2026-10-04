@@ -651,13 +651,13 @@ function TurnosApp() {
             </div>
 
             <div>
-              <p className="patient-eyebrow">
+              <h2>
                 Agenda odontológica
-              </p>
+              </h2>
 
-              <h1>
+              <h3>
                 Turnos online
-              </h1>
+              </h3>
 
               <p>
                 Reservá y consultá tus
@@ -666,7 +666,7 @@ function TurnosApp() {
             </div>
           </div>
 
-          <ClinicContact />
+          <ClinicContact titleTag="h1" />
 
           {mode ===
           "signin" ? (

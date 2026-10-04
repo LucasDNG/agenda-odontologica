@@ -47,14 +47,26 @@
   text-transform: uppercase;
 }
 
-.patient-auth-brand h1,
 .patient-page-heading h1 {
   margin: 0;
   color: var(--text-main);
 }
 
-.patient-auth-brand h1 {
-  font-size: 27px;
+.patient-auth-brand h2,
+.patient-auth-brand h3 {
+  margin: 0;
+  font-weight: 700;
+}
+
+.patient-auth-brand h2 {
+  color: var(--blue);
+  font-size: 15px;
+}
+
+.patient-auth-brand h3 {
+  margin-top: 2px;
+  color: var(--text-soft);
+  font-size: 14px;
 }
 
 .patient-auth-brand > div > p:last-child,
@@ -259,11 +271,21 @@
   background: #f7fbff;
 }
 
+.patient-clinic-card h1,
 .patient-clinic-card h2 {
   margin: 0;
   color: var(--text-main);
-  font-size: 20px;
-  line-height: 1.2;
+  line-height: 1.15;
+}
+
+.patient-clinic-card h1 {
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.patient-clinic-card h2 {
+  font-size: 22px;
+  font-weight: 800;
 }
 
 .patient-clinic-card dl {
@@ -285,16 +307,16 @@
 }
 
 .patient-clinic-card dt {
-  color: var(--text-soft);
-  font-size: 12px;
+  color: var(--text-main);
+  font-size: 13px;
   font-weight: 800;
 }
 
 .patient-clinic-card dd,
 .patient-clinic-card a {
   color: var(--text-main);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
   text-decoration: none;
   overflow-wrap: anywhere;
 }
