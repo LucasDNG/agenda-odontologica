@@ -249,6 +249,68 @@
   cursor: not-allowed;
 }
 
+.patient-clinic-card {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #f7fbff;
+}
+
+.patient-clinic-card h2 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.patient-clinic-card dl {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 0;
+}
+
+.patient-clinic-card dl > div {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+}
+
+.patient-clinic-card dt,
+.patient-clinic-card dd {
+  margin: 0;
+}
+
+.patient-clinic-card dt {
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.patient-clinic-card dd,
+.patient-clinic-card a {
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.patient-clinic-card a:hover {
+  color: var(--blue-dark);
+  text-decoration: underline;
+}
+
+.patient-clinic-banner {
+  width: min(920px, 92%);
+  margin: 22px auto 0;
+  background: white;
+  box-shadow: var(--shadow-sm);
+}
+
 .patient-professional-access {
   display: flex;
   justify-content: center;
@@ -787,6 +849,11 @@
   .patient-professional-access {
     display: grid;
     text-align: center;
+  }
+
+  .patient-clinic-card dl > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
   }
 
   .patient-header {

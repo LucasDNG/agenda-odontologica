@@ -26,6 +26,7 @@ Construir una agenda odontológica genérica, reutilizable para distintos consul
 - WhatsApp: alta, cancelación, reprogramación, restauración y recordatorio.
 - Fechas visibles: DD/MM/YYYY.
 - Al confirmar un turno, Mis turnos muestra una ficha grande con fecha, hora, servicio, duración, profesional y especialidad.
+- El portal del paciente muestra el nombre, la calle, el teléfono y el email del consultorio. Esos datos se editan en Configuración.
 - En la reserva pública la fecha es una semana. Sábado y domingo van en gris. Un día con todos los turnos tomados va en otro color. Se cambia de a una semana.
 - No guardar secretos ni `.env` en Git.
 

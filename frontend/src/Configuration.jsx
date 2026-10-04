@@ -870,8 +870,9 @@ function Configuration() {
             </h3>
 
             <p>
-              Configuración general de
-              esta instalación.
+              El paciente ve este
+              nombre, la calle, el
+              teléfono y el email.
             </p>
           </div>
         </div>

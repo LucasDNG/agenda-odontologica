@@ -87,7 +87,8 @@ BASE DE DATOS:
 ## Consultorio editable
 FRONTEND:
 - En Configuración, el nombre, el teléfono, el email y la dirección del consultorio se editan y se guardan con el límite de turnos.
-- El sitio publicado muestra esos datos recién cuando Render termina de publicar esta rama.
+- El portal del paciente muestra ese nombre, la calle, el teléfono y el email.
+- El sitio publicado muestra eso cuando Render termina de publicar esta rama.
 
 ## Pendiente inmediato
 1. Ejecutar `backend/sql/005_odontologa.sql` en la conexión de Neon, con Alt+X, y recargar el sitio.

@@ -1,5 +1,38 @@
 import { pool } from "../db.js";
 
+export const getPublicClinic = async (
+  req,
+  res,
+) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        name,
+        phone,
+        email,
+        address
+      FROM clinics
+      WHERE active = TRUE
+      ORDER BY id
+      LIMIT 1
+    `);
+
+    return res.json({
+      clinic: result.rows[0] || null,
+    });
+  } catch (error) {
+    console.error(
+      "Error obteniendo el consultorio público:",
+      error,
+    );
+
+    return res.status(500).json({
+      message:
+        "Error al obtener el consultorio",
+    });
+  }
+};
+
 export const getClinics = async (
   req,
   res,

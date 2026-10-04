@@ -3,6 +3,7 @@ import {
   useState,
 } from "react";
 
+import ClinicContact from "./ClinicContact";
 import ReservaTurno from "./ReservaTurno";
 import "./TurnosApp.css";
 
@@ -665,6 +666,8 @@ function TurnosApp() {
             </div>
           </div>
 
+          <ClinicContact />
+
           <div className="patient-auth-tabs">
             <button
               type="button"
@@ -1012,6 +1015,8 @@ function TurnosApp() {
           )}
         </button>
       </nav>
+
+      <ClinicContact className="patient-clinic-banner" />
 
       {section ===
         "booking" && (
