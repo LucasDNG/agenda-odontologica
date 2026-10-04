@@ -21,6 +21,7 @@
 - El panel entra con el email y la contraseña de la odontóloga, guardados en la base. Esa contraseña no se escribe en el repositorio.
 - En Configuración, la odontóloga edita el nombre, la calle, el teléfono y el email del consultorio, además del máximo de turnos activos.
 - Esos cuatro datos se muestran en el portal del paciente, antes de ingresar y al reservar.
+- Si el día abierto en la agenda no tiene turnos, se muestra el próximo turno y se puede abrir ese día.
 
 ## Pacientes y turnos
 - Mantener historial: cancelar no elimina.

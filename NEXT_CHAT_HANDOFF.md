@@ -46,7 +46,9 @@ Parámetros, en orden: paciente, consultorio, fecha, hora, servicio, profesional
 En local, sin token de Meta, el turno se confirma y la notificación queda registrada como fallida. Eso se probó. El envío real a WhatsApp no.
 
 ## Próximo paso
-La odontóloga de este consultorio es Laura Guilenia. Guilenia es el apellido. El nombre está en `backend/sql/005_odontologa.sql`. El ingreso del panel usa el email y la contraseña cargados en Neon. Esa contraseña no está en el repositorio. Hasta ejecutar el cambio en DBeaver, el panel puede seguir con el acceso de prueba.
+El portal del paciente muestra el nombre, la calle, el teléfono y el email que se guardan en Configuración. En la agenda del panel, un día sin turnos muestra el próximo turno y permite abrirlo.
+
+La odontóloga de este consultorio es Laura Guilenia. Guilenia es el apellido. El ingreso del panel usa el email y la contraseña cargados en Neon. Esa contraseña no está en el repositorio.
 
 La confirmación de un turno reservado está en Mis turnos: una ficha grande con fecha, hora, servicio, duración, profesional y especialidad. Si el sitio publicado todavía muestra el aviso chico, falta que Render termine de publicar esta rama.
 

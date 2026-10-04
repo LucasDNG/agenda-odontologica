@@ -90,6 +90,10 @@ FRONTEND:
 - El portal del paciente muestra ese nombre, la calle, el teléfono y el email.
 - El sitio publicado muestra eso cuando Render termina de publicar esta rama.
 
+## Agenda del consultorio
+FRONTEND:
+- Si el día que está abierto no tiene turnos, la agenda muestra el próximo turno y un botón para abrir ese día.
+
 ## Pendiente inmediato
 1. Ejecutar `backend/sql/005_odontologa.sql` en la conexión de Neon, con Alt+X, y recargar el sitio.
 2. Ejecutar `backend/sql/003_dni_login.sql` en la conexión nueva de Neon, con Alt+X, si todavía no se ejecutó.
