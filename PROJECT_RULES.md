@@ -13,7 +13,8 @@ Construir una agenda odontológica genérica, reutilizable para distintos consul
 
 ## Reglas funcionales vigentes
 - Portal paciente en `/`.
-- Panel profesional/admin en `/odontologo`.
+- El paciente ingresa con DNI argentino (7 u 8 números) y contraseña.
+- Panel profesional/admin en `/odontologo`. Ese ingreso sigue usando el email de acceso.
 - Los turnos normales se reservan sin confirmación manual.
 - Límite de turnos activos por paciente configurable en `clinics`.
 - Los turnos cancelados no se eliminan.

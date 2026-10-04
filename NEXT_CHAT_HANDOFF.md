@@ -46,7 +46,7 @@ Parámetros, en orden: paciente, consultorio, fecha, hora, servicio, profesional
 En local, sin token de Meta, el turno se confirma y la notificación queda registrada como fallida. Eso se probó. El envío real a WhatsApp no.
 
 ## Próximo paso
-Configurar la base real y las credenciales de Meta, y probar un teléfono válido hasta ver `whatsapp_notifications.status = sent`. No dar por verificados Neon ni WhatsApp hasta esa prueba. La limpieza de `TECH_DEBT.md` sigue después de esa estabilidad.
+El portal de pacientes ingresa con DNI. Falta ejecutar `backend/sql/003_dni_login.sql` en Neon y publicar ese cambio en el sitio que ya está Live. Recién después probar el paciente demo (DNI `30123456`, contraseña `demo1234`). El panel del odontólogo sigue con email. No dar por verificados Neon de producción ni WhatsApp hasta probarlos. La limpieza de `TECH_DEBT.md` sigue después de esa estabilidad.
 
 ## Importante
 No depender sólo de memoria o historial del chat. Si hay contradicción, revisar GitHub y documentar la decisión nueva en Markdown. No guardar secretos ni datos reales de clientes.

@@ -54,18 +54,24 @@ Con PostgreSQL local, backend en el puerto 3000 y Vite en el puerto 5173:
 
 No se envió ningún mensaje a Meta. WhatsApp de producción no está verificado.
 
-## Datos demo locales
+## Datos demo
 No son clientes reales.
 - Odontólogo: `ana.demo@example.com` / `demo1234`
-- Paciente: `paciente.demo@example.com` / `demo1234`
+- Paciente: DNI `30123456` / `demo1234`
 - Consultorio: Consultorio Demo
 
 ## Publicación
-Neon guarda los datos. El sitio público entrega la página y la API. Meta apunta a `https://el-sitio/api/webhooks/whatsapp`. Esa publicación todavía no se hizo y Neon todavía no tiene el proyecto creado.
+Render llegó a mostrar Live para la rama `cursor/levantar-agenda-local-9f25`. Desde acá no se abrió la dirección pública definitiva ni se probó el login en ese sitio. Neon tiene el esquema y el consultorio demo. `003_dni_login.sql` todavía no se ejecutó en Neon. Meta y WhatsApp real no se probaron.
+
+## Esta entrega de ingreso
+BACKEND / FRONTEND / BASE DE DATOS:
+- El portal de pacientes pide DNI.
+- `backend/sql/003_dni_login.sql` agrega `users.dni` y carga el DNI ficticio del paciente demo.
+- El panel `/odontologo` sigue pidiendo email.
 
 ## Pendiente inmediato
-1. Crear el proyecto en Neon y dejar visible la connection string, sin pegarla en el chat.
-2. Publicar el sitio y cargar ahí `DATABASE_URL`.
-3. Aplicar `backend/sql/001_schema.sql` sobre Neon.
+1. Ejecutar `backend/sql/003_dni_login.sql` en la conexión nueva de Neon, con Alt+X.
+2. Publicar este cambio en el servicio de Render que ya está Live.
+3. Probar el ingreso del paciente demo con DNI `30123456` y contraseña `demo1234`.
 4. Cargar token, phone number id y plantillas aprobadas de Meta en el sitio, no en la computadora.
 5. Repetir un turno con un teléfono real y revisar que `whatsapp_notifications.status` pase a `sent`.

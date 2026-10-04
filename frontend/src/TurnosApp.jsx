@@ -8,6 +8,9 @@ import "./TurnosApp.css";
 
 const API_URL = "/api";
 
+const normalizeDni = (value) =>
+  String(value || "").replace(/\D/g, "");
+
 const formatTime = (time) => {
   if (!time) return "";
 
@@ -77,7 +80,7 @@ function TurnosApp() {
   const [phone, setPhone] =
     useState("");
 
-  const [email, setEmail] =
+  const [dni, setDni] =
     useState("");
 
   const [
@@ -192,7 +195,7 @@ function TurnosApp() {
     setName("");
     setLastname("");
     setPhone("");
-    setEmail("");
+    setDni("");
     setPassword("");
     setAuthError("");
   };
@@ -228,10 +231,9 @@ function TurnosApp() {
 
               body:
                 JSON.stringify({
-                  email:
-                    email
-                      .trim()
-                      .toLowerCase(),
+                  dni: normalizeDni(
+                    dni,
+                  ),
 
                   password,
                 }),
@@ -291,11 +293,11 @@ function TurnosApp() {
       if (
         !name.trim() ||
         !lastname.trim() ||
-        !email.trim() ||
+        !normalizeDni(dni) ||
         !password
       ) {
         setAuthError(
-          "Completá nombre, apellido, email y contraseña.",
+          "Completá nombre, apellido, DNI y contraseña.",
         );
 
         return;
@@ -337,10 +339,9 @@ function TurnosApp() {
                   lastname:
                     lastname.trim(),
 
-                  email:
-                    email
-                      .trim()
-                      .toLowerCase(),
+                  dni: normalizeDni(
+                    dni,
+                  ),
 
                   password,
 
@@ -692,20 +693,21 @@ function TurnosApp() {
               }
             >
               <label>
-                Email
+                DNI
 
                 <input
-                  type="email"
+                  type="text"
+                  inputMode="numeric"
                   value={
-                    email
+                    dni
                   }
-                  placeholder="tu@email.com"
-                  autoComplete="email"
+                  placeholder="30123456"
+                  autoComplete="username"
                   required
                   onChange={(
                     event,
                   ) =>
-                    setEmail(
+                    setDni(
                       event
                         .target
                         .value,
@@ -831,20 +833,21 @@ function TurnosApp() {
               </label>
 
               <label>
-                Email
+                DNI
 
                 <input
-                  type="email"
+                  type="text"
+                  inputMode="numeric"
                   value={
-                    email
+                    dni
                   }
-                  placeholder="tu@email.com"
-                  autoComplete="email"
+                  placeholder="30123456"
+                  autoComplete="off"
                   required
                   onChange={(
                     event,
                   ) =>
-                    setEmail(
+                    setDni(
                       event
                         .target
                         .value,

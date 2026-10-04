@@ -120,6 +120,7 @@ const ensurePatientRecord = async (
           lastname,
           phone,
           email,
+          dni,
           profile_type,
           active
         )
@@ -131,6 +132,7 @@ const ensurePatientRecord = async (
           $4,
           $5,
           $6,
+          $7,
           'quick',
           TRUE
         )
@@ -142,6 +144,10 @@ const ensurePatientRecord = async (
             patients.phone,
             EXCLUDED.phone
           ),
+          dni = COALESCE(
+            patients.dni,
+            EXCLUDED.dni
+          ),
           updated_at = NOW()
         RETURNING id
       `,
@@ -152,6 +158,7 @@ const ensurePatientRecord = async (
         user.lastname,
         user.phone,
         user.email,
+        user.dni,
       ],
     );
 
@@ -274,7 +281,8 @@ export const createAppointment =
               name,
               lastname,
               phone,
-              email
+              email,
+              dni
             FROM users
             WHERE id = $1
             FOR UPDATE

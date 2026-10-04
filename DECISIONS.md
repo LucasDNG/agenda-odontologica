@@ -5,6 +5,12 @@
 - Laura/Diego son datos/configuración del primer cliente.
 - No crear selector de múltiples clínicas por ahora: una instalación corresponde a una clínica.
 
+## Ingreso de pacientes
+- En el portal de pacientes, el ingreso y el alta piden DNI, no email.
+- El DNI se guarda solo con números, sin puntos. Vale con 7 u 8 dígitos.
+- El panel del odontólogo sigue ingresando con el email de acceso.
+- El paciente de prueba usa el DNI ficticio `30123456` y la contraseña `demo1234`.
+
 ## Pacientes y turnos
 - Mantener historial: cancelar no elimina.
 - Restauración reutiliza el mismo registro.

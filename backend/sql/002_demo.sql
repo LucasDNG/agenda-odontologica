@@ -93,17 +93,19 @@ WHERE p.email = 'ana.demo@example.com'
     SELECT 1 FROM availability a WHERE a.professional_id = p.id
   );
 
-INSERT INTO users (name, lastname, email, password, phone, role)
+INSERT INTO users (name, lastname, email, password, phone, role, dni)
 VALUES (
   'Lucía',
   'Prueba',
   'paciente.demo@example.com',
   '$2b$10$ORjvCOqE4tM9C5dHk7T6TOTuoKcBmTxVwKwIJsZMi0YJA0BhgEJli',
   '1112345678',
-  'patient'
+  'patient',
+  '30123456'
 )
 ON CONFLICT (email) DO UPDATE
-SET role = 'patient';
+SET role = 'patient',
+    dni = EXCLUDED.dni;
 
 INSERT INTO patients (
   clinic_id,
@@ -112,6 +114,7 @@ INSERT INTO patients (
   lastname,
   phone,
   email,
+  dni,
   profile_type,
   active
 )
@@ -122,10 +125,13 @@ SELECT
   'Prueba',
   '1112345678',
   'paciente.demo@example.com',
+  '30123456',
   'quick',
   TRUE
 FROM clinics c
 JOIN users u ON u.email = 'paciente.demo@example.com'
 WHERE c.name = 'Consultorio Demo'
 ON CONFLICT (user_id) WHERE user_id IS NOT NULL
-DO UPDATE SET active = TRUE;
+DO UPDATE SET
+  active = TRUE,
+  dni = EXCLUDED.dni;

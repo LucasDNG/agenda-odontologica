@@ -196,14 +196,16 @@ const seedDemo = async () => {
           email,
           password,
           phone,
-          role
+          role,
+          dni
         )
-        VALUES ('Lucía', 'Prueba', 'paciente.demo@example.com', $1, '1112345678', 'patient')
+        VALUES ('Lucía', 'Prueba', 'paciente.demo@example.com', $1, '1112345678', 'patient', '30123456')
         ON CONFLICT (email) DO UPDATE
           SET
             phone = EXCLUDED.phone,
-            role = 'patient'
-        RETURNING id, name, lastname, email, phone
+            role = 'patient',
+            dni = EXCLUDED.dni
+        RETURNING id, name, lastname, email, phone, dni
       `,
       [passwordHash],
     );
@@ -219,13 +221,15 @@ const seedDemo = async () => {
           lastname,
           phone,
           email,
+          dni,
           profile_type,
           active
         )
-        VALUES ($1, $2, $3, $4, $5, $6, 'quick', TRUE)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 'quick', TRUE)
         ON CONFLICT (user_id) WHERE user_id IS NOT NULL
         DO UPDATE SET
           phone = EXCLUDED.phone,
+          dni = EXCLUDED.dni,
           active = TRUE,
           updated_at = NOW()
       `,
@@ -236,6 +240,7 @@ const seedDemo = async () => {
         patient.lastname,
         patient.phone,
         patient.email,
+        patient.dni,
       ],
     );
 
@@ -243,7 +248,7 @@ const seedDemo = async () => {
 
     console.log("Datos demo listos.");
     console.log("Odontólogo: ana.demo@example.com / demo1234");
-    console.log("Paciente: paciente.demo@example.com / demo1234");
+    console.log("Paciente: DNI 30123456 / demo1234");
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;

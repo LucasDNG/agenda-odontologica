@@ -9,18 +9,43 @@ const sessionCookie = {
   maxAge: 1000 * 60 * 60 * 24,
 };
 
+const normalizeDni = (value) =>
+  String(value || "").replace(/\D/g, "");
+
+const isArgentineDni = (dni) =>
+  dni.length === 7 || dni.length === 8;
+
 export const signUp = async (req, res) => {
   try {
-    const { name, lastname, email, password, phone } = req.body;
+    const { name, lastname, password, phone } = req.body;
+    const dni = normalizeDni(req.body.dni);
+
+    if (!String(name || "").trim() || !String(lastname || "").trim()) {
+      return res.status(400).json({
+        message: "Completá nombre y apellido",
+      });
+    }
+
+    if (!isArgentineDni(dni)) {
+      return res.status(400).json({
+        message: "El DNI tiene que tener 7 u 8 números, sin puntos.",
+      });
+    }
+
+    if (!password || String(password).length < 6) {
+      return res.status(400).json({
+        message: "La contraseña debe tener al menos 6 caracteres.",
+      });
+    }
 
     const existingUser = await pool.query(
-      "SELECT id FROM users WHERE email = $1",
-      [email],
+      "SELECT id FROM users WHERE dni = $1",
+      [dni],
     );
 
     if (existingUser.rows.length > 0) {
       return res.status(400).json({
-        message: "El email ya está registrado",
+        message: "Ya hay una cuenta con ese DNI",
       });
     }
 
@@ -28,10 +53,16 @@ export const signUp = async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO users
-        (name, lastname, email, password, phone, role)
-       VALUES ($1, $2, $3, $4, $5, 'patient')
-       RETURNING id, name, lastname, email, phone, role, created_at`,
-      [name, lastname, email, hashedPassword, phone],
+        (name, lastname, email, password, phone, role, dni)
+       VALUES ($1, $2, NULL, $3, $4, 'patient', $5)
+       RETURNING id, name, lastname, email, phone, role, dni, created_at`,
+      [
+        String(name).trim(),
+        String(lastname).trim(),
+        hashedPassword,
+        phone,
+        dni,
+      ],
     );
 
     const user = result.rows[0];
@@ -49,6 +80,12 @@ export const signUp = async (req, res) => {
   } catch (error) {
     console.error(error);
 
+    if (error.code === "23505") {
+      return res.status(400).json({
+        message: "Ya hay una cuenta con ese DNI",
+      });
+    }
+
     res.status(500).json({
       message: "Error al registrar el usuario",
     });
@@ -57,16 +94,50 @@ export const signUp = async (req, res) => {
 
 export const signIn = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const dni = normalizeDni(req.body.dni);
+    const email =
+      typeof req.body.email === "string"
+        ? req.body.email.trim().toLowerCase()
+        : "";
 
-    const result = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email],
-    );
+    let result;
+
+    if (dni) {
+      if (!isArgentineDni(dni)) {
+        return res.status(400).json({
+          message: "El DNI tiene que tener 7 u 8 números, sin puntos.",
+        });
+      }
+
+      result = await pool.query(
+        "SELECT * FROM users WHERE dni = $1",
+        [dni],
+      );
+    } else if (email) {
+      result = await pool.query(
+        "SELECT * FROM users WHERE LOWER(email) = LOWER($1)",
+        [email],
+      );
+    } else {
+      return res.status(400).json({
+        message: "Ingresá el DNI y la contraseña",
+      });
+    }
+
+    const invalidMessage = dni
+      ? "DNI o contraseña incorrectos"
+      : "Email o contraseña incorrectos";
+
+    if (typeof password !== "string" || !password) {
+      return res.status(400).json({
+        message: invalidMessage,
+      });
+    }
 
     if (result.rows.length === 0) {
       return res.status(400).json({
-        message: "Email o contraseña incorrectos",
+        message: invalidMessage,
       });
     }
 
@@ -76,7 +147,7 @@ export const signIn = async (req, res) => {
 
     if (!passwordMatch) {
       return res.status(400).json({
-        message: "Email o contraseña incorrectos",
+        message: invalidMessage,
       });
     }
 
@@ -115,6 +186,7 @@ export const signIn = async (req, res) => {
         name: user.name,
         lastname: user.lastname,
         email: user.email,
+        dni: user.dni,
         phone: user.phone,
         role: user.role,
       },

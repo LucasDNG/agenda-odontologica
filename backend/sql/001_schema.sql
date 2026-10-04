@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   lastname TEXT,
-  email TEXT NOT NULL UNIQUE,
+  email TEXT UNIQUE,
+  dni TEXT,
   password TEXT NOT NULL,
   phone TEXT,
   role TEXT NOT NULL DEFAULT 'patient',
@@ -176,3 +177,10 @@ CREATE TABLE IF NOT EXISTS whatsapp_consultations (
     status IN ('pending', 'answered')
   )
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS dni TEXT;
+ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS users_dni_unique
+  ON users (dni)
+  WHERE dni IS NOT NULL;
