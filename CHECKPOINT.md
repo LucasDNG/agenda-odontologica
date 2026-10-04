@@ -72,6 +72,12 @@ BACKEND / FRONTEND / BASE DE DATOS:
 ## Servicios de la reserva
 El paciente ve tres grupos de 30 minutos: Consulta, Ortodoncia y Otros. Reglas, fracciones y ajuste no tienen botón propio. El cambio en el sitio que ya está publicado depende de ejecutar `backend/sql/004_servicios.sql` en Neon.
 
+## Confirmación del turno
+FRONTEND:
+- Después de reservar, Mis turnos muestra una ficha grande con fecha, hora, servicio, duración, profesional y especialidad.
+- Próximos turnos e historial usan las mismas etiquetas.
+- Se revisó en el navegador local. El sitio publicado cambia cuando Render termina de publicar esta rama. Desde acá no se abrió el sitio de Render para esta ficha.
+
 ## Pendiente inmediato
 1. Ejecutar `backend/sql/003_dni_login.sql` en la conexión nueva de Neon, con Alt+X, si todavía no se ejecutó.
 2. Ejecutar `backend/sql/004_servicios.sql` en esa misma conexión y recargar la reserva.

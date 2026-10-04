@@ -466,10 +466,27 @@ function ReservaTurno({
         );
       }
 
-      setMessage(
-        "Turno reservado correctamente.",
-      );
+      const confirmation = {
+        date: formatDate(date),
+        time: String(
+          startTime || "",
+        ).slice(0, 5),
+        service:
+          selectedService?.name ||
+          "",
+        duration:
+          selectedService?.duration_minutes ||
+          "",
+        professional:
+          selectedProfessional
+            ? `${selectedProfessional.name} ${selectedProfessional.lastname}`.trim()
+            : "",
+        specialty:
+          selectedProfessional?.specialty ||
+          "",
+      };
 
+      setMessage("");
       setStartTime("");
       setDate("");
       setNotes("");
@@ -477,7 +494,7 @@ function ReservaTurno({
 
       if (onAppointmentCreated) {
         onAppointmentCreated(
-          data.appointment,
+          confirmation,
         );
       }
     } catch (requestError) {

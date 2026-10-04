@@ -60,6 +60,11 @@
 ## Reserva pública
 - Al reservar, se crea o reutiliza una ficha en `patients` vinculada al usuario y se guarda `appointments.patient_record_id`.
 - Siguen existiendo `patient_id` (usuario) y `patient_record_id` (ficha). No se unificó la relación.
+- Después de reservar, Mis turnos abre con una ficha grande: fecha, hora, servicio, duración, profesional y especialidad. El aviso chico de una línea no es la confirmación.
+
+## Confirmación del turno
+- La confirmación usa los datos que el paciente acaba de elegir.
+- Al volver a Mis turnos desde el menú, esa ficha se cierra. El turno sigue en Próximos turnos, con las mismas etiquetas.
 
 ## Acceso profesional
 - Si un profesional vinculado está inactivo, su login se rechaza.

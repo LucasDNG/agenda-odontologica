@@ -124,6 +124,11 @@ function TurnosApp() {
   ] = useState("");
 
   const [
+    confirmedTurn,
+    setConfirmedTurn,
+  ] = useState(null);
+
+  const [
     cancellingAppointmentId,
     setCancellingAppointmentId,
   ] = useState(null);
@@ -416,6 +421,8 @@ function TurnosApp() {
         null,
       );
 
+      setConfirmedTurn(null);
+
       setSection(
         "booking",
       );
@@ -474,9 +481,13 @@ function TurnosApp() {
     };
 
   const handleAppointmentCreated =
-    async () => {
+    async (confirmation) => {
+      setConfirmedTurn(
+        confirmation || null,
+      );
+
       setAppointmentMessage(
-        "Turno reservado correctamente.",
+        "",
       );
 
       await loadAppointments();
@@ -496,6 +507,8 @@ function TurnosApp() {
     setAppointmentMessage(
       "",
     );
+
+    setConfirmedTurn(null);
 
     setAppointmentToCancel(
       appointment,
@@ -587,6 +600,8 @@ function TurnosApp() {
       "",
     );
 
+    setConfirmedTurn(null);
+
     setAppointmentError(
       "",
     );
@@ -605,6 +620,8 @@ function TurnosApp() {
       setAppointmentMessage(
         "",
       );
+
+      setConfirmedTurn(null);
 
       await loadAppointments();
     };
@@ -1040,6 +1057,92 @@ function TurnosApp() {
             </button>
           </div>
 
+          {confirmedTurn && (
+            <section className="patient-confirmation">
+              <div className="patient-confirmation-head">
+                <div
+                  className="patient-confirmation-mark"
+                  aria-hidden="true"
+                >
+                  ✓
+                </div>
+
+                <div>
+                  <p className="patient-eyebrow">
+                    Reserva lista
+                  </p>
+
+                  <h2>
+                    Turno confirmado
+                  </h2>
+
+                  <p>
+                    Quedó guardado. Estos son los datos.
+                  </p>
+                </div>
+              </div>
+
+              <div className="patient-confirmation-grid">
+                <div>
+                  <span>
+                    Fecha
+                  </span>
+                  <strong>
+                    {confirmedTurn.date}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Hora
+                  </span>
+                  <strong>
+                    {confirmedTurn.time}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Servicio
+                  </span>
+                  <strong>
+                    {confirmedTurn.service}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Duración
+                  </span>
+                  <strong>
+                    {confirmedTurn.duration
+                      ? `${confirmedTurn.duration} min`
+                      : "—"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Profesional
+                  </span>
+                  <strong>
+                    {confirmedTurn.professional}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Especialidad
+                  </span>
+                  <strong>
+                    {confirmedTurn.specialty ||
+                      "—"}
+                  </strong>
+                </div>
+              </div>
+            </section>
+          )}
+
           {appointmentMessage && (
             <p className="patient-appointments-success">
               {
@@ -1142,35 +1245,50 @@ function TurnosApp() {
                               </span>
                             </div>
 
-                            {appointment.professional_name && (
-                              <p>
-                                🦷{" "}
-                                {
-                                  appointment.professional_name
-                                }{" "}
-                                {
-                                  appointment.professional_lastname
-                                }
-                              </p>
-                            )}
+                            <dl className="patient-appointment-details">
+                              {appointment.professional_name && (
+                                <div>
+                                  <dt>
+                                    Profesional
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.professional_name
+                                    }{" "}
+                                    {
+                                      appointment.professional_lastname
+                                    }
+                                  </dd>
+                                </div>
+                              )}
 
-                            {appointment.professional_specialty && (
-                              <p>
-                                {
-                                  appointment.professional_specialty
-                                }
-                              </p>
-                            )}
+                              {appointment.professional_specialty && (
+                                <div>
+                                  <dt>
+                                    Especialidad
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.professional_specialty
+                                    }
+                                  </dd>
+                                </div>
+                              )}
 
-                            {appointment.duration_minutes && (
-                              <span>
-                                Duración:{" "}
-                                {
-                                  appointment.duration_minutes
-                                }{" "}
-                                min
-                              </span>
-                            )}
+                              {appointment.duration_minutes && (
+                                <div>
+                                  <dt>
+                                    Duración
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.duration_minutes
+                                    }{" "}
+                                    min
+                                  </dd>
+                                </div>
+                              )}
+                            </dl>
 
                             {appointment.notes && (
                               <div className="patient-appointment-notes">
@@ -1267,25 +1385,50 @@ function TurnosApp() {
                               </span>
                             </div>
 
-                            {appointment.professional_name && (
-                              <p>
-                                🦷{" "}
-                                {
-                                  appointment.professional_name
-                                }{" "}
-                                {
-                                  appointment.professional_lastname
-                                }
-                              </p>
-                            )}
+                            <dl className="patient-appointment-details">
+                              {appointment.professional_name && (
+                                <div>
+                                  <dt>
+                                    Profesional
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.professional_name
+                                    }{" "}
+                                    {
+                                      appointment.professional_lastname
+                                    }
+                                  </dd>
+                                </div>
+                              )}
 
-                            {appointment.professional_specialty && (
-                              <p>
-                                {
-                                  appointment.professional_specialty
-                                }
-                              </p>
-                            )}
+                              {appointment.professional_specialty && (
+                                <div>
+                                  <dt>
+                                    Especialidad
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.professional_specialty
+                                    }
+                                  </dd>
+                                </div>
+                              )}
+
+                              {appointment.duration_minutes && (
+                                <div>
+                                  <dt>
+                                    Duración
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.duration_minutes
+                                    }{" "}
+                                    min
+                                  </dd>
+                                </div>
+                              )}
+                            </dl>
                           </div>
                         </article>
                       ),
