@@ -9,6 +9,7 @@ const phoneHref = (phone) =>
 function ClinicContact({
   className = "",
   titleTag = "h2",
+  children,
 }) {
   const [clinic, setClinic] =
     useState(null);
@@ -42,7 +43,7 @@ function ClinicContact({
   }, []);
 
   if (!clinic?.name) {
-    return null;
+    return children || null;
   }
 
   return (
@@ -50,10 +51,16 @@ function ClinicContact({
       className={`patient-clinic-card ${className}`.trim()}
     >
       {titleTag === "h1" ? (
-        <h1>{clinic.name}</h1>
+        <h1 className="patient-clinic-title">
+          {clinic.name}
+        </h1>
       ) : (
-        <h2>{clinic.name}</h2>
+        <h2 className="patient-clinic-title">
+          {clinic.name}
+        </h2>
       )}
+
+      {children}
 
       <dl>
         {clinic.address && (

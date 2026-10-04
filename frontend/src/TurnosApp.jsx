@@ -645,12 +645,11 @@ function TurnosApp() {
     return (
       <main className="patient-auth-page">
         <section className="patient-auth-card">
-          <div className="patient-auth-brand">
-            <div className="patient-auth-icon">
-              🦷
-            </div>
-
-            <div>
+          <ClinicContact
+            className="patient-auth-clinic"
+            titleTag="h1"
+          >
+            <div className="patient-auth-brand">
               <h2>
                 Agenda odontológica
               </h2>
@@ -660,13 +659,10 @@ function TurnosApp() {
               </h3>
 
               <p>
-                Reservá y consultá tus
-                turnos desde acá.
+                Reservá y consultá tus turnos desde acá.
               </p>
             </div>
-          </div>
-
-          <ClinicContact titleTag="h1" />
+          </ClinicContact>
 
           {mode ===
           "signin" ? (
