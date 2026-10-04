@@ -24,7 +24,7 @@ Construir una agenda odontológica genérica, reutilizable para distintos consul
 - Sobreturnos no bloquean los horarios públicos normales.
 - Estados operativos: programado/confirmado, atendido, ausente, cancelado.
 - WhatsApp: alta, cancelación, reprogramación, restauración y recordatorio.
-- Fechas visibles: DD/MM/YYYY.
+- Fechas visibles: DD/MM/YYYY. En la reserva pública el día se muestra así aunque el navegador esté en inglés.
 - No guardar secretos ni `.env` en Git.
 
 ## Forma de trabajo

@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -73,6 +74,9 @@ function ReservaTurno({
 
   const [error, setError] =
     useState("");
+
+  const dateInputRef =
+    useRef(null);
 
   useEffect(() => {
     const loadAppointmentTypes =
@@ -513,19 +517,29 @@ function ReservaTurno({
               </div>
             </div>
 
-            <input
-              className="booking-date-input"
-              type="date"
-              min={today}
-              value={date}
-              onChange={(event) => {
-                setDate(
-                  event.target.value,
-                );
+            <div className="booking-date-field">
+              <span className="booking-date-display">
+                {date
+                  ? formatDate(date)
+                  : "DD/MM/AAAA"}
+              </span>
 
-                setStartTime("");
-              }}
-            />
+              <input
+                ref={dateInputRef}
+                className="booking-date-native"
+                type="date"
+                min={today}
+                value={date}
+                aria-label="Fecha del turno"
+                onChange={(event) => {
+                  setDate(
+                    event.target.value,
+                  );
+
+                  setStartTime("");
+                }}
+              />
+            </div>
           </div>
         )}
 
