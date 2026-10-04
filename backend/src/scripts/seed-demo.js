@@ -61,12 +61,15 @@ const seedDemo = async () => {
         )
         VALUES ($1, $2, $3, $4, $5, 'dentist')
         ON CONFLICT (email) DO UPDATE
-          SET role = 'dentist'
+          SET
+            role = 'dentist',
+            name = EXCLUDED.name,
+            lastname = EXCLUDED.lastname
         RETURNING id
       `,
       [
-        "Ana",
-        "Demo",
+        "Laura",
+        "Guilenia",
         "ana.demo@example.com",
         passwordHash,
         "1140000001",
@@ -100,12 +103,23 @@ const seedDemo = async () => {
               specialty,
               active
             )
-            VALUES ($1, $2, 'Ana', 'Demo', '1140000001', $3, 'Odontología general', TRUE)
+            VALUES ($1, $2, 'Laura', 'Guilenia', '1140000001', $3, 'Odontología general', TRUE)
             RETURNING id
           `,
           [clinicId, dentistUserId, "ana.demo@example.com"],
         )
       ).rows[0].id;
+
+    await client.query(
+      `
+        UPDATE professionals
+        SET
+          name = 'Laura',
+          lastname = 'Guilenia'
+        WHERE id = $1
+      `,
+      [professionalId],
+    );
 
     const serviceNames = [
       ["Consulta", 30],

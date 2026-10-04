@@ -16,7 +16,9 @@
 - Reglas, fracciones, ajuste y el resto no tienen un botón propio. Entran en Otros.
 - Cada grupo dura 30 minutos en los datos de prueba. La odontóloga puede cambiar los minutos desde el panel.
 - La fecha de la reserva se elige en una semana visible. Sábado y domingo no se pueden elegir. Un día completo tampoco.
-- Laura es la primera odontóloga del consultorio. El programa no deja su nombre fijo en la pantalla.
+- La odontóloga de este consultorio es Laura Guilenia. Guilenia es el apellido.
+- Ese nombre está en los datos del profesional. La pantalla no lo tiene escrito fijo.
+- El panel sigue ingresando con `ana.demo@example.com` y `demo1234`.
 
 ## Pacientes y turnos
 - Mantener historial: cancelar no elimina.

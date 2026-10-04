@@ -22,15 +22,18 @@ WHERE NOT EXISTS (
 
 INSERT INTO users (name, lastname, email, password, phone, role)
 VALUES (
-  'Ana',
-  'Demo',
+  'Laura',
+  'Guilenia',
   'ana.demo@example.com',
   '$2b$10$ORjvCOqE4tM9C5dHk7T6TOTuoKcBmTxVwKwIJsZMi0YJA0BhgEJli',
   '1140000001',
   'dentist'
 )
 ON CONFLICT (email) DO UPDATE
-SET role = 'dentist';
+SET
+  role = 'dentist',
+  name = EXCLUDED.name,
+  lastname = EXCLUDED.lastname;
 
 INSERT INTO professionals (
   clinic_id,
@@ -45,8 +48,8 @@ INSERT INTO professionals (
 SELECT
   c.id,
   u.id,
-  'Ana',
-  'Demo',
+  'Laura',
+  'Guilenia',
   '1140000001',
   'ana.demo@example.com',
   'Odontología general',
@@ -57,6 +60,15 @@ WHERE c.name = 'Consultorio Demo'
   AND NOT EXISTS (
     SELECT 1 FROM professionals p WHERE p.user_id = u.id
   );
+
+UPDATE professionals
+SET
+  name = 'Laura',
+  lastname = 'Guilenia'
+WHERE email = 'ana.demo@example.com'
+   OR user_id IN (
+     SELECT id FROM users WHERE email = 'ana.demo@example.com'
+   );
 
 INSERT INTO appointment_types (name, duration_minutes, active)
 SELECT 'Consulta', 30, TRUE

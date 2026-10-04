@@ -1,7 +1,7 @@
 # Agenda Odontológica — Reglas del proyecto
 
 ## Objetivo
-Construir una agenda odontológica genérica, reutilizable para distintos consultorios. Laura/Diego son la primera configuración, no deben quedar hardcodeados como arquitectura del producto.
+Construir una agenda odontológica genérica, reutilizable para distintos consultorios. Laura Guilenia es la primera odontóloga: Guilenia es el apellido. Ese nombre es configuración del consultorio y no queda escrito fijo en la pantalla.
 
 ## Arquitectura
 - Backend: Node.js + Express.

@@ -46,6 +46,8 @@ Parámetros, en orden: paciente, consultorio, fecha, hora, servicio, profesional
 En local, sin token de Meta, el turno se confirma y la notificación queda registrada como fallida. Eso se probó. El envío real a WhatsApp no.
 
 ## Próximo paso
+La odontóloga de este consultorio es Laura Guilenia. Guilenia es el apellido. El nombre está en `backend/sql/005_odontologa.sql` y hay que ejecutarlo en Neon. Hasta entonces el sitio sigue mostrando el nombre anterior. El ingreso del panel no cambia.
+
 La confirmación de un turno reservado está en Mis turnos: una ficha grande con fecha, hora, servicio, duración, profesional y especialidad. Si el sitio publicado todavía muestra el aviso chico, falta que Render termine de publicar esta rama.
 
 La reserva pública tiene que mostrar Consulta, Ortodoncia y Otros. Eso está en `backend/sql/004_servicios.sql` y hay que ejecutarlo en Neon si todavía no se hizo. Cada grupo dura 30 minutos. Limpieza deja de ofrecerse. No dar por verificados Neon de producción ni WhatsApp hasta probarlos.

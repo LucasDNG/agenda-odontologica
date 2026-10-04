@@ -56,7 +56,7 @@ No se envió ningún mensaje a Meta. WhatsApp de producción no está verificado
 
 ## Datos demo
 No son clientes reales.
-- Odontólogo: `ana.demo@example.com` / `demo1234`
+- Odontóloga: Laura Guilenia. Ingreso del panel: `ana.demo@example.com` / `demo1234`
 - Paciente: DNI `30123456` / `demo1234`
 - Consultorio: Consultorio Demo
 
@@ -78,9 +78,16 @@ FRONTEND:
 - Próximos turnos e historial usan las mismas etiquetas.
 - Se revisó en el navegador local. El sitio publicado cambia cuando Render termina de publicar esta rama. Desde acá no se abrió el sitio de Render para esta ficha.
 
+## Nombre de la odontóloga
+BASE DE DATOS:
+- El profesional que ve el paciente pasa a llamarse Laura Guilenia. Guilenia es el apellido.
+- El cambio está en `backend/sql/005_odontologa.sql`. En Neon todavía no se ejecutó desde acá.
+- El ingreso del panel sigue siendo `ana.demo@example.com` / `demo1234`.
+
 ## Pendiente inmediato
-1. Ejecutar `backend/sql/003_dni_login.sql` en la conexión nueva de Neon, con Alt+X, si todavía no se ejecutó.
-2. Ejecutar `backend/sql/004_servicios.sql` en esa misma conexión y recargar la reserva.
-3. Probar el ingreso del paciente demo con DNI `30123456` y contraseña `demo1234`.
-4. Cargar token, phone number id y plantillas aprobadas de Meta en el sitio, no en la computadora.
-5. Repetir un turno con un teléfono real y revisar que `whatsapp_notifications.status` pase a `sent`.
+1. Ejecutar `backend/sql/005_odontologa.sql` en la conexión de Neon, con Alt+X, y recargar el sitio.
+2. Ejecutar `backend/sql/003_dni_login.sql` en la conexión nueva de Neon, con Alt+X, si todavía no se ejecutó.
+3. Ejecutar `backend/sql/004_servicios.sql` en esa misma conexión y recargar la reserva.
+4. Probar el ingreso del paciente demo con DNI `30123456` y contraseña `demo1234`.
+5. Cargar token, phone number id y plantillas aprobadas de Meta en el sitio, no en la computadora.
+6. Repetir un turno con un teléfono real y revisar que `whatsapp_notifications.status` pase a `sent`.
