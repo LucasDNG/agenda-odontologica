@@ -69,8 +69,12 @@ BACKEND / FRONTEND / BASE DE DATOS:
 - `backend/sql/003_dni_login.sql` agrega `users.dni` y carga el DNI ficticio del paciente demo.
 - El panel `/odontologo` sigue pidiendo email.
 
+## Servicios de la reserva
+El paciente ve tres grupos de 30 minutos: Consulta, Ortodoncia y Otros. Reglas, fracciones y ajuste no tienen botón propio. El cambio en el sitio que ya está publicado depende de ejecutar `backend/sql/004_servicios.sql` en Neon.
+
 ## Pendiente inmediato
-1. Ejecutar `backend/sql/003_dni_login.sql` en la conexión nueva de Neon, con Alt+X.
+1. Ejecutar `backend/sql/003_dni_login.sql` en la conexión nueva de Neon, con Alt+X, si todavía no se ejecutó.
+2. Ejecutar `backend/sql/004_servicios.sql` en esa misma conexión.
 2. Publicar este cambio en el servicio de Render que ya está Live.
 3. Probar el ingreso del paciente demo con DNI `30123456` y contraseña `demo1234`.
 4. Cargar token, phone number id y plantillas aprobadas de Meta en el sitio, no en la computadora.

@@ -46,7 +46,7 @@ Parámetros, en orden: paciente, consultorio, fecha, hora, servicio, profesional
 En local, sin token de Meta, el turno se confirma y la notificación queda registrada como fallida. Eso se probó. El envío real a WhatsApp no.
 
 ## Próximo paso
-El portal de pacientes ingresa con DNI. Falta ejecutar `backend/sql/003_dni_login.sql` en Neon y publicar ese cambio en el sitio que ya está Live. Recién después probar el paciente demo (DNI `30123456`, contraseña `demo1234`). El panel del odontólogo sigue con email. No dar por verificados Neon de producción ni WhatsApp hasta probarlos. La limpieza de `TECH_DEBT.md` sigue después de esa estabilidad.
+La reserva pública tiene que mostrar Consulta, Ortodoncia y Otros. Eso está en `backend/sql/004_servicios.sql` y hay que ejecutarlo en Neon. Cada grupo dura 30 minutos. Limpieza deja de ofrecerse. No dar por verificados Neon de producción ni WhatsApp hasta probarlos.
 
 ## Importante
 No depender sólo de memoria o historial del chat. Si hay contradicción, revisar GitHub y documentar la decisión nueva en Markdown. No guardar secretos ni datos reales de clientes.

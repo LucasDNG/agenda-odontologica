@@ -16,6 +16,7 @@ Construir una agenda odontológica genérica, reutilizable para distintos consul
 - El paciente ingresa con DNI argentino (7 u 8 números) y contraseña.
 - Panel profesional/admin en `/odontologo`. Ese ingreso sigue usando el email de acceso.
 - Los turnos normales se reservan sin confirmación manual.
+- En la reserva pública el paciente elige entre Consulta, Ortodoncia y Otros.
 - Límite de turnos activos por paciente configurable en `clinics`.
 - Los turnos cancelados no se eliminan.
 - Restaurar: horario original si está libre; si no, próximo libre del día; si no, sobreturno.

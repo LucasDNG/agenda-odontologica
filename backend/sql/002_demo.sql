@@ -65,15 +65,25 @@ WHERE NOT EXISTS (
 );
 
 INSERT INTO appointment_types (name, duration_minutes, active)
-SELECT 'Limpieza', 45, TRUE
+SELECT 'Ortodoncia', 30, TRUE
 WHERE NOT EXISTS (
-  SELECT 1 FROM appointment_types WHERE LOWER(name) = 'limpieza'
+  SELECT 1 FROM appointment_types WHERE LOWER(name) = 'ortodoncia'
 );
+
+INSERT INTO appointment_types (name, duration_minutes, active)
+SELECT 'Otros', 30, TRUE
+WHERE NOT EXISTS (
+  SELECT 1 FROM appointment_types WHERE LOWER(name) = 'otros'
+);
+
+UPDATE appointment_types
+SET active = FALSE
+WHERE LOWER(name) = 'limpieza';
 
 INSERT INTO professional_services (professional_id, appointment_type_id)
 SELECT p.id, at.id
 FROM professionals p
-JOIN appointment_types at ON LOWER(at.name) IN ('consulta', 'limpieza')
+JOIN appointment_types at ON LOWER(at.name) IN ('consulta', 'ortodoncia', 'otros')
 WHERE p.email = 'ana.demo@example.com'
 ON CONFLICT DO NOTHING;
 

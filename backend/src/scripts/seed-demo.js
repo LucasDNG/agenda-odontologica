@@ -109,7 +109,8 @@ const seedDemo = async () => {
 
     const serviceNames = [
       ["Consulta", 30],
-      ["Limpieza", 45],
+      ["Ortodoncia", 30],
+      ["Otros", 30],
     ];
 
     for (const [name, duration] of serviceNames) {
@@ -157,6 +158,12 @@ const seedDemo = async () => {
         [professionalId, serviceId],
       );
     }
+
+    await client.query(`
+      UPDATE appointment_types
+      SET active = FALSE
+      WHERE LOWER(name) = 'limpieza'
+    `);
 
     const existingAvailability = await client.query(
       `
