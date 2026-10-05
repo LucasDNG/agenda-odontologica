@@ -157,7 +157,10 @@
 }
 
 .agenda-date-empty {
-  margin-top: 2px;
+  margin-top: 6px;
+  color: var(--text-main);
+  font-size: 15px;
+  font-weight: 650;
 }
 
 .agenda-date-navigation
