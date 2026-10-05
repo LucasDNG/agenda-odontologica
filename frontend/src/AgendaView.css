@@ -148,9 +148,16 @@
   color: var(--text-main);
 }
 
-.agenda-date-navigation span {
+.agenda-date-navigation span,
+.agenda-date-empty {
   color: var(--text-soft);
-  font-size: 12px;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.agenda-date-empty {
+  margin-top: 2px;
 }
 
 .agenda-date-navigation

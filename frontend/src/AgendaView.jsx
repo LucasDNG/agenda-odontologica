@@ -837,6 +837,14 @@ function AgendaView({
                   selectedDateDisplay
                 }
               </span>
+
+              {!loading &&
+                dayAppointments.length ===
+                  0 && (
+                  <em className="agenda-date-empty">
+                    No hay turnos para este día.
+                  </em>
+                )}
             </>
           ) : (
             <>
@@ -924,12 +932,8 @@ function AgendaView({
 
           {dayAppointments.length ===
           0 ? (
-            <div className="empty-state agenda-empty-day">
-              <strong>
-                No hay turnos para este día.
-              </strong>
-
-              {nextAppointment && (
+            nextAppointment && (
+              <div className="agenda-empty-day">
                 <div className="agenda-next-appointment">
                   <span>
                     Próximo turno
@@ -973,8 +977,8 @@ function AgendaView({
                     Ver ese día
                   </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )
           ) : (
             <div className="agenda-day-list">
               {dayAppointments.map(
