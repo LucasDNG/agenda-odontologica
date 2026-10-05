@@ -39,6 +39,15 @@ const isValidTime = (time) =>
     time,
   );
 
+const isPositiveInteger = (value) => {
+  const number = Number(value);
+
+  return (
+    Number.isInteger(number) &&
+    number > 0
+  );
+};
+
 const getDayOfWeek = (
   date,
 ) => {
@@ -361,6 +370,469 @@ export const getAllAppointments =
         message:
           "Error al obtener los turnos",
       });
+    }
+  };
+
+export const createAssignedAppointment =
+  async (req, res) => {
+    const client =
+      await pool.connect();
+
+    try {
+      const {
+        patientId,
+        professionalId,
+        appointmentTypeId,
+        date,
+        startTime,
+        notes,
+      } = req.body;
+
+      if (
+        !patientId ||
+        !professionalId ||
+        !appointmentTypeId ||
+        !date ||
+        !startTime
+      ) {
+        return res.status(400).json({
+          message:
+            "Debes indicar paciente, profesional, servicio, fecha y horario",
+        });
+      }
+
+      if (
+        !isPositiveInteger(
+          patientId,
+        ) ||
+        !isPositiveInteger(
+          professionalId,
+        ) ||
+        !isPositiveInteger(
+          appointmentTypeId,
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "El paciente, el profesional o el servicio no es válido",
+        });
+      }
+
+      if (
+        !isValidDate(date)
+      ) {
+        return res.status(400).json({
+          message:
+            "La fecha debe tener formato YYYY-MM-DD",
+        });
+      }
+
+      if (
+        !isValidTime(
+          startTime,
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "El horario debe tener formato HH:MM",
+        });
+      }
+
+      const selectedDateTime =
+        new Date(
+          `${date}T${startTime}:00`,
+        );
+
+      if (
+        Number.isNaN(
+          selectedDateTime.getTime(),
+        ) ||
+        selectedDateTime <=
+          new Date()
+      ) {
+        return res.status(400).json({
+          message:
+            "No se puede asignar un turno en una fecha u horario pasado",
+        });
+      }
+
+      await client.query(
+        "BEGIN",
+      );
+
+      const patientResult =
+        await client.query(
+          `
+            SELECT
+              id,
+              user_id,
+              name,
+              lastname,
+              phone,
+              email
+
+            FROM patients
+
+            WHERE id = $1
+              AND active = TRUE
+          `,
+          [patientId],
+        );
+
+      if (
+        patientResult.rows
+          .length === 0
+      ) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        return res.status(404).json({
+          message:
+            "Paciente no encontrado",
+        });
+      }
+
+      const patient =
+        patientResult.rows[0];
+
+      const serviceResult =
+        await client.query(
+          `
+            SELECT
+              p.id
+                AS professional_id,
+              p.name
+                AS professional_name,
+              p.lastname
+                AS professional_lastname,
+              at.id
+                AS appointment_type_id,
+              at.name
+                AS service_name,
+              at.duration_minutes
+
+            FROM professionals p
+
+            JOIN professional_services ps
+              ON ps.professional_id = p.id
+
+            JOIN appointment_types at
+              ON at.id = ps.appointment_type_id
+
+            WHERE p.id = $1
+              AND at.id = $2
+              AND p.active = TRUE
+              AND at.active = TRUE
+          `,
+          [
+            professionalId,
+            appointmentTypeId,
+          ],
+        );
+
+      if (
+        serviceResult.rows
+          .length === 0
+      ) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        return res.status(400).json({
+          message:
+            "El profesional seleccionado no realiza ese servicio",
+        });
+      }
+
+      const service =
+        serviceResult.rows[0];
+
+      const duration =
+        Number(
+          service.duration_minutes,
+        );
+
+      const startMinutes =
+        timeToMinutes(
+          startTime,
+        );
+
+      const endMinutes =
+        startMinutes +
+        duration;
+
+      if (
+        startMinutes < 0 ||
+        endMinutes > 24 * 60
+      ) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        return res.status(400).json({
+          message:
+            "El horario no es válido",
+        });
+      }
+
+      const endTime =
+        minutesToTime(
+          endMinutes,
+        );
+
+      const blockedDateResult =
+        await client.query(
+          `
+            SELECT reason
+            FROM blocked_dates
+            WHERE date = $1
+            LIMIT 1
+          `,
+          [date],
+        );
+
+      if (
+        blockedDateResult.rows
+          .length > 0
+      ) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        return res.status(400).json({
+          message:
+            "La fecha seleccionada no está disponible",
+        });
+      }
+
+      const availabilityResult =
+        await client.query(
+          `
+            SELECT
+              start_time,
+              end_time
+
+            FROM availability
+
+            WHERE professional_id = $1
+              AND day_of_week = $2
+              AND active = TRUE
+          `,
+          [
+            professionalId,
+            getDayOfWeek(date),
+          ],
+        );
+
+      const fitsSlot =
+        availabilityResult.rows.some(
+          (availability) => {
+            const availabilityStart =
+              timeToMinutes(
+                availability.start_time,
+              );
+
+            const availabilityEnd =
+              timeToMinutes(
+                availability.end_time,
+              );
+
+            return (
+              startMinutes >=
+                availabilityStart &&
+              endMinutes <=
+                availabilityEnd &&
+              (startMinutes -
+                availabilityStart) %
+                duration ===
+                0
+            );
+          },
+        );
+
+      if (!fitsSlot) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        return res.status(400).json({
+          message:
+            "El horario seleccionado no está disponible",
+        });
+      }
+
+      const duplicateResult =
+        await client.query(
+          `
+            SELECT id
+
+            FROM appointments
+
+            WHERE status IN (
+              'scheduled',
+              'confirmed'
+            )
+              AND appointment_date = $1
+              AND start_time = $2
+              AND (
+                patient_record_id = $3
+                OR (
+                  $4::INTEGER IS NOT NULL
+                  AND patient_id = $4
+                )
+              )
+
+            LIMIT 1
+          `,
+          [
+            date,
+            startTime,
+            patient.id,
+            patient.user_id,
+          ],
+        );
+
+      if (
+        duplicateResult.rows
+          .length > 0
+      ) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        return res.status(409).json({
+          message:
+            "Ese paciente ya tiene un turno en ese horario.",
+        });
+      }
+
+      const overlapping =
+        await hasAppointmentConflict(
+          {
+            client,
+            professionalId,
+            date,
+            startTime,
+            endTime,
+          },
+        );
+
+      if (overlapping) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        return res.status(409).json({
+          message:
+            "Ese horario ya no está disponible",
+        });
+      }
+
+      const result =
+        await client.query(
+          `
+            INSERT INTO appointments
+            (
+              patient_id,
+              patient_record_id,
+              professional_id,
+              appointment_type_id,
+              appointment_date,
+              start_time,
+              end_time,
+              notes,
+              is_overbooked
+            )
+
+            VALUES
+            (
+              $1,
+              $2,
+              $3,
+              $4,
+              $5,
+              $6,
+              $7,
+              $8,
+              FALSE
+            )
+
+            RETURNING
+              id,
+              patient_id,
+              patient_record_id,
+              professional_id,
+              appointment_type_id,
+
+              TO_CHAR(
+                appointment_date,
+                'DD/MM/YYYY'
+              ) AS appointment_date,
+
+              start_time,
+              end_time,
+              status,
+              notes,
+              is_overbooked,
+              created_at
+          `,
+          [
+            patient.user_id ||
+              null,
+            patient.id,
+            professionalId,
+            appointmentTypeId,
+            date,
+            startTime,
+            endTime,
+            notes?.trim() ||
+              null,
+          ],
+        );
+
+      await client.query(
+        "COMMIT",
+      );
+
+      return res.status(201).json({
+        message:
+          "Turno asignado correctamente",
+
+        appointment:
+          result.rows[0],
+
+        patient,
+
+        service:
+          service.service_name,
+
+        professional: {
+          id: Number(
+            service.professional_id,
+          ),
+          name:
+            service.professional_name,
+          lastname:
+            service.professional_lastname,
+        },
+      });
+    } catch (error) {
+      await client.query(
+        "ROLLBACK",
+      );
+
+      console.error(
+        "Error asignando turno:",
+        error,
+      );
+
+      return res.status(500).json({
+        message:
+          "Error al asignar el turno",
+      });
+    } finally {
+      client.release();
     }
   };
 

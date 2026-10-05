@@ -16,8 +16,10 @@ const getNotificationType = (
 
   if (
     req.method === "POST" &&
-    req.path ===
-      "/admin/appointments/overbooked"
+    (req.path ===
+      "/admin/appointments" ||
+      req.path ===
+        "/admin/appointments/overbooked")
   ) {
     return NOTIFICATION_TYPES.CREATED;
   }

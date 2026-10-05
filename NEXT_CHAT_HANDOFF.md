@@ -48,7 +48,7 @@ Parámetros, en orden: paciente, consultorio, fecha, hora, servicio, profesional
 En local, sin token de Meta, el turno se confirma y la notificación queda registrada como fallida. Eso se probó. El envío real a WhatsApp no.
 
 ## Próximo paso
-El portal del paciente muestra el nombre, la calle, el teléfono y el email que se guardan en Configuración. En el ingreso, ese nombre es la primera línea de una carta con cabecera, filas de contacto y el formulario debajo. El resto de las pantallas usa esa misma carta. En la agenda del panel, un día sin turnos lo dice en la barra de la fecha. La ficha de abajo dice Siguiente día con turno y se puede abrir.
+El portal del paciente muestra el nombre, la calle, el teléfono y el email que se guardan en Configuración. En el ingreso, ese nombre es la primera línea de una carta con cabecera, filas de contacto y el formulario debajo. El resto de las pantallas usa esa misma carta. En la agenda del panel, un día sin turnos lo dice en la barra de la fecha. La ficha de abajo dice Siguiente día con turno y se puede abrir. El odontólogo también asigna turnos en horarios libres, con el botón Turno. El sobreturno queda para un horario ocupado.
 
 La odontóloga de este consultorio es Laura Guilenia. Guilenia es el apellido. El ingreso del panel usa el email y la contraseña cargados en Neon. Esa contraseña no está en el repositorio.
 

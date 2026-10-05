@@ -169,6 +169,7 @@ function AgendaView({
   updatingAppointmentId,
   onUpdateStatus,
   onRefresh,
+  onCreateAppointment,
   onCreateOverbooked,
 }) {
   const [view, setView] =
@@ -709,6 +710,16 @@ function AgendaView({
         </div>
 
         <div className="agenda-heading-actions">
+          <button
+            type="button"
+            className="overbooked-create-button"
+            onClick={
+              onCreateAppointment
+            }
+          >
+            + Turno
+          </button>
+
           <button
             type="button"
             className="overbooked-create-button"

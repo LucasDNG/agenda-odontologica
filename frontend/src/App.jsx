@@ -7,6 +7,7 @@ import AgendaView from "./AgendaView";
 import BrandMark from "./BrandMark";
 import CancelledAppointments from "./CancelledAppointments";
 import Configuration from "./Configuration";
+import AssignAppointment from "./AssignAppointment";
 import OverbookedAppointment from "./OverbookedAppointment";
 import "./App.css";
 
@@ -54,6 +55,11 @@ function App() {
     updatingAppointmentId,
     setUpdatingAppointmentId,
   ] = useState(null);
+
+  const [
+    showAssignModal,
+    setShowAssignModal,
+  ] = useState(false);
 
   const [
     showOverbookedModal,
@@ -257,6 +263,10 @@ function App() {
       setAppointments([]);
       setConsultations([]);
 
+      setShowAssignModal(
+        false,
+      );
+
       setShowOverbookedModal(
         false,
       );
@@ -309,6 +319,15 @@ function App() {
           false,
         );
       }
+    };
+
+  const handleAssignedCreated =
+    async () => {
+      await loadAppointments();
+
+      setAppointmentMessage(
+        "Turno asignado correctamente.",
+      );
     };
 
   const handleOverbookedCreated =
@@ -760,10 +779,29 @@ function App() {
               onRefresh={
                 loadAppointments
               }
+              onCreateAppointment={() =>
+                setShowAssignModal(
+                  true,
+                )
+              }
               onCreateOverbooked={() =>
                 setShowOverbookedModal(
                   true,
                 )
+              }
+            />
+
+            <AssignAppointment
+              open={
+                showAssignModal
+              }
+              onClose={() =>
+                setShowAssignModal(
+                  false,
+                )
+              }
+              onCreated={
+                handleAssignedCreated
               }
             />
 
