@@ -95,7 +95,7 @@ FRONTEND:
 ## Agenda del consultorio
 FRONTEND:
 - Si el día que está abierto no tiene turnos, eso se lee en la barra de la fecha. La ficha de abajo dice Siguiente día con turno.
-- Arriba de Sobreturno está Turno. Se puede escribir un nombre solo para ese turno, o guardar al paciente. El nombre suelto no queda en la lista de pacientes.
+- En Turno, al elegir el día se ve la agenda de ese día: los pacientes hacia abajo, el horario libre cada media hora y, en el medio, Agregar sobreturno.
 - En Sobreturno, la hora muestra los pacientes del día. Entre uno y otro está Agregar sobreturno.
 
 ## Pendiente inmediato

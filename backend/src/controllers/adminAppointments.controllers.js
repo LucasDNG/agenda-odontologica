@@ -388,7 +388,11 @@ export const createAssignedAppointment =
         date,
         startTime,
         notes,
+        overbooked,
       } = req.body;
+
+      const asOverbooked =
+        overbooked === true;
 
       const visitName =
         typeof guestName ===
@@ -738,7 +742,10 @@ export const createAssignedAppointment =
           },
         );
 
-      if (!fitsSlot) {
+      if (
+        !asOverbooked &&
+        !fitsSlot
+      ) {
         await client.query(
           "ROLLBACK",
         );
@@ -805,7 +812,10 @@ export const createAssignedAppointment =
           },
         );
 
-      if (overlapping) {
+      if (
+        !asOverbooked &&
+        overlapping
+      ) {
         await client.query(
           "ROLLBACK",
         );
@@ -815,6 +825,15 @@ export const createAssignedAppointment =
             "Ese horario ya no está disponible",
         });
       }
+
+      const delayMinutes =
+        asOverbooked
+          ? Math.max(
+              duration -
+                OVERBOOKED_SLOT_MINUTES,
+              0,
+            )
+          : 0;
 
       const result =
         await client.query(
@@ -829,7 +848,8 @@ export const createAssignedAppointment =
               start_time,
               end_time,
               notes,
-              is_overbooked
+              is_overbooked,
+              delay_minutes
             )
 
             VALUES
@@ -842,7 +862,8 @@ export const createAssignedAppointment =
               $6,
               $7,
               $8,
-              FALSE
+              $9,
+              $10
             )
 
             RETURNING
@@ -875,6 +896,8 @@ export const createAssignedAppointment =
             endTime,
             notes?.trim() ||
               null,
+            asOverbooked,
+            delayMinutes,
           ],
         );
 
@@ -884,7 +907,9 @@ export const createAssignedAppointment =
 
       return res.status(201).json({
         message:
-          "Turno asignado correctamente",
+          asOverbooked
+            ? "Sobreturno creado correctamente"
+            : "Turno asignado correctamente",
 
         appointment:
           result.rows[0],

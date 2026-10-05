@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./OverbookedAppointment.css";
 import "./ReservaTurno.css";
+import "./AppointmentDatePicker.css";
 
 const API_URL = "/api";
 
@@ -47,6 +48,83 @@ const formatDate = (date) => {
   return `${day}/${month}/${year}`;
 };
 
+const timeToMinutes = (time) => {
+  const [hours, minutes] = String(time || "")
+    .slice(0, 5)
+    .split(":")
+    .map(Number);
+
+  return hours * 60 + minutes;
+};
+
+const minutesToTime = (total) => {
+  const hours = Math.floor(total / 60);
+  const minutes = total % 60;
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+};
+
+const buildDayTimeline = (appointments, freeSlots) => {
+  const byTime = new Map();
+
+  appointments.forEach((appointment) => {
+    const time = String(appointment.start_time || "").slice(0, 5);
+
+    if (!time) {
+      return;
+    }
+
+    byTime.set(time, {
+      kind: "appointment",
+      time,
+      minutes: timeToMinutes(time),
+      appointment,
+    });
+  });
+
+  freeSlots.forEach((slot) => {
+    if (byTime.has(slot.startTime)) {
+      return;
+    }
+
+    byTime.set(slot.startTime, {
+      kind: "free",
+      time: slot.startTime,
+      minutes: timeToMinutes(slot.startTime),
+    });
+  });
+
+  const rows = [...byTime.values()].sort(
+    (left, right) => left.minutes - right.minutes,
+  );
+  const timeline = [];
+
+  rows.forEach((row, index) => {
+    timeline.push(row);
+
+    const next = rows[index + 1];
+
+    if (!next || next.minutes - row.minutes !== 30) {
+      return;
+    }
+
+    const middle = row.minutes + 15;
+    const middleTime = minutesToTime(middle);
+
+    if (byTime.has(middleTime)) {
+      return;
+    }
+
+    timeline.push({
+      kind: "sobreturno",
+      time: middleTime,
+      minutes: middle,
+    });
+  });
+
+  return timeline;
+};
+
 const emptyPatientForm = {
   name: "",
   lastname: "",
@@ -62,6 +140,8 @@ function AssignAppointment({
   const [appointmentTypes, setAppointmentTypes] = useState([]);
   const [professionals, setProfessionals] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [agendaAppointments, setAgendaAppointments] = useState([]);
+  const [slotKind, setSlotKind] = useState("turno");
   const [weekDays, setWeekDays] = useState([]);
   const [weekOffset, setWeekOffset] = useState(0);
   const [appointmentTypeId, setAppointmentTypeId] = useState("");
@@ -92,6 +172,8 @@ function AssignAppointment({
     setAppointmentTypes([]);
     setProfessionals([]);
     setAvailableSlots([]);
+    setAgendaAppointments([]);
+    setSlotKind("turno");
     setWeekDays([]);
     setWeekOffset(0);
     setAppointmentTypeId("");
@@ -147,6 +229,29 @@ function AssignAppointment({
     };
 
     loadServices();
+
+    const loadAgenda = async () => {
+      try {
+        const response = await fetch(`${API_URL}/admin/appointments`, {
+          credentials: "include",
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "No se pudo cargar la agenda");
+        }
+
+        if (!cancelled) {
+          setAgendaAppointments(data.appointments || []);
+        }
+      } catch (requestError) {
+        if (!cancelled) {
+          setError(requestError.message);
+        }
+      }
+    };
+
+    loadAgenda();
 
     return () => {
       cancelled = true;
@@ -305,6 +410,7 @@ function AssignAppointment({
     if (!open || !appointmentTypeId || !professionalId || !date) {
       setAvailableSlots([]);
       setStartTime("");
+      setSlotKind("turno");
       return undefined;
     }
 
@@ -314,6 +420,7 @@ function AssignAppointment({
       setLoadingSlots(true);
       setAvailableSlots([]);
       setStartTime("");
+      setSlotKind("turno");
 
       try {
         const params = new URLSearchParams({
@@ -366,6 +473,16 @@ function AssignAppointment({
       cancelled = true;
     };
   }, [open, appointmentTypeId, professionalId, date]);
+
+  useEffect(() => {
+    if (!open || !date || loadingSlots) {
+      return;
+    }
+
+    document
+      .querySelector(".assign-day-timeline")
+      ?.scrollIntoView({ block: "nearest" });
+  }, [open, date, loadingSlots, availableSlots.length]);
 
   const selectPatient = (patient) => {
     setSelectedPatient(patient);
@@ -448,6 +565,7 @@ function AssignAppointment({
           date,
           startTime,
           notes,
+          overbooked: slotKind === "sobreturno",
         }),
       });
       const data = await response.json();
@@ -469,6 +587,17 @@ function AssignAppointment({
   if (!open) {
     return null;
   }
+
+  const dayTimeline = buildDayTimeline(
+    agendaAppointments.filter((appointment) => {
+      return (
+        appointment.appointment_date === formatDate(date || "") &&
+        String(appointment.professional_id) === String(professionalId) &&
+        appointment.status !== "cancelled"
+      );
+    }),
+    date ? availableSlots : [],
+  );
 
   return (
     <div
@@ -871,36 +1000,95 @@ function AssignAppointment({
               <div className="booking-step-title">
                 <span>4</span>
                 <div>
-                  <h2>Horario</h2>
-                  <p>Horarios libres para {formatDate(date)}.</p>
+                  <h2>Ese día</h2>
+                  <p>
+                    Los turnos van cada media hora. El sobreturno queda en el medio.
+                  </p>
                 </div>
               </div>
 
               {loadingSlots ? (
-                <p className="booking-muted">Buscando horarios...</p>
+                <p className="booking-muted">Buscando el día...</p>
               ) : (
-                <div className="booking-times">
-                  {availableSlots.map((slot) => (
-                    <button
-                      type="button"
-                      key={slot.startTime}
-                      className={
-                        startTime === slot.startTime
-                          ? "booking-time selected"
-                          : "booking-time"
-                      }
-                      onClick={() => setStartTime(slot.startTime)}
-                    >
-                      {slot.startTime}
-                    </button>
-                  ))}
-                </div>
-              )}
+                <div className="day-timeline assign-day-timeline">
+                  {dayTimeline.map((row) => {
+                    if (row.kind === "appointment") {
+                      const appointment = row.appointment;
 
-              {!loadingSlots && availableSlots.length === 0 && (
-                <p className="booking-muted">
-                  No hay horarios libres para esta fecha.
-                </p>
+                      return (
+                        <article
+                          className="timeline-appointment"
+                          key={`appointment-${appointment.id}`}
+                        >
+                          <strong>{row.time}</strong>
+                          <div>
+                            <p>
+                              {appointment.patient_name}{" "}
+                              {appointment.patient_lastname || ""}
+                            </p>
+                            <span>
+                              {appointment.service || "Turno"}
+                              {appointment.is_overbooked ? " · Sobreturno" : ""}
+                            </span>
+                          </div>
+                        </article>
+                      );
+                    }
+
+                    if (row.kind === "sobreturno") {
+                      const selected =
+                        slotKind === "sobreturno" && startTime === row.time;
+
+                      return (
+                        <button
+                          type="button"
+                          key={`sobre-${row.time}`}
+                          className={
+                            selected
+                              ? "timeline-insert selected"
+                              : "timeline-insert"
+                          }
+                          onClick={() => {
+                            setSlotKind("sobreturno");
+                            setStartTime(row.time);
+                          }}
+                        >
+                          <span>+</span>
+                          Agregar sobreturno
+                          <small>{row.time}</small>
+                        </button>
+                      );
+                    }
+
+                    const selected =
+                      slotKind === "turno" && startTime === row.time;
+
+                    return (
+                      <button
+                        type="button"
+                        key={`libre-${row.time}`}
+                        className={
+                          selected
+                            ? "timeline-free selected"
+                            : "timeline-free"
+                        }
+                        onClick={() => {
+                          setSlotKind("turno");
+                          setStartTime(row.time);
+                        }}
+                      >
+                        <strong>{row.time}</strong>
+                        <span>Libre</span>
+                      </button>
+                    );
+                  })}
+
+                  {dayTimeline.length === 0 && (
+                    <p className="timeline-empty">
+                      Este día no tiene turnos ni horarios libres.
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           )}
@@ -938,7 +1126,11 @@ function AssignAppointment({
                 !startTime
               }
             >
-              {saving ? "Asignando..." : "Asignar turno"}
+              {saving
+                ? "Guardando..."
+                : slotKind === "sobreturno"
+                  ? "Agregar sobreturno"
+                  : "Asignar turno"}
             </button>
           </div>
         </form>

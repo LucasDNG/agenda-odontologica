@@ -298,10 +298,34 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-.timeline-empty {
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 14px;
+.timeline-free {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px dashed var(--blue-border);
+  border-radius: 14px;
+  background: white;
+  color: var(--text-main);
+  text-align: left;
+  cursor: pointer;
+}
+
+.timeline-free strong {
+  font-size: 16px;
+}
+
+.timeline-free span {
+  color: var(--blue);
+  font-weight: 650;
+}
+
+.timeline-free.selected {
+  border-style: solid;
+  border-color: var(--blue);
+  background: var(--blue-soft);
 }
 
 .time-grid {
