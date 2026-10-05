@@ -23,6 +23,7 @@
 - En Configuración, la odontóloga edita el nombre, la calle, el teléfono y el email del consultorio, además del máximo de turnos activos.
 - Esos cuatro datos se muestran en el portal del paciente, antes de ingresar y al reservar. El nombre va solo, sin repetir la palabra consultorio arriba.
 - En el ingreso, el nombre del consultorio va primero y es más grande que Agenda odontológica y que Turnos online. Esas tres líneas van juntas. La calle, el teléfono y el email van en filas con ícono, dentro de una carta diseñada.
+- El resto de las pantallas usa esa misma carta: cabecera suave, bloques blancos, campos y botón azul.
 - Si el día abierto en la agenda no tiene turnos, se muestra el próximo turno y se puede abrir ese día.
 
 ## Pacientes y turnos

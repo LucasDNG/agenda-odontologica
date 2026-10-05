@@ -1,0 +1,305 @@
+.patient-app,
+.admin-page,
+.login-page {
+  background:
+    radial-gradient(
+      70% 28% at 50% 0%,
+      #d7ebff 0%,
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg,
+      #f7fbff 0%,
+      #e7eef5 100%
+    );
+}
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+}
+
+.login-card {
+  width: min(100%, 440px);
+  padding: 0 0 22px;
+  overflow: hidden;
+  border: 1px solid rgba(207, 227, 246, 0.9);
+  border-radius: 28px;
+  background: white;
+  box-shadow:
+    0 24px 50px rgba(22, 50, 79, 0.1);
+}
+
+.login-identity {
+  padding: 28px 26px 22px;
+  background:
+    radial-gradient(
+      90% 140% at 100% 0%,
+      rgba(31, 120, 209, 0.18),
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      #e8f3ff 0%,
+      #ffffff 78%
+    );
+}
+
+.brand-mark,
+.login-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  color: var(--blue);
+  background: white;
+  box-shadow:
+    0 10px 24px rgba(31, 78, 121, 0.1);
+}
+
+.brand-mark svg,
+.login-mark svg {
+  width: 26px;
+  height: 26px;
+}
+
+.login-identity h1 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 34px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.login-identity p {
+  margin: 8px 0 0;
+  color: var(--text-soft);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.login-card .login-form {
+  gap: 14px;
+  margin: 0 22px;
+}
+
+.login-card .login-form label {
+  color: var(--text-soft);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.login-card .login-form input {
+  min-height: 48px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f7fafc;
+}
+
+.login-card .login-form button,
+.configuration-primary-button,
+.overbooked-create-button,
+.overbooked-save,
+.reprogram-save-button,
+.reply-area button,
+.agenda-next-appointment button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  color: white;
+  background: var(--blue);
+  font-weight: 600;
+  box-shadow:
+    0 10px 20px rgba(31, 120, 209, 0.24);
+}
+
+.login-card .login-form button:hover,
+.configuration-primary-button:hover:not(:disabled),
+.overbooked-save:hover,
+.reprogram-save-button:hover,
+.reply-area button:hover,
+.agenda-next-appointment button:hover,
+.overbooked-create-button:hover {
+  background: var(--blue-dark);
+  transform: none;
+}
+
+.admin-brand,
+.patient-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-mark,
+.patient-header-brand > .brand-mark {
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  border-radius: 14px;
+}
+
+.admin-mark svg,
+.patient-header-brand > .brand-mark svg {
+  width: 22px;
+  height: 22px;
+}
+
+.admin-header h1,
+.patient-header-brand strong {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.eyebrow,
+.patient-eyebrow,
+.booking-eyebrow {
+  margin: 0 0 4px;
+  color: var(--text-soft);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.booking-header,
+.patient-page-heading,
+.section-heading,
+.configuration-heading {
+  margin-bottom: 22px;
+  padding: 22px 24px;
+  border: 1px solid rgba(207, 227, 246, 0.95);
+  border-radius: 24px;
+  background:
+    radial-gradient(
+      90% 140% at 100% 0%,
+      rgba(31, 120, 209, 0.16),
+      transparent 55%
+    ),
+    linear-gradient(
+      180deg,
+      #e8f3ff 0%,
+      #ffffff 82%
+    );
+  box-shadow:
+    0 10px 30px rgba(22, 50, 79, 0.06);
+}
+
+.booking-header h1,
+.patient-page-heading h1,
+.section-heading h2,
+.configuration-heading h2 {
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.booking-header > p:last-child,
+.patient-page-heading p,
+.configuration-description {
+  color: var(--text-soft);
+  font-weight: 400;
+}
+
+.booking-step,
+.configuration-card,
+.consultation-card,
+.cancelled-card,
+.patient-appointment-card,
+.agenda-appointment,
+.agenda-toolbar,
+.agenda-day-summary > div,
+.patient-confirmation {
+  border-radius: 22px;
+  box-shadow:
+    0 10px 24px rgba(22, 50, 79, 0.06);
+}
+
+.booking-step-title > span,
+.configuration-number {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  color: var(--blue);
+  background: white;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 8px 18px rgba(31, 78, 121, 0.08);
+  font-weight: 600;
+}
+
+.patient-appointment-card,
+.agenda-appointment,
+.cancelled-card,
+.consultation-card {
+  border-radius: 22px;
+}
+
+.patient-appointment-details > div {
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #f7fafc;
+}
+
+.patient-appointment-details dt,
+.patient-appointment-details dd,
+.patient-appointment-date strong {
+  font-weight: 500;
+}
+
+.patient-appointment-date span {
+  font-weight: 650;
+}
+
+.configuration-field,
+.overbooked-form label,
+.reprogram-form label {
+  color: var(--text-soft);
+  font-weight: 400;
+}
+
+.configuration-field input,
+.configuration-field select,
+.overbooked-form input,
+.overbooked-form select,
+.overbooked-form textarea,
+.reprogram-form input,
+.reprogram-form select,
+.agenda-professional-filter select,
+.reply-area textarea {
+  border-radius: 14px;
+  background: #f7fafc;
+}
+
+.nav-button,
+.patient-nav button,
+.tab {
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.nav-button:hover,
+.nav-button.active,
+.patient-nav button:hover,
+.patient-nav button.active {
+  transform: none;
+}
+
+.overbooked-modal,
+.reprogram-modal,
+.patient-cancel-modal {
+  border-radius: 28px;
+}
+
+.empty-state,
+.patient-empty-state,
+.configuration-empty {
+  border-radius: 22px;
+  border-style: solid;
+}

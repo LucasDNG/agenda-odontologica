@@ -4,6 +4,7 @@ import {
 } from "react";
 
 import AgendaView from "./AgendaView";
+import BrandMark from "./BrandMark";
 import CancelledAppointments from "./CancelledAppointments";
 import Configuration from "./Configuration";
 import OverbookedAppointment from "./OverbookedAppointment";
@@ -557,20 +558,16 @@ function App() {
     return (
       <main className="login-page">
         <section className="login-card">
-          <div className="brand">
-            <span className="brand-icon">
-              🦷
-            </span>
+          <div className="login-identity">
+            <BrandMark className="login-mark" />
 
-            <div>
-              <h1>
-                Agenda Odontológica
-              </h1>
+            <h1>
+              Agenda odontológica
+            </h1>
 
-              <p>
-                Panel del consultorio
-              </p>
-            </div>
+            <p>
+              Panel del consultorio
+            </p>
           </div>
 
           <form
@@ -644,14 +641,18 @@ function App() {
   return (
     <main className="admin-page">
       <header className="admin-header">
-        <div>
-          <p className="eyebrow">
-            Consultorio odontológico
-          </p>
+        <div className="admin-brand">
+          <BrandMark className="brand-mark admin-mark" />
 
-          <h1>
-            Panel de administración
-          </h1>
+          <div>
+            <p className="eyebrow">
+              Consultorio odontológico
+            </p>
+
+            <h1>
+              Panel de administración
+            </h1>
+          </div>
         </div>
 
         <div className="user-area">

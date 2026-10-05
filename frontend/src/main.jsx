@@ -7,6 +7,7 @@ import "./index.css";
 
 import App from "./App.jsx";
 import TurnosApp from "./TurnosApp.jsx";
+import "./design.css";
 
 const pathname =
   window.location.pathname;

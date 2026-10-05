@@ -89,6 +89,7 @@ FRONTEND:
 - En Configuración, el nombre, el teléfono, el email y la dirección del consultorio se editan y se guardan con el límite de turnos.
 - El portal del paciente muestra ese nombre, la calle, el teléfono y el email.
 - En el ingreso, el nombre del consultorio es la primera línea. La carta tiene cabecera, filas de contacto con ícono y el formulario debajo.
+- Las demás pantallas del paciente y del panel usan la misma cabecera, los mismos bloques y el mismo botón.
 - El sitio publicado muestra eso cuando Render termina de publicar esta rama.
 
 ## Agenda del consultorio

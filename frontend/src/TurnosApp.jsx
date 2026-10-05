@@ -3,6 +3,7 @@ import {
   useState,
 } from "react";
 
+import BrandMark from "./BrandMark";
 import ClinicContact from "./ClinicContact";
 import ReservaTurno from "./ReservaTurno";
 import "./TurnosApp.css";
@@ -932,7 +933,7 @@ function TurnosApp() {
     <main className="patient-app">
       <header className="patient-header">
         <div className="patient-header-brand">
-          <span>🦷</span>
+          <BrandMark />
 
           <div>
             <p className="patient-eyebrow">
