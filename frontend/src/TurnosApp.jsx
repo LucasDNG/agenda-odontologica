@@ -5,6 +5,7 @@ import {
 
 import BrandMark from "./BrandMark";
 import ClinicContact from "./ClinicContact";
+import InstallOffer from "./InstallOffer";
 import ReservaTurno from "./ReservaTurno";
 import "./TurnosApp.css";
 
@@ -914,6 +915,8 @@ function TurnosApp() {
               </>
             )}
           </p>
+
+          <InstallOffer />
         </section>
       </main>
     );

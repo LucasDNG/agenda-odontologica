@@ -10,6 +10,9 @@
     <title>Turnos</title>
     <script>
       (function () {
+        var installPanel =
+          location.pathname === "/odontologo/instalar" ||
+          location.pathname === "/odontologo/instalar/";
         var panel =
           location.pathname === "/odontologo" ||
           location.pathname.indexOf("/odontologo/") === 0;
@@ -19,12 +22,14 @@
 
         document.title = name;
 
-        var manifest = document.createElement("link");
-        manifest.rel = "manifest";
-        manifest.href = panel
-          ? "/manifest-odontologo.webmanifest"
-          : "/manifest-paciente.webmanifest";
-        document.head.appendChild(manifest);
+        if (!panel || installPanel) {
+          var manifest = document.createElement("link");
+          manifest.rel = "manifest";
+          manifest.href = installPanel
+            ? "/manifest-odontologo.webmanifest"
+            : "/manifest-paciente.webmanifest";
+          document.head.appendChild(manifest);
+        }
 
         var touch = document.createElement("link");
         touch.rel = "apple-touch-icon";

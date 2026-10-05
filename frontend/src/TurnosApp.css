@@ -475,6 +475,38 @@
   text-decoration: underline;
 }
 
+.install-offer {
+  margin: 14px 22px 0;
+  text-align: center;
+}
+
+.install-offer p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.install-offer-button {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--blue-border);
+  border-radius: 14px;
+  color: var(--blue-dark);
+  background: var(--blue-soft);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.install-offer-panel {
+  margin: 0 22px;
+}
+
+.install-offer-panel .patient-primary-button {
+  width: 100%;
+}
+
 .patient-loading-card {
   display: grid;
   justify-items: center;
