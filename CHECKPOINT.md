@@ -96,6 +96,7 @@ FRONTEND:
 FRONTEND:
 - Si el día que está abierto no tiene turnos, eso se lee en la barra de la fecha. La ficha de abajo dice Siguiente día con turno.
 - Arriba de Sobreturno está Turno. Asigna un horario libre a un paciente, con el mismo recorrido que la reserva: servicio, profesional, día y horario.
+- En Sobreturno, la hora muestra los pacientes del día. Entre uno y otro está Agregar sobreturno.
 
 ## Pendiente inmediato
 1. Ejecutar `backend/sql/005_odontologa.sql` en la conexión de Neon, con Alt+X, y recargar el sitio.

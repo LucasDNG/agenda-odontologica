@@ -219,6 +219,91 @@
   opacity: 1 !important;
 }
 
+.day-timeline {
+  display: grid;
+  gap: 8px;
+}
+
+.timeline-appointment {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: white;
+}
+
+.timeline-appointment strong {
+  color: var(--text-main);
+  font-size: 16px;
+}
+
+.timeline-appointment p {
+  margin: 0;
+  color: var(--text-main);
+  font-weight: 650;
+}
+
+.timeline-appointment span {
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.timeline-insert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  color: var(--blue);
+  border: 1px dashed var(--blue-border);
+  border-radius: 12px;
+  background: #f7fbff;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.timeline-insert span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  color: white;
+  background: var(--blue);
+  font-weight: 700;
+}
+
+.timeline-insert small {
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.timeline-insert.selected {
+  color: white;
+  border-style: solid;
+  border-color: var(--blue);
+  background: var(--blue);
+}
+
+.timeline-insert.selected span {
+  color: var(--blue);
+  background: white;
+}
+
+.timeline-insert.selected small {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.timeline-empty {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+
 .time-grid {
   display: grid;
   grid-template-columns:
