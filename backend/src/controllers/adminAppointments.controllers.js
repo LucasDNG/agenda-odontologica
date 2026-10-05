@@ -1,5 +1,6 @@
 import { pool } from "../db.js";
 
+const SOLO_TURNO_MARK = "__solo_turno__";
 const OVERBOOKED_SLOT_MINUTES = 15;
 const SLOT_STEP_MINUTES = 15;
 
@@ -381,6 +382,7 @@ export const createAssignedAppointment =
     try {
       const {
         patientId,
+        guestName,
         professionalId,
         appointmentTypeId,
         date,
@@ -388,8 +390,15 @@ export const createAssignedAppointment =
         notes,
       } = req.body;
 
+      const visitName =
+        typeof guestName ===
+        "string"
+          ? guestName.trim()
+          : "";
+
       if (
-        !patientId ||
+        (!patientId &&
+          !visitName) ||
         !professionalId ||
         !appointmentTypeId ||
         !date ||
@@ -397,14 +406,25 @@ export const createAssignedAppointment =
       ) {
         return res.status(400).json({
           message:
-            "Debes indicar paciente, profesional, servicio, fecha y horario",
+            "Debes indicar un nombre o un paciente, y el profesional, servicio, fecha y horario",
         });
       }
 
       if (
-        !isPositiveInteger(
-          patientId,
-        ) ||
+        visitName.length >
+        80
+      ) {
+        return res.status(400).json({
+          message:
+            "El nombre es demasiado largo",
+        });
+      }
+
+      if (
+        (patientId &&
+          !isPositiveInteger(
+            patientId,
+          )) ||
         !isPositiveInteger(
           professionalId,
         ) ||
@@ -460,41 +480,108 @@ export const createAssignedAppointment =
         "BEGIN",
       );
 
-      const patientResult =
-        await client.query(
-          `
-            SELECT
-              id,
-              user_id,
-              name,
-              lastname,
-              phone,
-              email
+      let patient;
 
-            FROM patients
+      if (patientId) {
+        const patientResult =
+          await client.query(
+            `
+              SELECT
+                id,
+                user_id,
+                name,
+                lastname,
+                phone,
+                email
 
-            WHERE id = $1
-              AND active = TRUE
-          `,
-          [patientId],
-        );
+              FROM patients
 
-      if (
-        patientResult.rows
-          .length === 0
-      ) {
-        await client.query(
-          "ROLLBACK",
-        );
+              WHERE id = $1
+                AND active = TRUE
+            `,
+            [patientId],
+          );
 
-        return res.status(404).json({
-          message:
-            "Paciente no encontrado",
-        });
+        if (
+          patientResult.rows
+            .length === 0
+        ) {
+          await client.query(
+            "ROLLBACK",
+          );
+
+          return res.status(404).json({
+            message:
+              "Paciente no encontrado",
+          });
+        }
+
+        patient =
+          patientResult.rows[0];
+      } else {
+        const clinicResult =
+          await client.query(
+            `
+              SELECT id
+              FROM clinics
+              WHERE active = TRUE
+              ORDER BY id
+              LIMIT 1
+            `,
+          );
+
+        if (
+          clinicResult.rows
+            .length === 0
+        ) {
+          await client.query(
+            "ROLLBACK",
+          );
+
+          return res.status(400).json({
+            message:
+              "No hay un consultorio activo configurado",
+          });
+        }
+
+        const visitResult =
+          await client.query(
+            `
+              INSERT INTO patients
+              (
+                clinic_id,
+                name,
+                medical_history,
+                profile_type,
+                active
+              )
+              VALUES
+              (
+                $1,
+                $2,
+                $3,
+                'quick',
+                TRUE
+              )
+              RETURNING
+                id,
+                user_id,
+                name,
+                lastname,
+                phone,
+                email
+            `,
+            [
+              clinicResult
+                .rows[0].id,
+              visitName,
+              SOLO_TURNO_MARK,
+            ],
+          );
+
+        patient =
+          visitResult.rows[0];
       }
-
-      const patient =
-        patientResult.rows[0];
 
       const serviceResult =
         await client.query(
@@ -1195,6 +1282,46 @@ export const updateAppointmentStatus =
           message:
             "Turno no encontrado",
         });
+      }
+
+      if (
+        [
+          "completed",
+          "cancelled",
+          "absent",
+        ].includes(status) &&
+        result.rows[0]
+          .patient_record_id
+      ) {
+        await pool.query(
+          `
+            UPDATE patients
+
+            SET
+              active = FALSE,
+              updated_at =
+                CURRENT_TIMESTAMP
+
+            WHERE id = $1
+              AND medical_history = $2
+              AND NOT EXISTS (
+                SELECT 1
+                FROM appointments
+                WHERE patient_record_id = patients.id
+                  AND id <> $3
+                  AND status IN (
+                    'scheduled',
+                    'confirmed'
+                  )
+              )
+          `,
+          [
+            result.rows[0]
+              .patient_record_id,
+            SOLO_TURNO_MARK,
+            result.rows[0].id,
+          ],
+        );
       }
 
       return res.json({

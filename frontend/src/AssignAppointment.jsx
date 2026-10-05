@@ -72,6 +72,7 @@ function AssignAppointment({
   const [patientSearch, setPatientSearch] = useState("");
   const [patientResults, setPatientResults] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [guestName, setGuestName] = useState("");
   const [searchingPatients, setSearchingPatients] = useState(false);
   const [showNewPatient, setShowNewPatient] = useState(false);
   const [patientForm, setPatientForm] = useState(emptyPatientForm);
@@ -101,6 +102,7 @@ function AssignAppointment({
     setPatientSearch("");
     setPatientResults([]);
     setSelectedPatient(null);
+    setGuestName("");
     setSearchingPatients(false);
     setShowNewPatient(false);
     setPatientForm(emptyPatientForm);
@@ -152,7 +154,7 @@ function AssignAppointment({
   }, [open]);
 
   useEffect(() => {
-    if (!open || selectedPatient || !patientSearch.trim()) {
+    if (!open || selectedPatient || guestName || !patientSearch.trim()) {
       return undefined;
     }
 
@@ -195,7 +197,7 @@ function AssignAppointment({
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [open, patientSearch, selectedPatient]);
+  }, [open, patientSearch, selectedPatient, guestName]);
 
   useEffect(() => {
     if (!open || !appointmentTypeId) {
@@ -419,13 +421,13 @@ function AssignAppointment({
     event.preventDefault();
 
     if (
-      !selectedPatient ||
+      (!selectedPatient && !guestName) ||
       !appointmentTypeId ||
       !professionalId ||
       !date ||
       !startTime
     ) {
-      setError("Completá paciente, servicio, profesional, fecha y horario.");
+      setError("Completá el nombre, el servicio, el profesional, la fecha y el horario.");
       return;
     }
 
@@ -438,7 +440,9 @@ function AssignAppointment({
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          patientId: Number(selectedPatient.id),
+          ...(selectedPatient
+            ? { patientId: Number(selectedPatient.id) }
+            : { guestName }),
           appointmentTypeId: Number(appointmentTypeId),
           professionalId: Number(professionalId),
           date,
@@ -481,7 +485,7 @@ function AssignAppointment({
             <p className="eyebrow">Agenda</p>
             <h2>Asignar turno</h2>
             <p>
-              Elegí el paciente y un horario libre, como en la reserva.
+              Escribí un nombre para este turno, o elegí un paciente guardado.
             </p>
           </div>
 
@@ -500,7 +504,24 @@ function AssignAppointment({
           <div className="patient-search-section">
             <label>Paciente *</label>
 
-            {selectedPatient ? (
+            {guestName ? (
+              <div className="selected-patient">
+                <div>
+                  <strong>{guestName}</strong>
+                  <span>Solo para este turno</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGuestName("");
+                    setPatientSearch("");
+                  }}
+                >
+                  Cambiar
+                </button>
+              </div>
+            ) : selectedPatient ? (
               <div className="selected-patient">
                 <div>
                   <strong>
@@ -536,7 +557,7 @@ function AssignAppointment({
                       setShowNewPatient(false);
                       setError("");
                     }}
-                    placeholder="Buscar por nombre, apellido, DNI o teléfono..."
+                    placeholder="Nombre, sobrenombre o paciente guardado"
                     autoComplete="off"
                   />
                 </div>
@@ -571,6 +592,24 @@ function AssignAppointment({
                           <span>Seleccionar</span>
                         </button>
                       ))}
+
+                    {!searchingPatients && !showNewPatient && (
+                      <button
+                        type="button"
+                        className="patient-add-result"
+                        onClick={() => {
+                          setGuestName(patientSearch.trim());
+                          setShowNewPatient(false);
+                          setPatientResults([]);
+                          setError("");
+                        }}
+                      >
+                        <span className="patient-plus">+</span>
+                        <span>
+                          Usar "{patientSearch.trim()}" solo para este turno
+                        </span>
+                      </button>
+                    )}
 
                     {!searchingPatients && !showNewPatient && (
                       <button
@@ -679,7 +718,7 @@ function AssignAppointment({
             </section>
           )}
 
-          {selectedPatient && (
+          {(selectedPatient || guestName) && (
             <div className="booking-step">
               <div className="booking-step-title">
                 <span>1</span>
@@ -892,7 +931,7 @@ function AssignAppointment({
               className="overbooked-save"
               disabled={
                 saving ||
-                !selectedPatient ||
+                (!selectedPatient && !guestName) ||
                 !appointmentTypeId ||
                 !professionalId ||
                 !date ||

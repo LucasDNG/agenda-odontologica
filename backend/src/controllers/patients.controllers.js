@@ -62,6 +62,10 @@ export const searchPatients = async (req, res) => {
           p.updated_at
         FROM patients p
         WHERE p.active = TRUE
+          AND COALESCE(
+            p.medical_history,
+            ''
+          ) <> '__solo_turno__'
         ${searchCondition}
         ORDER BY
           p.lastname NULLS LAST,

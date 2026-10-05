@@ -26,7 +26,7 @@
 - El resto de las pantallas usa esa misma carta: cabecera suave, bloques blancos, campos y botón azul.
 - Hay dos aplicaciones para instalar en el celular. Solo el portal de pacientes ofrece instalar la suya. El panel se instala con el enlace privado `/odontologo/instalar`, que no aparece en el inicio.
 - Si el día abierto en la agenda no tiene turnos, eso se lee en la barra de la fecha. La ficha de abajo dice Siguiente día con turno y se puede abrir.
-- Desde la agenda, el odontólogo puede asignar un turno en un horario libre. Elige paciente, servicio, profesional, día y horario, igual que la reserva del paciente. El sobreturno sigue aparte, para un horario ocupado o fuera del habitual.
+- Desde la agenda, el odontólogo puede asignar un turno en un horario libre. Puede escribir un nombre solo para ese turno, sin guardarlo como paciente, o elegir uno guardado y también agregarlo como paciente nuevo. El nombre suelto deja de estar activo cuando el turno se marca atendido, cancelado o ausente. El sobreturno sigue aparte, para un horario ocupado o fuera del habitual.
 - Al cargar un sobreturno, la hora muestra los pacientes de ese día, con su servicio. Entre un paciente y el siguiente se puede agregar el sobreturno.
 
 ## Pacientes y turnos
