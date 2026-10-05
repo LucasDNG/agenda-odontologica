@@ -936,7 +936,7 @@ function AgendaView({
               <div className="agenda-empty-day">
                 <div className="agenda-next-appointment">
                   <span>
-                    Otro día
+                    Próximo turno asignado
                   </span>
 
                   <strong>

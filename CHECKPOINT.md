@@ -94,7 +94,7 @@ FRONTEND:
 
 ## Agenda del consultorio
 FRONTEND:
-- Si el día que está abierto no tiene turnos, eso se lee en la barra de la fecha. La ficha de abajo dice que es otro día.
+- Si el día que está abierto no tiene turnos, eso se lee en la barra de la fecha. La ficha de abajo dice Próximo turno asignado.
 
 ## Pendiente inmediato
 1. Ejecutar `backend/sql/005_odontologa.sql` en la conexión de Neon, con Alt+X, y recargar el sitio.
