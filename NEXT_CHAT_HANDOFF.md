@@ -34,6 +34,8 @@ Para arrancar una base vacía:
 Portal paciente: `http://localhost:5173/`
 Panel: `http://localhost:5173/odontologo`
 
+La aplicación de pacientes se instala desde `/`. La de la odontóloga se instala desde `/odontologo` y abre directo el panel. El inicio de los pacientes no muestra ese enlace.
+
 Las plantillas de WhatsApp siguen en el código:
 - `appointment_created`
 - `appointment_cancelled`

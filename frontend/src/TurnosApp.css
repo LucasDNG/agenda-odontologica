@@ -475,27 +475,6 @@
   text-decoration: underline;
 }
 
-.patient-professional-access {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  margin: 16px 22px 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  color: var(--text-soft);
-  font-size: 12px;
-}
-
-.patient-professional-access a {
-  color: var(--blue);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.patient-professional-access a:hover {
-  text-decoration: underline;
-}
-
 .patient-loading-card {
   display: grid;
   justify-items: center;
@@ -1004,11 +983,6 @@
 
   .patient-form-row {
     grid-template-columns: 1fr;
-  }
-
-  .patient-professional-access {
-    display: grid;
-    text-align: center;
   }
 
   .patient-header {

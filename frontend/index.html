@@ -1,10 +1,42 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta name="theme-color" content="#1f78d1" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Turnos</title>
+    <script>
+      (function () {
+        var panel =
+          location.pathname === "/odontologo" ||
+          location.pathname.indexOf("/odontologo/") === 0;
+        var name = panel ? "Panel del consultorio" : "Turnos";
+        var shortName = panel ? "Panel" : "Turnos";
+        var icon = panel ? "/icons/odontologo" : "/icons/paciente";
+
+        document.title = name;
+
+        var manifest = document.createElement("link");
+        manifest.rel = "manifest";
+        manifest.href = panel
+          ? "/manifest-odontologo.webmanifest"
+          : "/manifest-paciente.webmanifest";
+        document.head.appendChild(manifest);
+
+        var touch = document.createElement("link");
+        touch.rel = "apple-touch-icon";
+        touch.href = icon + "-180.png";
+        document.head.appendChild(touch);
+
+        var appleTitle = document.createElement("meta");
+        appleTitle.name = "apple-mobile-web-app-title";
+        appleTitle.content = shortName;
+        document.head.appendChild(appleTitle);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

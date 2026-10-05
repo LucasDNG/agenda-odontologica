@@ -12,9 +12,9 @@ Construir una agenda odontológica genérica, reutilizable para distintos consul
 - Un consultorio por deployment/base de datos, salvo decisión futura explícita.
 
 ## Reglas funcionales vigentes
-- Portal paciente en `/`.
+- Portal paciente en `/`. Esa es la aplicación que instalan los pacientes.
 - El paciente ingresa con DNI argentino (7 u 8 números) y contraseña.
-- Panel profesional/admin en `/odontologo`. Ese ingreso sigue usando el email de acceso.
+- Panel profesional/admin en `/odontologo`. Esa es la aplicación que instala la odontóloga. El inicio de los pacientes no muestra ese enlace. Ese ingreso sigue usando el email de acceso.
 - Los turnos normales se reservan sin confirmación manual.
 - En la reserva pública el paciente elige entre Consulta, Ortodoncia y Otros.
 - Límite de turnos activos por paciente configurable en `clinics`.

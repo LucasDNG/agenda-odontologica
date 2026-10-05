@@ -24,6 +24,7 @@
 - Esos cuatro datos se muestran en el portal del paciente, antes de ingresar y al reservar. El nombre va solo, sin repetir la palabra consultorio arriba.
 - En el ingreso, el nombre del consultorio va primero y es más grande que Agenda odontológica y que Turnos online. Esas tres líneas van juntas. La calle, el teléfono y el email van en filas con ícono, dentro de una carta diseñada.
 - El resto de las pantallas usa esa misma carta: cabecera suave, bloques blancos, campos y botón azul.
+- Hay dos aplicaciones para instalar en el celular. La de pacientes abre el portal. La del consultorio abre directo el panel y no tiene un enlace en el inicio de los pacientes.
 - Si el día abierto en la agenda no tiene turnos, eso se lee en la barra de la fecha. La ficha de abajo es otro día y se puede abrir.
 
 ## Pacientes y turnos

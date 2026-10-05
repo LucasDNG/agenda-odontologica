@@ -914,16 +914,6 @@ function TurnosApp() {
               </>
             )}
           </p>
-
-          <div className="patient-professional-access">
-            <span>
-              ¿Sos odontólogo?
-            </span>
-
-            <a href="/odontologo">
-              Ingresar al panel profesional
-            </a>
-          </div>
         </section>
       </main>
     );

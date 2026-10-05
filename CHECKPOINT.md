@@ -67,7 +67,7 @@ Render llegó a mostrar Live para la rama `cursor/levantar-agenda-local-9f25`. D
 BACKEND / FRONTEND / BASE DE DATOS:
 - El portal de pacientes pide DNI.
 - `backend/sql/003_dni_login.sql` agrega `users.dni` y carga el DNI ficticio del paciente demo.
-- El panel `/odontologo` sigue pidiendo email.
+- El panel `/odontologo` sigue pidiendo email. El inicio de los pacientes no muestra ese enlace. Son dos aplicaciones para instalar: pacientes en `/` y odontóloga en `/odontologo`.
 
 ## Servicios de la reserva
 El paciente ve tres grupos de 30 minutos: Consulta, Ortodoncia y Otros. Reglas, fracciones y ajuste no tienen botón propio. El cambio en el sitio que ya está publicado depende de ejecutar `backend/sql/004_servicios.sql` en Neon.
