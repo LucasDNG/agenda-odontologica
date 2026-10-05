@@ -25,7 +25,7 @@
 - En el ingreso, el nombre del consultorio va primero y es más grande que Agenda odontológica y que Turnos online. Esas tres líneas van juntas. La calle, el teléfono y el email van en filas con ícono, dentro de una carta diseñada.
 - El resto de las pantallas usa esa misma carta: cabecera suave, bloques blancos, campos y botón azul.
 - Hay dos aplicaciones para instalar en el celular. Solo el portal de pacientes ofrece instalar la suya. El panel se instala con el enlace privado `/odontologo/instalar`, que no aparece en el inicio.
-- Si el día abierto en la agenda no tiene turnos, eso se lee en la barra de la fecha. La ficha de abajo dice Próximo turno asignado y se puede abrir.
+- Si el día abierto en la agenda no tiene turnos, eso se lee en la barra de la fecha. La ficha de abajo dice Siguiente día con turno y se puede abrir.
 
 ## Pacientes y turnos
 - Mantener historial: cancelar no elimina.
