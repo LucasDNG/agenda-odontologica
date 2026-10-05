@@ -1,5 +1,17 @@
 import { pool } from "../db.js";
 
+const toDateInput = (value) => {
+  if (value instanceof Date) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+  return String(value).slice(0, 10);
+};
+
 export const cancelMyAppointment = async (
   req,
   res,
@@ -39,7 +51,7 @@ export const cancelMyAppointment = async (
             ON p.id = a.professional_id
           WHERE a.id = $1
             AND a.patient_id = $2
-          FOR UPDATE
+          FOR UPDATE OF a
         `,
         [
           Number(id),
@@ -96,9 +108,9 @@ export const cancelMyAppointment = async (
 
     const appointmentDateTime =
       new Date(
-        `${String(
+        `${toDateInput(
           appointment.appointment_date,
-        ).slice(0, 10)}T${String(
+        )}T${String(
           appointment.start_time,
         ).slice(0, 5)}:00`,
       );

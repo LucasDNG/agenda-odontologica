@@ -3,6 +3,7 @@ import {
 } from "express";
 
 import {
+  createAssignedAppointment,
   createOverbookedAppointment,
   getAllAppointments,
   rescheduleAppointment,
@@ -26,6 +27,13 @@ router.get(
   isAuth,
   isDentist,
   getAllAppointments,
+);
+
+router.post(
+  "/admin/appointments",
+  isAuth,
+  isDentist,
+  createAssignedAppointment,
 );
 
 router.post(

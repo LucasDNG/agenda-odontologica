@@ -4,8 +4,7 @@ import {
 
 import "./ServiceManagement.css";
 
-const API_URL =
-  "http://localhost:3000/api";
+const API_URL = "/api";
 
 function ServiceManagement({
   services,

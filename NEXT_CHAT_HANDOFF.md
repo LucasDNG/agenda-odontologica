@@ -2,7 +2,7 @@
 
 ## Instrucción principal
 Antes de proponer cambios o escribir código:
-1. revisar el repositorio `LucasDNG/agenda-odontologica`, rama `main`;
+1. revisar el repositorio `LucasDNG/agenda-odontologica`;
 2. leer completos, en este orden:
    - `NEXT_CHAT_HANDOFF.md`
    - `CHECKPOINT.md`
@@ -13,7 +13,7 @@ Antes de proponer cambios o escribir código:
 4. tomar estos Markdown como fuente de verdad de reglas, decisiones, estado y deuda técnica.
 
 ## Método de entrega
-El usuario prefiere entregas completas en ZIP:
+El usuario prefiere entregas completas. Si se entrega un ZIP:
 - estructura relativa desde la raíz del proyecto;
 - al descomprimir, debe poder aceptar reemplazo;
 - incluir todos los archivos modificados completos;
@@ -22,24 +22,39 @@ El usuario prefiere entregas completas en ZIP:
 - si hay SQL, entregarlo de forma controlada y no mezclar migraciones no verificadas.
 
 ## Estado actual
-Se está integrando WhatsApp con plantillas oficiales de Meta.
-Plantillas:
+La base del consultorio va a estar en Neon. Meta no se conecta a la computadora de desarrollo: usa la dirección https del sitio publicado.
+
+La aplicación también puede levantarse en local con PostgreSQL. El esquema está versionado en `backend/sql/001_schema.sql`.
+
+Para arrancar una base vacía:
+1. copiar `backend/.env.example` a `backend/.env` y completar `DATABASE_URL` y `JWT_SECRET`;
+2. en `backend`: `npm install`, `npm run db:schema`, `npm run db:seed`, `npm start`;
+3. en `frontend`: `npm install`, `npm run dev`.
+
+Portal paciente: `http://localhost:5173/`
+Panel: `http://localhost:5173/odontologo`
+
+La aplicación de pacientes ofrece instalarse en el portal. La del panel no se ofrece ahí. El enlace privado para instalarla es `/odontologo/instalar` y abre directo el panel. No está en el inicio de los pacientes.
+
+Las plantillas de WhatsApp siguen en el código:
 - `appointment_created`
 - `appointment_cancelled`
 - `appointment_rescheduled`
 - `appointment_restored`
 - `appointment_reminder`
 
-Todas usan seis parámetros:
-paciente, consultorio, fecha, hora, servicio, profesional.
+Parámetros, en orden: paciente, consultorio, fecha, hora, servicio, profesional.
+
+En local, sin token de Meta, el turno se confirma y la notificación queda registrada como fallida. Eso se probó. El envío real a WhatsApp no.
 
 ## Próximo paso
-Instalar/probar el ZIP de integración de plantillas. Cuando funcione:
-- commit/push;
-- verificar remoto;
-- actualizar checkpoint con el commit;
-- continuar funcionalidad;
-- paralelamente mantener `TECH_DEBT.md` para una limpieza posterior segura.
+El portal del paciente muestra el nombre, la calle, el teléfono y el email que se guardan en Configuración. En el ingreso, ese nombre es la primera línea de una carta con cabecera, filas de contacto y el formulario debajo. El resto de las pantallas usa esa misma carta. En la agenda del panel, un día sin turnos lo dice en la barra de la fecha. La ficha de abajo dice Siguiente día con turno y se puede abrir. El odontólogo también asigna turnos en horarios libres, con el botón Turno. Al elegir el día ve los pacientes que ya tienen horario, los lugares libres cada media hora y, en el medio, puede agregar un sobreturno. Puede usar un nombre solo para ese turno, sin guardarlo como paciente, o agregar la ficha. En Sobreturno, la hora lista los pacientes del día y deja agregar el sobreturno entre uno y otro.
+
+La odontóloga de este consultorio es Laura Guilenia. Guilenia es el apellido. El ingreso del panel usa el email y la contraseña cargados en Neon. Esa contraseña no está en el repositorio.
+
+La confirmación de un turno reservado está en Mis turnos: una ficha grande con fecha, hora, servicio, duración, profesional y especialidad. Si el sitio publicado todavía muestra el aviso chico, falta que Render termine de publicar esta rama.
+
+La reserva pública tiene que mostrar Consulta, Ortodoncia y Otros. Eso está en `backend/sql/004_servicios.sql` y hay que ejecutarlo en Neon si todavía no se hizo. Cada grupo dura 30 minutos. Limpieza deja de ofrecerse. No dar por verificados Neon de producción ni WhatsApp hasta probarlos.
 
 ## Importante
-No depender sólo de memoria o historial del chat. Si hay contradicción, revisar GitHub y documentar la decisión nueva en Markdown.
+No depender sólo de memoria o historial del chat. Si hay contradicción, revisar GitHub y documentar la decisión nueva en Markdown. No guardar secretos ni datos reales de clientes.

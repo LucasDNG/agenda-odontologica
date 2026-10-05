@@ -43,15 +43,16 @@ const getAppointmentData = async (appointmentId) => {
       pr.name AS professional_name,
       pr.lastname AS professional_lastname,
       COALESCE(patient_record.id, account_patient.id) AS notification_patient_id,
-      COALESCE(patient_record.name, account_patient.name) AS patient_name,
-      COALESCE(patient_record.lastname, account_patient.lastname) AS patient_lastname,
-      COALESCE(patient_record.phone, account_patient.phone) AS patient_phone,
+      COALESCE(patient_record.name, account_patient.name, account_user.name) AS patient_name,
+      COALESCE(patient_record.lastname, account_patient.lastname, account_user.lastname) AS patient_lastname,
+      COALESCE(patient_record.phone, account_patient.phone, account_user.phone) AS patient_phone,
       c.name AS clinic_name, c.phone AS clinic_phone, c.address AS clinic_address
     FROM appointments a
     LEFT JOIN appointment_types at ON at.id = a.appointment_type_id
     LEFT JOIN professionals pr ON pr.id = a.professional_id
     LEFT JOIN patients patient_record ON patient_record.id = a.patient_record_id
     LEFT JOIN patients account_patient ON account_patient.user_id = a.patient_id
+    LEFT JOIN users account_user ON account_user.id = a.patient_id
     LEFT JOIN clinics c ON c.active = TRUE
     WHERE a.id = $1
     ORDER BY c.id

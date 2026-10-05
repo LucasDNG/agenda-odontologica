@@ -1,7 +1,7 @@
 # Agenda Odontológica — Reglas del proyecto
 
 ## Objetivo
-Construir una agenda odontológica genérica, reutilizable para distintos consultorios. Laura/Diego son la primera configuración, no deben quedar hardcodeados como arquitectura del producto.
+Construir una agenda odontológica genérica, reutilizable para distintos consultorios. Laura Guilenia es la primera odontóloga: Guilenia es el apellido. Ese nombre es configuración del consultorio y no queda escrito fijo en la pantalla.
 
 ## Arquitectura
 - Backend: Node.js + Express.
@@ -12,9 +12,11 @@ Construir una agenda odontológica genérica, reutilizable para distintos consul
 - Un consultorio por deployment/base de datos, salvo decisión futura explícita.
 
 ## Reglas funcionales vigentes
-- Portal paciente en `/`.
-- Panel profesional/admin en `/odontologo`.
+- Portal paciente en `/`. Esa es la aplicación que instalan los pacientes.
+- El paciente ingresa con DNI argentino (7 u 8 números) y contraseña.
+- Panel profesional/admin en `/odontologo`. Ese ingreso sigue usando el email de acceso. La instalación del panel no se ofrece en el portal: se comparte el enlace `/odontologo/instalar`.
 - Los turnos normales se reservan sin confirmación manual.
+- En la reserva pública el paciente elige entre Consulta, Ortodoncia y Otros.
 - Límite de turnos activos por paciente configurable en `clinics`.
 - Los turnos cancelados no se eliminan.
 - Restaurar: horario original si está libre; si no, próximo libre del día; si no, sobreturno.
@@ -23,6 +25,9 @@ Construir una agenda odontológica genérica, reutilizable para distintos consul
 - Estados operativos: programado/confirmado, atendido, ausente, cancelado.
 - WhatsApp: alta, cancelación, reprogramación, restauración y recordatorio.
 - Fechas visibles: DD/MM/YYYY.
+- Al confirmar un turno, Mis turnos muestra una ficha grande con fecha, hora, servicio, duración, profesional y especialidad.
+- El portal del paciente muestra el nombre, la calle, el teléfono y el email del consultorio. Esos datos se editan en Configuración.
+- En la reserva pública la fecha es una semana. Sábado y domingo van en gris. Un día con todos los turnos tomados va en otro color. Se cambia de a una semana.
 - No guardar secretos ni `.env` en Git.
 
 ## Forma de trabajo

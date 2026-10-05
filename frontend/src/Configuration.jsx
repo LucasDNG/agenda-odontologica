@@ -7,8 +7,7 @@ import ProfessionalManagement from "./ProfessionalManagement";
 import ServiceManagement from "./ServiceManagement";
 import "./Configuration.css";
 
-const API_URL =
-  "http://localhost:3000/api";
+const API_URL = "/api";
 
 const DAYS = [
   { value: 1, label: "Lunes" },
@@ -315,6 +314,14 @@ function Configuration() {
           maxActiveAppointments,
         );
 
+      if (!clinic.name?.trim()) {
+        showError(
+          "El nombre del consultorio es obligatorio.",
+        );
+
+        return;
+      }
+
       if (
         !Number.isInteger(value) ||
         value < 1 ||
@@ -388,7 +395,7 @@ function Configuration() {
         );
 
         showSuccess(
-          "Límite de turnos actualizado.",
+          "Consultorio actualizado.",
         );
       } catch (currentError) {
         showError(
@@ -863,94 +870,152 @@ function Configuration() {
             </h3>
 
             <p>
-              Configuración general de
-              esta instalación.
+              El paciente ve este
+              nombre, la calle, el
+              teléfono y el email.
             </p>
           </div>
         </div>
 
         {clinic ? (
-          <>
-            <div>
-              <h3>
-                {clinic.name}
-              </h3>
-
-              {clinic.address && (
-                <p>
-                  📍 {clinic.address}
-                </p>
-              )}
-
-              {clinic.phone && (
-                <p>
-                  📱 {clinic.phone}
-                </p>
-              )}
-
-              {clinic.email && (
-                <p>
-                  ✉️ {clinic.email}
-                </p>
-              )}
-            </div>
-
-            <div className="configuration-form">
+          <div className="configuration-form">
+            <div className="configuration-grid">
               <label className="configuration-field">
-                Máximo de turnos activos
-                por paciente
+                Nombre
 
-                <select
+                <input
+                  type="text"
                   value={
-                    maxActiveAppointments
+                    clinic.name || ""
                   }
                   onChange={(
                     event,
                   ) =>
-                    setMaxActiveAppointments(
-                      Number(
-                        event.target
-                          .value,
-                      ),
-                    )
+                    setClinic({
+                      ...clinic,
+                      name: event
+                        .target
+                        .value,
+                    })
                   }
-                >
-                  {[1, 2, 3, 4, 5].map(
-                    (value) => (
-                      <option
-                        key={
-                          value
-                        }
-                        value={
-                          value
-                        }
-                      >
-                        {value}{" "}
-                        {value === 1
-                          ? "turno"
-                          : "turnos"}
-                      </option>
-                    ),
-                  )}
-                </select>
+                />
               </label>
 
-              <button
-                type="button"
-                className="configuration-primary-button"
-                onClick={
-                  saveClinicSettings
+              <label className="configuration-field">
+                Teléfono
+
+                <input
+                  type="text"
+                  value={
+                    clinic.phone || ""
+                  }
+                  onChange={(
+                    event,
+                  ) =>
+                    setClinic({
+                      ...clinic,
+                      phone:
+                        event.target
+                          .value,
+                    })
+                  }
+                />
+              </label>
+
+              <label className="configuration-field">
+                Email
+
+                <input
+                  type="email"
+                  value={
+                    clinic.email || ""
+                  }
+                  onChange={(
+                    event,
+                  ) =>
+                    setClinic({
+                      ...clinic,
+                      email:
+                        event.target
+                          .value,
+                    })
+                  }
+                />
+              </label>
+
+              <label className="configuration-field">
+                Dirección
+
+                <input
+                  type="text"
+                  value={
+                    clinic.address ||
+                    ""
+                  }
+                  onChange={(
+                    event,
+                  ) =>
+                    setClinic({
+                      ...clinic,
+                      address:
+                        event.target
+                          .value,
+                    })
+                  }
+                />
+              </label>
+            </div>
+
+            <label className="configuration-field">
+              Máximo de turnos activos
+              por paciente
+
+              <select
+                value={
+                  maxActiveAppointments
                 }
-                disabled={
-                  savingClinicSettings
+                onChange={(
+                  event,
+                ) =>
+                  setMaxActiveAppointments(
+                    Number(
+                      event.target
+                        .value,
+                    ),
+                  )
                 }
               >
-                {savingClinicSettings
-                  ? "Guardando..."
-                  : "Guardar límite"}
-              </button>
-            </div>
-          </>
+                {[1, 2, 3, 4, 5].map(
+                  (value) => (
+                    <option
+                      key={value}
+                      value={value}
+                    >
+                      {value}{" "}
+                      {value === 1
+                        ? "turno"
+                        : "turnos"}
+                    </option>
+                  ),
+                )}
+              </select>
+            </label>
+
+            <button
+              type="button"
+              className="configuration-primary-button"
+              onClick={
+                saveClinicSettings
+              }
+              disabled={
+                savingClinicSettings
+              }
+            >
+              {savingClinicSettings
+                ? "Guardando..."
+                : "Guardar consultorio"}
+            </button>
+          </div>
         ) : (
           <div className="configuration-empty small">
             Consultorio no

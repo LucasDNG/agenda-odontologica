@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import {
+  getPublicClinic,
   getClinics,
   createClinic,
   updateClinic,
@@ -10,6 +11,8 @@ import { isAuth } from "../middlewares/auth.middleware.js";
 import { isDentist } from "../middlewares/role.middleware.js";
 
 const router = Router();
+
+router.get("/clinic", getPublicClinic);
 
 router.get("/admin/clinics", isAuth, isDentist, getClinics);
 

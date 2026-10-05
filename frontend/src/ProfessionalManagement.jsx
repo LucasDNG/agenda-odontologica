@@ -5,8 +5,7 @@ import {
 
 import "./ProfessionalManagement.css";
 
-const API_URL =
-  "http://localhost:3000/api";
+const API_URL = "/api";
 
 const EMPTY_FORM = {
   name: "",

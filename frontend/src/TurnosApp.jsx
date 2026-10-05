@@ -3,11 +3,16 @@ import {
   useState,
 } from "react";
 
+import BrandMark from "./BrandMark";
+import ClinicContact from "./ClinicContact";
+import InstallOffer from "./InstallOffer";
 import ReservaTurno from "./ReservaTurno";
 import "./TurnosApp.css";
 
-const API_URL =
-  "http://localhost:3000/api";
+const API_URL = "/api";
+
+const normalizeDni = (value) =>
+  String(value || "").replace(/\D/g, "");
 
 const formatTime = (time) => {
   if (!time) return "";
@@ -78,7 +83,7 @@ function TurnosApp() {
   const [phone, setPhone] =
     useState("");
 
-  const [email, setEmail] =
+  const [dni, setDni] =
     useState("");
 
   const [
@@ -120,6 +125,11 @@ function TurnosApp() {
     appointmentMessage,
     setAppointmentMessage,
   ] = useState("");
+
+  const [
+    confirmedTurn,
+    setConfirmedTurn,
+  ] = useState(null);
 
   const [
     cancellingAppointmentId,
@@ -193,7 +203,7 @@ function TurnosApp() {
     setName("");
     setLastname("");
     setPhone("");
-    setEmail("");
+    setDni("");
     setPassword("");
     setAuthError("");
   };
@@ -229,10 +239,9 @@ function TurnosApp() {
 
               body:
                 JSON.stringify({
-                  email:
-                    email
-                      .trim()
-                      .toLowerCase(),
+                  dni: normalizeDni(
+                    dni,
+                  ),
 
                   password,
                 }),
@@ -292,11 +301,12 @@ function TurnosApp() {
       if (
         !name.trim() ||
         !lastname.trim() ||
-        !email.trim() ||
+        !phone.trim() ||
+        !normalizeDni(dni) ||
         !password
       ) {
         setAuthError(
-          "Completá nombre, apellido, email y contraseña.",
+          "Completá nombre, apellido, teléfono, DNI y contraseña.",
         );
 
         return;
@@ -338,16 +348,14 @@ function TurnosApp() {
                   lastname:
                     lastname.trim(),
 
-                  email:
-                    email
-                      .trim()
-                      .toLowerCase(),
+                  dni: normalizeDni(
+                    dni,
+                  ),
 
                   password,
 
                   phone:
-                    phone.trim() ||
-                    null,
+                    phone.trim(),
                 }),
             },
           );
@@ -416,6 +424,8 @@ function TurnosApp() {
         null,
       );
 
+      setConfirmedTurn(null);
+
       setSection(
         "booking",
       );
@@ -474,9 +484,13 @@ function TurnosApp() {
     };
 
   const handleAppointmentCreated =
-    async () => {
+    async (confirmation) => {
+      setConfirmedTurn(
+        confirmation || null,
+      );
+
       setAppointmentMessage(
-        "Turno reservado correctamente.",
+        "",
       );
 
       await loadAppointments();
@@ -496,6 +510,8 @@ function TurnosApp() {
     setAppointmentMessage(
       "",
     );
+
+    setConfirmedTurn(null);
 
     setAppointmentToCancel(
       appointment,
@@ -587,6 +603,8 @@ function TurnosApp() {
       "",
     );
 
+    setConfirmedTurn(null);
+
     setAppointmentError(
       "",
     );
@@ -605,6 +623,8 @@ function TurnosApp() {
       setAppointmentMessage(
         "",
       );
+
+      setConfirmedTurn(null);
 
       await loadAppointments();
     };
@@ -627,62 +647,24 @@ function TurnosApp() {
     return (
       <main className="patient-auth-page">
         <section className="patient-auth-card">
-          <div className="patient-auth-brand">
-            <div className="patient-auth-icon">
-              🦷
-            </div>
-
-            <div>
-              <p className="patient-eyebrow">
+          <ClinicContact
+            className="patient-auth-clinic"
+            titleTag="h1"
+          >
+            <div className="patient-auth-brand">
+              <h2>
                 Agenda odontológica
-              </p>
+              </h2>
 
-              <h1>
+              <h3>
                 Turnos online
-              </h1>
+              </h3>
 
               <p>
-                Reservá y consultá tus
-                turnos desde acá.
+                Reservá y consultá tus turnos desde acá.
               </p>
             </div>
-          </div>
-
-          <div className="patient-auth-tabs">
-            <button
-              type="button"
-              className={
-                mode ===
-                "signin"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                changeMode(
-                  "signin",
-                )
-              }
-            >
-              Ingresar
-            </button>
-
-            <button
-              type="button"
-              className={
-                mode ===
-                "signup"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                changeMode(
-                  "signup",
-                )
-              }
-            >
-              Crear cuenta
-            </button>
-          </div>
+          </ClinicContact>
 
           {mode ===
           "signin" ? (
@@ -693,20 +675,21 @@ function TurnosApp() {
               }
             >
               <label>
-                Email
+                DNI
 
                 <input
-                  type="email"
+                  type="text"
+                  inputMode="numeric"
                   value={
-                    email
+                    dni
                   }
-                  placeholder="tu@email.com"
-                  autoComplete="email"
+                  placeholder="30123456"
+                  autoComplete="username"
                   required
                   onChange={(
                     event,
                   ) =>
-                    setEmail(
+                    setDni(
                       event
                         .target
                         .value,
@@ -819,6 +802,7 @@ function TurnosApp() {
                   }
                   placeholder="Ej: 11 1234 5678"
                   autoComplete="tel"
+                  required
                   onChange={(
                     event,
                   ) =>
@@ -832,20 +816,21 @@ function TurnosApp() {
               </label>
 
               <label>
-                Email
+                DNI
 
                 <input
-                  type="email"
+                  type="text"
+                  inputMode="numeric"
                   value={
-                    email
+                    dni
                   }
-                  placeholder="tu@email.com"
-                  autoComplete="email"
+                  placeholder="30123456"
+                  autoComplete="off"
                   required
                   onChange={(
                     event,
                   ) =>
-                    setEmail(
+                    setDni(
                       event
                         .target
                         .value,
@@ -898,15 +883,40 @@ function TurnosApp() {
             </form>
           )}
 
-          <div className="patient-professional-access">
-            <span>
-              ¿Sos odontólogo?
-            </span>
+          <p className="patient-auth-switch">
+            {mode ===
+            "signin" ? (
+              <>
+                ¿No tenés cuenta?{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    changeMode(
+                      "signup",
+                    )
+                  }
+                >
+                  Crear cuenta
+                </button>
+              </>
+            ) : (
+              <>
+                ¿Ya tenés cuenta?{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    changeMode(
+                      "signin",
+                    )
+                  }
+                >
+                  Ingresar
+                </button>
+              </>
+            )}
+          </p>
 
-            <a href="/odontologo">
-              Ingresar al panel profesional
-            </a>
-          </div>
+          <InstallOffer />
         </section>
       </main>
     );
@@ -916,7 +926,7 @@ function TurnosApp() {
     <main className="patient-app">
       <header className="patient-header">
         <div className="patient-header-brand">
-          <span>🦷</span>
+          <BrandMark />
 
           <div>
             <p className="patient-eyebrow">
@@ -993,6 +1003,8 @@ function TurnosApp() {
         </button>
       </nav>
 
+      <ClinicContact className="patient-clinic-banner" />
+
       {section ===
         "booking" && (
         <ReservaTurno
@@ -1036,6 +1048,92 @@ function TurnosApp() {
                 : "Actualizar"}
             </button>
           </div>
+
+          {confirmedTurn && (
+            <section className="patient-confirmation">
+              <div className="patient-confirmation-head">
+                <div
+                  className="patient-confirmation-mark"
+                  aria-hidden="true"
+                >
+                  ✓
+                </div>
+
+                <div>
+                  <p className="patient-eyebrow">
+                    Reserva lista
+                  </p>
+
+                  <h2>
+                    Turno confirmado
+                  </h2>
+
+                  <p>
+                    Quedó guardado. Estos son los datos.
+                  </p>
+                </div>
+              </div>
+
+              <div className="patient-confirmation-grid">
+                <div>
+                  <span>
+                    Fecha
+                  </span>
+                  <strong>
+                    {confirmedTurn.date}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Hora
+                  </span>
+                  <strong>
+                    {confirmedTurn.time}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Servicio
+                  </span>
+                  <strong>
+                    {confirmedTurn.service}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Duración
+                  </span>
+                  <strong>
+                    {confirmedTurn.duration
+                      ? `${confirmedTurn.duration} min`
+                      : "—"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Profesional
+                  </span>
+                  <strong>
+                    {confirmedTurn.professional}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Especialidad
+                  </span>
+                  <strong>
+                    {confirmedTurn.specialty ||
+                      "—"}
+                  </strong>
+                </div>
+              </div>
+            </section>
+          )}
 
           {appointmentMessage && (
             <p className="patient-appointments-success">
@@ -1139,35 +1237,50 @@ function TurnosApp() {
                               </span>
                             </div>
 
-                            {appointment.professional_name && (
-                              <p>
-                                🦷{" "}
-                                {
-                                  appointment.professional_name
-                                }{" "}
-                                {
-                                  appointment.professional_lastname
-                                }
-                              </p>
-                            )}
+                            <dl className="patient-appointment-details">
+                              {appointment.professional_name && (
+                                <div>
+                                  <dt>
+                                    Profesional
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.professional_name
+                                    }{" "}
+                                    {
+                                      appointment.professional_lastname
+                                    }
+                                  </dd>
+                                </div>
+                              )}
 
-                            {appointment.professional_specialty && (
-                              <p>
-                                {
-                                  appointment.professional_specialty
-                                }
-                              </p>
-                            )}
+                              {appointment.professional_specialty && (
+                                <div>
+                                  <dt>
+                                    Especialidad
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.professional_specialty
+                                    }
+                                  </dd>
+                                </div>
+                              )}
 
-                            {appointment.duration_minutes && (
-                              <span>
-                                Duración:{" "}
-                                {
-                                  appointment.duration_minutes
-                                }{" "}
-                                min
-                              </span>
-                            )}
+                              {appointment.duration_minutes && (
+                                <div>
+                                  <dt>
+                                    Duración
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.duration_minutes
+                                    }{" "}
+                                    min
+                                  </dd>
+                                </div>
+                              )}
+                            </dl>
 
                             {appointment.notes && (
                               <div className="patient-appointment-notes">
@@ -1264,25 +1377,50 @@ function TurnosApp() {
                               </span>
                             </div>
 
-                            {appointment.professional_name && (
-                              <p>
-                                🦷{" "}
-                                {
-                                  appointment.professional_name
-                                }{" "}
-                                {
-                                  appointment.professional_lastname
-                                }
-                              </p>
-                            )}
+                            <dl className="patient-appointment-details">
+                              {appointment.professional_name && (
+                                <div>
+                                  <dt>
+                                    Profesional
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.professional_name
+                                    }{" "}
+                                    {
+                                      appointment.professional_lastname
+                                    }
+                                  </dd>
+                                </div>
+                              )}
 
-                            {appointment.professional_specialty && (
-                              <p>
-                                {
-                                  appointment.professional_specialty
-                                }
-                              </p>
-                            )}
+                              {appointment.professional_specialty && (
+                                <div>
+                                  <dt>
+                                    Especialidad
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.professional_specialty
+                                    }
+                                  </dd>
+                                </div>
+                              )}
+
+                              {appointment.duration_minutes && (
+                                <div>
+                                  <dt>
+                                    Duración
+                                  </dt>
+                                  <dd>
+                                    {
+                                      appointment.duration_minutes
+                                    }{" "}
+                                    min
+                                  </dd>
+                                </div>
+                              )}
+                            </dl>
                           </div>
                         </article>
                       ),

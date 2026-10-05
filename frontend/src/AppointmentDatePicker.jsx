@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import "./AppointmentDatePicker.css";
 
 const DAYS = [
@@ -88,26 +88,53 @@ const addDays = (date, days) => {
   return result;
 };
 
-const generateTimes = () => {
-  const times = [];
+const timeToMinutes = (time) => {
+  const [hours, minutes] = String(
+    time || "",
+  )
+    .slice(0, 5)
+    .split(":")
+    .map(Number);
 
-  for (
-    let minutes = 8 * 60 + 15;
-    minutes <= 20 * 60 + 45;
-    minutes += 30
+  return hours * 60 + minutes;
+};
+
+const minutesToTime = (minutes) => {
+  const hours = Math.floor(
+    minutes / 60,
+  );
+  const mins = minutes % 60;
+
+  return `${pad(hours)}:${pad(mins)}`;
+};
+
+const timeBetween = (
+  previous,
+  next,
+) => {
+  const start = timeToMinutes(
+    previous.start_time,
+  );
+  const end = timeToMinutes(
+    next.start_time,
+  );
+
+  if (
+    !Number.isFinite(start) ||
+    !Number.isFinite(end) ||
+    end <= start
   ) {
-    const hours = Math.floor(
-      minutes / 60,
-    );
-
-    const mins = minutes % 60;
-
-    times.push(
-      `${pad(hours)}:${pad(mins)}`,
+    return minutesToTime(
+      start + 15,
     );
   }
 
-  return times;
+  return minutesToTime(
+    start +
+      Math.round(
+        (end - start) / 2,
+      ),
+  );
 };
 
 const formatDelay = (minutes) => {
@@ -167,11 +194,6 @@ function AppointmentDatePicker({
     );
   }, [weekReference]);
 
-  const suggestedTimes = useMemo(
-    () => generateTimes(),
-    [],
-  );
-
   const getAppointmentsForDate = (
     date,
   ) => {
@@ -230,20 +252,6 @@ function AppointmentDatePicker({
     );
   };
 
-  const getAppointmentsAtTime = (
-    date,
-    time,
-  ) => {
-    return getAppointmentsForDate(
-      date,
-    ).filter(
-      (appointment) =>
-        String(
-          appointment.start_time,
-        ).slice(0, 5) === time,
-    );
-  };
-
   const handlePreviousWeek = () => {
     setWeekReference(
       addDays(
@@ -276,6 +284,23 @@ function AppointmentDatePicker({
 
   const selectedDay =
     displayToDate(selectedDate);
+
+  const selectedDayAppointments =
+    selectedDay
+      ? getAppointmentsForDate(
+          selectedDay,
+        )
+          .slice()
+          .sort((left, right) =>
+            String(
+              left.start_time,
+            ).localeCompare(
+              String(
+                right.start_time,
+              ),
+            ),
+          )
+      : [];
 
   return (
     <div className="appointment-date-picker">
@@ -464,54 +489,100 @@ function AppointmentDatePicker({
             )}
           </div>
 
-          <div className="time-grid">
-            {suggestedTimes.map(
-              (time) => {
-                const occupied =
-                  getAppointmentsAtTime(
-                    selectedDay,
-                    time,
+          <div className="day-timeline">
+            {selectedDayAppointments.map(
+                (
+                  appointment,
+                  index,
+                  dayAppointments,
+                ) => {
+                  const next =
+                    dayAppointments[
+                      index + 1
+                    ];
+                  const insertTime =
+                    next
+                      ? timeBetween(
+                          appointment,
+                          next,
+                        )
+                      : null;
+
+                  return (
+                    <Fragment
+                      key={
+                        appointment.id
+                      }
+                    >
+                      <article className="timeline-appointment">
+                        <strong>
+                          {String(
+                            appointment.start_time,
+                          ).slice(0, 5)}
+                        </strong>
+
+                        <div>
+                          <p>
+                            {
+                              appointment.patient_name
+                            }{" "}
+                            {
+                              appointment.patient_lastname
+                            }
+                          </p>
+
+                          <span>
+                            {appointment.service ||
+                              "Turno"}
+                            {appointment.is_overbooked
+                              ? " · Sobreturno"
+                              : ""}
+                          </span>
+                        </div>
+                      </article>
+
+                      {insertTime && (
+                        <button
+                          type="button"
+                          className={
+                            selectedTime ===
+                            insertTime
+                              ? "timeline-insert selected"
+                              : "timeline-insert"
+                          }
+                          onClick={() =>
+                            onTimeChange(
+                              insertTime,
+                            )
+                          }
+                        >
+                          <span>
+                            +
+                          </span>
+                          Agregar sobreturno
+                          <small>
+                            {insertTime}
+                          </small>
+                        </button>
+                      )}
+                    </Fragment>
                   );
+                },
+              )}
 
-                return (
-                  <button
-                    type="button"
-                    key={time}
-                    className={[
-                      "time-option",
-                      selectedTime ===
-                      time
-                        ? "selected"
-                        : "",
-                      occupied.length >
-                      0
-                        ? "occupied"
-                        : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                    onClick={() =>
-                      onTimeChange(
-                        time,
-                      )
-                    }
-                  >
-                    <strong>
-                      {time}
-                    </strong>
+            {selectedDayAppointments.length ===
+              0 && (
+              <p className="timeline-empty">
+                Este día no tiene turnos.
+              </p>
+            )}
 
-                    {occupied.length >
-                      0 && (
-                      <span>
-                        {occupied.length ===
-                        1
-                          ? "ocupado"
-                          : `${occupied.length} turnos`}
-                      </span>
-                    )}
-                  </button>
-                );
-              },
+            {selectedDayAppointments.length ===
+              1 && (
+              <p className="timeline-empty">
+                Con un solo turno, elegí
+                la hora abajo.
+              </p>
             )}
           </div>
 
@@ -536,10 +607,9 @@ function AppointmentDatePicker({
             </label>
 
             <p>
-              Las sugerencias de sobreturno
-              están ubicadas a los 15 y 45
-              minutos. También podés elegir
-              manualmente cualquier otra hora.
+              El sobreturno se agrega entre
+              dos pacientes. También podés
+              elegir otra hora.
             </p>
           </div>
         </div>

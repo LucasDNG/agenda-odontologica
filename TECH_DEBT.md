@@ -4,13 +4,16 @@ Este archivo es una lista de trabajo, no significa que haya que cambiar todo aho
 
 ## Prioridad alta
 - Normalizar relación paciente/turno:
-  - hoy conviven `appointments.patient_id` y `appointments.patient_record_id`;
-  - el booking público todavía puede depender del id de usuario;
-  - definir una única relación canónica sin romper datos existentes.
-- Revisar autenticación de profesionales inactivos:
-  - desactivar un profesional no necesariamente desactiva su usuario/login.
+  - siguen conviviendo `appointments.patient_id` y `appointments.patient_record_id`;
+  - la reserva pública ahora también guarda `patient_record_id`;
+  - falta definir una única relación canónica sin romper datos existentes.
+- Autenticación de profesionales inactivos:
+  - el login ya se rechaza si la ficha vinculada está inactiva;
+  - la cuenta de usuario no se desactiva por sí misma.
 - Revisar consultas que obtienen clínica activa para garantizar que no haya ambigüedad.
-- Endurecer deduplicación de recordatorios a nivel DB si se despliegan múltiples procesos/instancias.
+- Deduplicación de recordatorios:
+  - `001_schema.sql` crea un índice único parcial para recordatorios `pending`/`sent`;
+  - ese índice no fue aplicado ni verificado en Neon.
 
 ## Prioridad media
 - Revisar `adminAppointments.controllers.js`: es grande y puede dividirse en servicios/helpers una vez estabilizado.

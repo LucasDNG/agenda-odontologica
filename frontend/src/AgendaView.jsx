@@ -46,6 +46,38 @@ const dateToDisplay = (
     date.getMonth() + 1,
   )}/${date.getFullYear()}`;
 
+const parseDisplayDate = (
+  value,
+) => {
+  const [
+    day,
+    month,
+    year,
+  ] = String(
+    value || "",
+  ).split("/");
+
+  const parsed = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    12,
+    0,
+    0,
+    0,
+  );
+
+  if (
+    Number.isNaN(
+      parsed.getTime(),
+    )
+  ) {
+    return null;
+  }
+
+  return parsed;
+};
+
 const startOfWeek = (
   date,
 ) => {
@@ -137,6 +169,7 @@ function AgendaView({
   updatingAppointmentId,
   onUpdateStatus,
   onRefresh,
+  onCreateAppointment,
   onCreateOverbooked,
 }) {
   const [view, setView] =
@@ -318,6 +351,72 @@ function AgendaView({
     appointmentsByDate.get(
       selectedDateDisplay,
     ) || [];
+
+  const nextAppointment =
+    useMemo(() => {
+      const selectedTime =
+        new Date(
+          selectedDate,
+        );
+
+      selectedTime.setHours(
+        12,
+        0,
+        0,
+        0,
+      );
+
+      return filteredByProfessional
+        .map(
+          (
+            appointment,
+          ) => ({
+            appointment,
+            date: parseDisplayDate(
+              appointment.appointment_date,
+            ),
+          }),
+        )
+        .filter(
+          ({
+            appointment,
+            date,
+          }) =>
+            date &&
+            date.getTime() >
+              selectedTime.getTime() &&
+            (appointment.status ===
+              "scheduled" ||
+              appointment.status ===
+                "confirmed"),
+        )
+        .sort(
+          (a, b) => {
+            const byDate =
+              a.date.getTime() -
+              b.date.getTime();
+
+            if (
+              byDate !== 0
+            ) {
+              return byDate;
+            }
+
+            return String(
+              a.appointment
+                .start_time,
+            ).localeCompare(
+              String(
+                b.appointment
+                  .start_time,
+              ),
+            );
+          },
+        )[0]?.appointment;
+    }, [
+      filteredByProfessional,
+      selectedDate,
+    ]);
 
   const getDelayForDate = (
     displayDate,
@@ -615,6 +714,16 @@ function AgendaView({
             type="button"
             className="overbooked-create-button"
             onClick={
+              onCreateAppointment
+            }
+          >
+            + Turno
+          </button>
+
+          <button
+            type="button"
+            className="overbooked-create-button"
+            onClick={
               onCreateOverbooked
             }
           >
@@ -739,6 +848,14 @@ function AgendaView({
                   selectedDateDisplay
                 }
               </span>
+
+              {!loading &&
+                dayAppointments.length ===
+                  0 && (
+                  <em className="agenda-date-empty">
+                    No hay turnos para este día.
+                  </em>
+                )}
             </>
           ) : (
             <>
@@ -826,9 +943,53 @@ function AgendaView({
 
           {dayAppointments.length ===
           0 ? (
-            <div className="empty-state">
-              No hay turnos para este día.
-            </div>
+            nextAppointment && (
+              <div className="agenda-empty-day">
+                <div className="agenda-next-appointment">
+                  <span>
+                    Siguiente día con turno
+                  </span>
+
+                  <strong>
+                    {formatLongDate(
+                      parseDisplayDate(
+                        nextAppointment.appointment_date,
+                      ),
+                    )}
+                  </strong>
+
+                  <p>
+                    {formatTime(
+                      nextAppointment.start_time,
+                    )}
+                    {" · "}
+                    {
+                      nextAppointment.patient_name
+                    }{" "}
+                    {
+                      nextAppointment.patient_lastname
+                    }
+                    {" · "}
+                    {
+                      nextAppointment.service
+                    }
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedDate(
+                        parseDisplayDate(
+                          nextAppointment.appointment_date,
+                        ),
+                      )
+                    }
+                  >
+                    Ver ese día
+                  </button>
+                </div>
+              </div>
+            )
           ) : (
             <div className="agenda-day-list">
               {dayAppointments.map(

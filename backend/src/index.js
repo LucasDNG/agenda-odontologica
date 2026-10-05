@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import "dotenv/config";
 
 import { pool } from "./db.js";
@@ -31,11 +34,32 @@ import {
 
 const app = express();
 
+const allowedOrigins = new Set(
+  [
+    process.env.FRONTEND_URL ||
+      "http://localhost:5173",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+  ]
+    .flatMap((value) =>
+      String(value).split(","),
+    )
+    .map((value) => value.trim())
+    .filter(Boolean),
+);
+
 app.use(
   cors({
-    origin:
-      process.env.FRONTEND_URL ||
-      "http://localhost:5173",
+    origin(origin, callback) {
+      if (
+        !origin ||
+        allowedOrigins.has(origin)
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
 
     credentials: true,
   }),
@@ -118,7 +142,7 @@ app.use(
   patientsRoutes,
 );
 
-app.get("/", async (req, res) => {
+const sendHealth = async (req, res) => {
   try {
     const result =
       await pool.query(
@@ -130,7 +154,7 @@ app.get("/", async (req, res) => {
         "API Agenda Odontológica funcionando",
 
       database:
-        "Neon PostgreSQL conectado",
+        "PostgreSQL conectado",
 
       time:
         result.rows[0].now,
@@ -143,7 +167,33 @@ app.get("/", async (req, res) => {
         "Error conectando con la base de datos",
     });
   }
-});
+};
+
+app.get("/api/health", sendHealth);
+
+const frontendDist = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../frontend/dist",
+);
+
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+
+  app.use((req, res, next) => {
+    if (
+      req.method !== "GET" ||
+      req.path.startsWith("/api")
+    ) {
+      return next();
+    }
+
+    res.sendFile(
+      path.join(frontendDist, "index.html"),
+    );
+  });
+} else {
+  app.get("/", sendHealth);
+}
 
 app.use(
   (error, req, res, next) => {
